@@ -15,6 +15,7 @@ app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: false }));
 //static files
 app.use(express_1.default.static(path_1.default.join(__dirname, 'frontend-src')));
+app.use(express_1.default.static('build'));
 // routes
 app.use(require('./routes/index.routes'));
 (() => {

@@ -13,7 +13,7 @@ app.use(express.urlencoded({extended:false}));
 
 //static files
 app.use(express.static(path.join(__dirname, 'frontend-src')));
-app.use(express.static('build'));
+app.use(express.static(path.join(__dirname, 'build')));
 
 // routes
 app.use(require('./routes/index.routes'));

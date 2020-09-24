@@ -1,10 +1,11 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
 //const Vivienda = require('../model/Vivienda');
 //const User = require('../model/User');
 //const Mayor = require('../model/Mayor');
 //const passport = require('passport');
 //const env = require('../env.json');
+
 
 router.get('/', (_, res) => res.send("Ok get /"));
 router.get('/register', async (_, res) => {res.send("Register")});

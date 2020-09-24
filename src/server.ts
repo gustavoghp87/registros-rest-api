@@ -1,7 +1,8 @@
-const express = require('express');
+//const express = require('express');
+import express from 'express';
+import path from 'path';
+import morgan from 'morgan';
 const app = express();
-const path = require('path');
-const morgan = require('morgan');
 
 const port = process.env.PORT || 4005;
 

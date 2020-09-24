@@ -4,9 +4,11 @@
   "description": "REST API",
   "main": ".build/server.js",
   "scripts": {
-    "start": "node ./build/server.js",
+    "tsc": "tsc",
     "build": "tsc",
-    "dev": "concurrently \"tsc -w\" \"nodemon build/server.js\""
+    "start": "node ./build/server.js",
+    "dev": "concurrently \"tsc -w\" \"nodemon build/server.js\"",
+    "postinstall": "npm run tsc"
   },
   "engines": {
     "node": "14.x"

@@ -4,8 +4,8 @@
   "description": "REST API",
   "main": ".build/server.js",
   "scripts": {
-    "build": "tsc",
     "start": "node ./build/server.js",
+    "build": "tsc",
     "dev": "concurrently \"tsc -w\" \"nodemon build/server.js\""
   },
   "engines": {

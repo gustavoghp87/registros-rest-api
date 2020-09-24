@@ -8,6 +8,9 @@
     "start": "node ./build/server.js",
     "dev": "concurrently \"tsc -w\" \"nodemon build/server.js\""
   },
+  "engines": {
+    "node": "14.x"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gustavoghp87/registros-rest-api.git"

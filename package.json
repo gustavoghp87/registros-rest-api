@@ -23,15 +23,13 @@
   },
   "homepage": "https://github.com/gustavoghp87/registros-rest-api#readme",
   "dependencies": {
-    "@types/express": "^4.17.8",
-    "@types/node": "^14.11.2",
     "concurrently": "^5.3.0",
     "express": "^4.17.1",
-    "typescript": "^4.0.3"
-  },
-  "devDependencies": {
-    "@types/morgan": "^1.9.1",
     "morgan": "^1.10.0",
-    "nodemon": "^2.0.4"
+    "typescript": "^4.0.3",
+    "nodemon": "^2.0.4",
+    "@types/express": "^4.17.8",
+    "@types/node": "^14.11.2",
+    "@types/morgan": "^1.9.1"
   }
 }

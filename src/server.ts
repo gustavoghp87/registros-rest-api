@@ -7,10 +7,11 @@ const app = express();
 const port = process.env.PORT || 4005;
 
 // middlewares
-app.use(morgan('dev'));
 app.use(cors());
+app.use(express.urlencoded({extended:true}));
 app.use(express.json());
-app.use(express.urlencoded({extended:false}));
+app.use(morgan('dev'));
+
 
 //static files
 app.use(express.static(path.join(__dirname, 'frontend-src')));

@@ -2,10 +2,10 @@
   "name": "registros-rest-api",
   "version": "1.0.0",
   "description": "REST API",
-  "main": ".src/server.js",
+  "main": ".build/server.js",
   "scripts": {
-    "dev": "nodemon src/server.ts",
-    "dev2": "concurrently \"tsc -w\" \"nodemon build/server.js\""
+    "build": "tsc",
+    "start": "concurrently \"tsc -w\" \"nodemon build/server.js\""
   },
   "repository": {
     "type": "git",

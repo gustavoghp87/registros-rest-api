@@ -17,7 +17,11 @@ router.post('/login', (req, res) => { res.send("login post"); });
 router.get('/logout', (req, res) => { res.send("logout"); });
 router.get('/admins', async (req, res) => { res.send("admins"); });
 router.get('/territorios', async (req, res) => {
-    res.json({ territorios: ["a", "b", "c"] });
+    let territorios = [];
+    for (let i = 1; i <= 56; i++) {
+        territorios.push(i);
+    }
+    res.json({ territorios });
 });
 router.get('/territorios/:terri/:manzana', async (req, res) => { res.send("territorios"); });
 router.get('/territorios/:terri/:manzana/nopred', async (req, res) => { res.send("territorios"); });

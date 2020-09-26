@@ -13,6 +13,6 @@ exports.client = new MongoClient(process.env.DB_URL, {
 });
 (async () => {
     await exports.client.connect();
-    const consulta = await exports.client.db("Misericordia-Web").collection('usuarios').findOne();
-    console.log(consulta);
+    // const consulta = await client.db("Misericordia-Web").collection('usuarios').findOne()
+    //console.log(consulta);
 })();

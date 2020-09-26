@@ -1,5 +1,7 @@
 import express from 'express';
 const router = express.Router();
+//import { auth } from '../controllers/auth';
+
 //const Vivienda = require('../model/Vivienda');
 //const User = require('../model/User');
 //const Mayor = require('../model/Mayor');

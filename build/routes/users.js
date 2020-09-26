@@ -19,16 +19,18 @@ const searchUserByEmail = (email) => {
     const User = database_1.client.db("Misericordia-Web").collection('usuarios').findOne({ email });
     return User;
 };
-const searchUserByToken = (newToken) => {
-    const User = database_1.client.db("Misericordia-Web").collection('usuarios').findOne({ newToken });
+const searchUserByToken = (newtoken) => {
+    const User = database_1.client.db("Misericordia-Web").collection('usuarios').findOne({ newtoken });
     return User;
 };
 const addTokenToUser = (email, token) => {
     try {
-        database_1.client.db("Misericordia-Web").collection('usuarios').updateOne({ email }, { $set: { newToken: token } });
+        database_1.client.db("Misericordia-Web").collection('usuarios').updateOne({ email }, { $set: { newtoken: token } });
+        console.log(("Token agregado a db correctamente"));
         return true;
     }
-    catch {
+    catch (error) {
+        console.log("Error al intentar agregar token a db...", error);
         return false;
     }
 };
@@ -36,17 +38,19 @@ router.post('/register', async (_, res) => { res.send("Register"); });
 const auth = async (req, res, next) => {
     // recibe usuario, se busca el token en cookie en la db
     // si es afirmativo, se colocan user y token en req,  y next
-    // const user = await searchUserByToken(req.cookie.newToken);
+    // const user = await searchUserByToken(req.cookie.newtoken);
     // if (user) {
     //     req.user = user;
-    //     req.token = req.cookie.newToken;
+    //     req.token = req.cookie.newtoken;
     //     next();
     // }
 };
 router.get('/auth', async (req, res) => {
-    console.log("PASANDO POR /AUTH cookies....", req.cookies);
+    let token = req.cookies.newtoken || "abcde";
+    console.log("PASANDO POR /AUTH cookies....", req.cookies.newtoken, req.newtoken, token);
+    console.log(req.cookies, req.headers.newtoken);
     try {
-        const user = await searchUserByToken(req.cookies.newToken);
+        const user = await searchUserByToken(token);
         if (user) {
             let userData = {
                 _id: user._id,
@@ -63,11 +67,16 @@ router.get('/auth', async (req, res) => {
             res.status(200).json({ userData });
         }
         else {
+            console.log("USUARIO NO ENCONTRADO POR TOKEN");
             res.status(200).json({ isAuth: false });
         }
     }
     catch {
-        console.log("Error al pasar por /auth");
+        console.log("Error 1 al pasar por /auth", token);
+        try {
+            console.log("Error 2 al pasar por /auth", token);
+        }
+        catch { }
     }
     ;
 });
@@ -84,10 +93,21 @@ router.post('/login', async (req, res) => {
     console.log(compare);
     const jwt_string = process.env.STRING_JWT || "ñmksdfpsdmfbpmfb354fab2sdf";
     if (compare) {
-        const newToken = await jsonwebtoken_1.default.sign({ userId: user._id }, jwt_string, { expiresIn: '2160h' });
-        console.log(newToken);
-        addTokenToUser(user.email, newToken);
-        res.cookie("newToken", newToken, { maxAge: 1000 * 60 * 10, httpOnly: false }).status(200).json({ loginSuccess: true });
+        const newtoken = await jsonwebtoken_1.default.sign({ userId: user._id }, jwt_string, { expiresIn: '2160h' });
+        console.log(newtoken);
+        addTokenToUser(user.email, newtoken);
+        req.user = user;
+        //req.cookies.newtoken = newtoken;
+        res
+            .cookie("newtoken", newtoken)
+            .status(200)
+            .json({ loginSuccess: true });
+        try {
+            console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!", req.cookies.newtoken);
+        }
+        catch (e) {
+            console.error("No se pudo cargar cookie", e);
+        }
     }
     else {
         console.log("Mal password ...........");
@@ -97,8 +117,9 @@ router.post('/login', async (req, res) => {
 });
 router.get('/logout', async (req, res) => {
     try {
-        console.log("COOKIE AL SALIR", req.cookies);
-        const done = await addTokenToUser(req.cookies.newToken, "");
+        console.log("COOKIE AL SALIR", req.cookies.newtoken);
+        // const done = await addTokenToUser(req.user.email, "");
+        const done = await addTokenToUser("ghp.2120@gmail.com", "");
         res.status(200).json({ response: "ok" });
     }
     catch {

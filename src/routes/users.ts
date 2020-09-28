@@ -4,27 +4,17 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 dotenv.config()
-import { searchUserByEmail, searchUserByToken, addTokenToUser } from '../controllers/functions';
+import { searchUserByEmail, addTokenToUser } from '../controllers/functions';
+// import { cors, corsOptions } from '../server';
 const { auth } = require('../controllers/auth');
+import { IUser } from "../types/types";
+require('../types/types')
 
 
-interface IUser {
-    _id: Object
-    role: number
-    estado: string
-    actividad: Object[]
-    email: string
-    password: string
-    __v?: number
-    group: number
-    isAuth?: boolean
-};
+router.post('/register', async (_:any, res:any) => {res.json()});
 
 
-router.post('/register', async (_:any, res:Response) => {res.json()});
-
-
-router.get('/auth', auth, async (req:Request, res:Response) => {
+router.post('/auth', auth, (req:any, res:any) => {
 
     try {
         let userData:IUser = {
@@ -35,6 +25,7 @@ router.get('/auth', auth, async (req:Request, res:Response) => {
             estado: req.user.estado,
             actividad: req.user.actividad,
             group: req.user.group,
+            asign: req.user.asign,
             isAuth: true
         };
         //console.log(userData);
@@ -53,22 +44,20 @@ router.get('/auth', auth, async (req:Request, res:Response) => {
 
 
 
-router.post('/login', async (req:Request, res) => {
-    
-    const email = req.body.body || "";
-    const password = req.body.password || "";
-    
-    console.log(email, password);
+router.post('/login', async (req:any, res:any) => {
 
-    const user = await searchUserByEmail(req.body.email);
+    console.log(req.body);
+    
+    
+    const email = req.body.email || "";
+    const password = req.body.password || "";
+
+    const user = await searchUserByEmail(email);
 
     if (!user) res.status(200).json({loginSuccess:false})
 
-    console.log(user.password);
-
     const compare = await bcrypt.compare(password, user.password)
-    //const compare = await user.comparePassword(req.body.password)
-    console.log(compare);
+    console.log("COMPARE:", compare);
 
     const jwt_string:string = process.env.STRING_JWT || "ñmksdfpsdmfbpmfbdf651sdfsdsdASagsdASDG354fab2sdf";
 
@@ -77,13 +66,12 @@ router.post('/login', async (req:Request, res) => {
             {userId: user._id },
             jwt_string,
             { expiresIn: '2160h' }
-        )
+        ).slice(-50);
         console.log("\n\nToken creado:", newtoken);
-        addTokenToUser(user.email, newtoken);
+        await addTokenToUser(user.email, newtoken);
 
-        res
-            .cookie("newtoken", newtoken)
-            .status(200)
+       // res.cookie("w_authExp", 160000000);
+        res.cookie("newtoken", newtoken, {signed:false, httpOnly:false})
             .json({loginSuccess: true});
 
     } else {
@@ -93,13 +81,15 @@ router.post('/login', async (req:Request, res) => {
 
 });
 
-router.get('/logout', async (req, res) => {
+router.post('/logout', auth, async (req:any, res:any) => {
     try {
         console.log("COOKIE AL SALIR", req.cookies.newtoken);
         
         // const done = await addTokenToUser(req.user.email, "");
         const done = await addTokenToUser("ghp.2120@gmail.com", "");
-        res.cookie("newtoken", "").status(200).json({response:"ok"});
+        if (done)
+            res.cookie("newtoken", "").status(200).json({response:"ok"});
+        res.status(200).json({response:"Falló cerrar sesión"});
     } catch {
         res.status(200).json({response:"Falló cerrar sesión"});
     }

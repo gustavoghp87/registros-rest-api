@@ -4,17 +4,19 @@ import { searchUserByToken } from '../controllers/functions';
 declare module "express" {
     export interface Request {
         user?: any
-        token?: string
+        token?: any
         newtoken?: string
         cookies?: any
     }
 };
 
+
 const auth = async(req:Request, res:Response, next:NextFunction) => {
 
-    let token = req.cookies.newtoken || "abcde";
 
-    console.log("PASANDO POR /AUTH cookies....", req.cookies.newtoken)    
+    let token = req.body.token.split('newtoken=')[1] || "abcde";
+
+    console.log("PASANDO POR /AUTH cookies....", token)    
 
     const user = await searchUserByToken(token);
 

@@ -1,37 +1,21 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
+import { territorioType } from "../types/types";
+
 const router = express.Router();
-//import { auth } from '../controllers/auth';
-
-//const Vivienda = require('../model/Vivienda');
-//const User = require('../model/User');
-//const Mayor = require('../model/Mayor');
-//const passport = require('passport');
-//const env = require('../env.json');
+const { auth } = require('../controllers/auth');
 
 
-router.get('/territorios', async (req, res) => {
-    let territorios = [];
-    for (let i=1; i<=56; i++) {
-        territorios.push(i)
-    }
+
+router.post('/territorios', auth, async (req:Request, res:Response) => {
+    
+    let territorios = req.user.asign;
+
     res.json({territorios})
 });
 
-type territorioType = {
-    _id: string
-    inner_id: string
-    cuadra_id: string
-    territorio: string
-    manzana: string
-    direccion: string
-    telefono: string
-    estado: string
-    fechaUlt?: string
-    noAbonado?: boolean
-    observaciones?: string
-};
 
-router.get('/getBuildings/:terri', async (req, res) => {
+
+router.post('/getBuildings/:terri', async (req, res) => {
 
     let unterritorio: territorioType[] = [
         {

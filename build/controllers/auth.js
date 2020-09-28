@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const functions_1 = require("../controllers/functions");
 ;
 const auth = async (req, res, next) => {
-    let token = req.cookies.newtoken || "abcde";
-    console.log("PASANDO POR /AUTH cookies....", req.cookies.newtoken);
+    let token = req.body.token.split('newtoken=')[1] || "abcde";
+    console.log("PASANDO POR /AUTH cookies....", token);
     const user = await functions_1.searchUserByToken(token);
     try {
         console.log("Encontrado usuario por cookie,", user.email);

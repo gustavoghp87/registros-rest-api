@@ -5,20 +5,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
-//import { auth } from '../controllers/auth';
-//const Vivienda = require('../model/Vivienda');
-//const User = require('../model/User');
-//const Mayor = require('../model/Mayor');
-//const passport = require('passport');
-//const env = require('../env.json');
-router.get('/territorios', async (req, res) => {
-    let territorios = [];
-    for (let i = 1; i <= 56; i++) {
-        territorios.push(i);
-    }
+const { auth } = require('../controllers/auth');
+router.post('/territorios', auth, async (req, res) => {
+    let territorios = req.user.asign;
     res.json({ territorios });
 });
-router.get('/getBuildings/:terri', async (req, res) => {
+router.post('/getBuildings/:terri', async (req, res) => {
     let unterritorio = [
         {
             "_id": "5f1cf04e21b796c4c63865fd",

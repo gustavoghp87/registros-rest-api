@@ -13,15 +13,15 @@ declare module "express" {
 
 const auth = async(req:Request, res:Response, next:NextFunction) => {
 
-
-    let token = req.body.token.split('newtoken=')[1] || "abcde";
-
-    console.log("PASANDO POR /AUTH cookies....", token)    
-
-    const user = await searchUserByToken(token);
-
     try {
+        let token = req.body.token.split('newtoken=')[1] || "abcde";
+
+        console.log("PASANDO POR /AUTH cookies....", token)    
+
+        const user = await searchUserByToken(token);
+    
         console.log("Encontrado usuario por cookie,", user.email);
+        
         req.token = token;
         req.user = user;
         next();

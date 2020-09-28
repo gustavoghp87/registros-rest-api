@@ -71,7 +71,10 @@ router.post('/login', async (req:any, res:any) => {
         await addTokenToUser(user.email, newtoken);
 
        // res.cookie("w_authExp", 160000000);
-        res.cookie("newtoken", newtoken, {signed:false, httpOnly:false})
+        res
+            .header("Access-Control-Allow-Origin", true)
+            .header("Access-Control-Allow-Headers", "X-Requested-With")
+            .cookie("newtoken", newtoken, {signed:false, httpOnly:false})
             .json({loginSuccess: true});
 
     } else {

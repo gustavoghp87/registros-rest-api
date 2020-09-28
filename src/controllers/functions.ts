@@ -20,3 +20,8 @@ export const addTokenToUser = async (email:string, token:string) => {
         return false
     }
 };
+
+export const searchBuildingsByNumber = async (num:string) => {
+    const terr = await client.db("Misericordia-Web").collection('viviendas').find({territorio:num}).toArray();
+    return terr;
+};

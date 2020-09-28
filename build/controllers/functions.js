@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addTokenToUser = exports.searchUserByToken = exports.searchUserByEmail = void 0;
+exports.searchBuildingsByNumber = exports.addTokenToUser = exports.searchUserByToken = exports.searchUserByEmail = void 0;
 const database_1 = require("./database");
 exports.searchUserByEmail = async (email) => {
     const User = await database_1.client.db("Misericordia-Web").collection('usuarios').findOne({ email });
@@ -20,4 +20,8 @@ exports.addTokenToUser = async (email, token) => {
         console.log("Error al intentar agregar token a db...", error);
         return false;
     }
+};
+exports.searchBuildingsByNumber = async (num) => {
+    const terr = await database_1.client.db("Misericordia-Web").collection('viviendas').find({ territorio: num }).toArray();
+    return terr;
 };

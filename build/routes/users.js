@@ -54,8 +54,9 @@ router.post('/login', async (req, res) => {
         console.log("\n\nToken creado:", newtoken);
         await functions_1.addTokenToUser(user.email, newtoken);
         // res.cookie("w_authExp", 160000000);
-        res.cookie("newtoken", newtoken, { signed: false, httpOnly: false })
-            .json({ loginSuccess: true });
+        res
+            //.cookie("newtoken", newtoken, {signed:false, httpOnly:false})
+            .json({ loginSuccess: true, newtoken });
     }
     else {
         console.log("Mal password ...........");
@@ -65,11 +66,13 @@ router.post('/login', async (req, res) => {
 });
 router.post('/logout', auth, async (req, res) => {
     try {
-        console.log("COOKIE AL SALIR", req.cookies.newtoken);
-        // const done = await addTokenToUser(req.user.email, "");
-        const done = await functions_1.addTokenToUser("ghp.2120@gmail.com", "");
+        // console.log("COOKIE AL SALIR", req.cookies.newtoken);
+        const done = await functions_1.addTokenToUser(req.user.email, "");
         if (done)
-            res.cookie("newtoken", "").status(200).json({ response: "ok" });
+            res
+                //.cookie("newtoken", "")
+                .status(200)
+                .json({ response: "ok" });
         res.status(200).json({ response: "Falló cerrar sesión" });
     }
     catch {

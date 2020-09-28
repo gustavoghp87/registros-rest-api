@@ -3,10 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const functions_1 = require("../controllers/functions");
 ;
 const auth = async (req, res, next) => {
-    let token = req.body.token.split('newtoken=')[1] || "abcde";
-    console.log("PASANDO POR /AUTH cookies....", token);
-    const user = await functions_1.searchUserByToken(token);
     try {
+        let token = req.body.token.split('newtoken=')[1] || "abcde";
+        console.log("PASANDO POR /AUTH cookies....", token);
+        const user = await functions_1.searchUserByToken(token);
         console.log("Encontrado usuario por cookie,", user.email);
         req.token = token;
         req.user = user;

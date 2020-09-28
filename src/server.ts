@@ -23,16 +23,16 @@ app.use(cors());
 //     }
 // };
 app.use(cookieParser());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({extended:true}));
 app.use(express.json());
 app.use(morgan('dev'));
 
 // routes
-// app.all('/', function(req, res, next) {
-//     res.header({"Access-Control-Allow-Origin":true});
-//     res.header("Access-Control-Allow-Headers", "X-Requested-With");
-//     next()
-// });
+app.all('/', function(req, res, next) {
+    res.header({"Access-Control-Allow-Origin":true});
+    res.header("Access-Control-Allow-Headers", "X-Requested-With");
+    next()
+});
 app.use('/api/users', require('./routes/users'));
 app.use('/api/buildings', require('./routes/buildings'));
 

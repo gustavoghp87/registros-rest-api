@@ -76,10 +76,10 @@ router.post('/login', async (req:any, res:any) => {
 
     } else {
         console.log("Mal password ...........");
-        res.status(200).json({loginSuccess: false});
+        res.status(200).json({loginSuccess:false});
     };
-
 });
+
 
 router.post('/logout', auth, async (req:any, res:any) => {
     try {

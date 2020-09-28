@@ -8,6 +8,7 @@ import { searchUserByEmail, addTokenToUser } from '../controllers/functions';
 // import { cors, corsOptions } from '../server';
 const { auth } = require('../controllers/auth');
 import { IUser } from "../types/types";
+import cookieParser from 'cookie-parser';
 require('../types/types')
 
 
@@ -74,8 +75,9 @@ router.post('/login', async (req:any, res:any) => {
         res
             .header("Access-Control-Allow-Origin", true)
             .header("Access-Control-Allow-Headers", "X-Requested-With")
+            .clearCookie("newtoken")
             .cookie("newtoken", newtoken, {signed:false, httpOnly:false})
-            .json({loginSuccess: true});
+            .json({loginSuccess: true, newtoken});
 
     } else {
         console.log("Mal password ...........");

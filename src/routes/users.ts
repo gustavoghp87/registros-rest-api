@@ -31,7 +31,7 @@ router.post('/auth', auth, (req:any, res:any) => {
         };
         //console.log(userData);
 
-        res.status(200).json({userData})
+        res.status(200).json(userData)
 
     } catch {
         console.log("USUARIO NO ENCONTRADO POR TOKEN");

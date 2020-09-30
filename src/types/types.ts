@@ -1,5 +1,4 @@
 
-
 export interface IUser {
     _id: Object
     role: number
@@ -9,7 +8,8 @@ export interface IUser {
     password: string
     __v?: number
     group: number
-    isAuth?: boolean
+    isAuth: boolean
+    isAdmin: boolean
     asign?: number[]
 };
 

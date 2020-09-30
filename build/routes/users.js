@@ -11,10 +11,10 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const functions_1 = require("../controllers/functions");
 // import { cors, corsOptions } from '../server';
-const { auth } = require('../controllers/auth');
-require('../types/types');
-router.post('/register', async (_, res) => { res.json(); });
-router.post('/auth', auth, (req, res) => {
+const { auth, admin } = require('../controllers/auth');
+router
+    .post('/register', async (_, res) => { res.json(); })
+    .post('/auth', auth, (req, res) => {
     try {
         let userData = {
             _id: req.user._id,
@@ -25,10 +25,10 @@ router.post('/auth', auth, (req, res) => {
             actividad: req.user.actividad,
             group: req.user.group,
             asign: req.user.asign,
-            isAuth: true
+            isAuth: true,
+            isAdmin: req.user.role = 1 ? true : false
         };
-        //console.log(userData);
-        res.status(200).json({ userData });
+        res.status(200).json(userData);
     }
     catch {
         console.log("USUARIO NO ENCONTRADO POR TOKEN");
@@ -37,9 +37,8 @@ router.post('/auth', auth, (req, res) => {
         };
         res.status(200).json({ userData });
     }
-    ;
-});
-router.post('/login', async (req, res) => {
+})
+    .post('/login', async (req, res) => {
     console.log(req.body);
     const email = req.body.email || "";
     const password = req.body.password || "";
@@ -62,9 +61,8 @@ router.post('/login', async (req, res) => {
         console.log("Mal password ...........");
         res.status(200).json({ loginSuccess: false });
     }
-    ;
-});
-router.post('/logout', auth, async (req, res) => {
+})
+    .post('/logout', auth, async (req, res) => {
     try {
         // console.log("COOKIE AL SALIR", req.cookies.newtoken);
         const done = await functions_1.addTokenToUser(req.user.email, "");
@@ -78,5 +76,10 @@ router.post('/logout', auth, async (req, res) => {
     catch {
         res.status(200).json({ response: "Falló cerrar sesión" });
     }
+})
+    .post('/getUsers', admin, async (req, res) => {
+    const users = await functions_1.searchAllUsers();
+    // console.log(users);
+    res.status(200).json({ users });
 });
 module.exports = router;

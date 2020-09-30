@@ -1,21 +1,21 @@
-import express, { Response, Request } from 'express';
+import express from 'express';
 const router = express.Router();
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 dotenv.config()
-import { searchUserByEmail, addTokenToUser } from '../controllers/functions';
+import { searchUserByEmail, addTokenToUser, searchAllUsers } from '../controllers/functions';
 // import { cors, corsOptions } from '../server';
-const { auth } = require('../controllers/auth');
+const { auth, admin } = require('../controllers/auth');
 import { IUser } from "../types/types";
-import cookieParser from 'cookie-parser';
-require('../types/types')
 
 
-router.post('/register', async (_:any, res:any) => {res.json()});
+router
+
+.post('/register', async (_:any, res:any) => {res.json()})
 
 
-router.post('/auth', auth, (req:any, res:any) => {
+.post('/auth', auth, (req:any, res:any) => {
 
     try {
         let userData:IUser = {
@@ -27,9 +27,9 @@ router.post('/auth', auth, (req:any, res:any) => {
             actividad: req.user.actividad,
             group: req.user.group,
             asign: req.user.asign,
-            isAuth: true
-        };
-        //console.log(userData);
+            isAuth: true,
+            isAdmin: req.user.role=1 ? true : false
+        }
 
         res.status(200).json(userData)
 
@@ -37,15 +37,15 @@ router.post('/auth', auth, (req:any, res:any) => {
         console.log("USUARIO NO ENCONTRADO POR TOKEN");
         let userData = {
             isAuth: false
-        };
+        }
         res.status(200).json({userData})
-    };
+    }
 
-});
+})
 
 
 
-router.post('/login', async (req:any, res:any) => {
+.post('/login', async (req:any, res:any) => {
 
     console.log(req.body);
     
@@ -68,8 +68,8 @@ router.post('/login', async (req:any, res:any) => {
             jwt_string,
             { expiresIn: '2160h' }
         ).slice(-50);
-        console.log("\n\nToken creado:", newtoken);
-        await addTokenToUser(user.email, newtoken);
+        console.log("\n\nToken creado:", newtoken)
+        await addTokenToUser(user.email, newtoken)
 
        // res.cookie("w_authExp", 160000000);
         res
@@ -77,26 +77,36 @@ router.post('/login', async (req:any, res:any) => {
             .json({loginSuccess: true, newtoken});
 
     } else {
-        console.log("Mal password ...........");
-        res.status(200).json({loginSuccess:false});
-    };
-});
+        console.log("Mal password ...........")
+        res.status(200).json({loginSuccess:false})
+    }
+})
 
 
-router.post('/logout', auth, async (req:any, res:any) => {
+.post('/logout', auth, async (req:any, res:any) => {
     try {
         // console.log("COOKIE AL SALIR", req.cookies.newtoken);
-        const done = await addTokenToUser(req.user.email, "");
+        const done = await addTokenToUser(req.user.email, "")
         if (done)
             res
                 //.cookie("newtoken", "")
                 .status(200)
-                .json({response:"ok"});
-        res.status(200).json({response:"Falló cerrar sesión"});
+                .json({response:"ok"})
+        res.status(200).json({response:"Falló cerrar sesión"})
     } catch {
-        res.status(200).json({response:"Falló cerrar sesión"});
+        res.status(200).json({response:"Falló cerrar sesión"})
     }
-});
+})
+
+
+.post('/getUsers', admin, async (req:any, res:any) => {
+    const users = await searchAllUsers()
+    // console.log(users);
+    
+    res.status(200).json({users})
+})
+
+
 
 
 module.exports = router;

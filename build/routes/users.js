@@ -10,11 +10,9 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const functions_1 = require("../controllers/functions");
-// import { cors, corsOptions } from '../server';
-const { auth, admin } = require('../controllers/auth');
+const auth_1 = require("../controllers/auth");
 router
-    .post('/register', async (_, res) => { res.json(); })
-    .post('/auth', auth, (req, res) => {
+    .post('/auth', auth_1.auth, (req, res) => {
     try {
         let userData = {
             _id: req.user._id,
@@ -42,14 +40,20 @@ router
     console.log(req.body);
     const email = req.body.email || "";
     const password = req.body.password || "";
+    const recaptchaToken = req.body.recaptchaToken || "";
+    const checkRecaptch = await functions_1.checkRecaptchaToken(recaptchaToken);
+    if (!checkRecaptch)
+        return res.status(200).json({ loginSuccess: false, recaptchaFails: true });
     const user = await functions_1.searchUserByEmail(email);
     if (!user)
-        res.status(200).json({ loginSuccess: false });
+        return res.status(200).json({ loginSuccess: false });
+    if (user.estado !== "activado")
+        return res.status(200).json({ loginSuccess: false, disable: true });
     const compare = await bcrypt_1.default.compare(password, user.password);
     console.log("COMPARE:", compare);
     const jwt_string = process.env.STRING_JWT || "ñmksdfpsdmfbpmfbdf651sdfsdsdASagsdASDG354fab2sdf";
     if (compare) {
-        const newtoken = await jsonwebtoken_1.default.sign({ userId: user._id }, jwt_string, { expiresIn: '2160h' }).slice(-50);
+        const newtoken = await jsonwebtoken_1.default.sign({ userId: user._id }, jwt_string, { expiresIn: '2160h' }).slice(-70);
         console.log("\n\nToken creado:", newtoken);
         await functions_1.addTokenToUser(user.email, newtoken);
         // res.cookie("w_authExp", 160000000);
@@ -62,7 +66,7 @@ router
         res.status(200).json({ loginSuccess: false });
     }
 })
-    .post('/logout', auth, async (req, res) => {
+    .post('/logout', auth_1.auth, async (req, res) => {
     try {
         // console.log("COOKIE AL SALIR", req.cookies.newtoken);
         const done = await functions_1.addTokenToUser(req.user.email, "");
@@ -71,15 +75,32 @@ router
                 //.cookie("newtoken", "")
                 .status(200)
                 .json({ response: "ok" });
-        res.status(200).json({ response: "Falló cerrar sesión" });
+        else
+            res.status(200).json({ response: "Falló cerrar sesión" });
     }
     catch {
         res.status(200).json({ response: "Falló cerrar sesión" });
     }
 })
-    .post('/getUsers', admin, async (req, res) => {
+    .post('/getUsers', auth_1.admin, async (req, res) => {
     const users = await functions_1.searchAllUsers();
-    // console.log(users);
     res.status(200).json({ users });
+})
+    .post('/register', async (req, res) => {
+    console.log(req.body);
+    const email = req.body.email || "";
+    const password = req.body.password || "";
+    const group = req.body.group || 0;
+    const recaptchaToken = req.body.recaptchaToken || "";
+    const checkRecaptch = await functions_1.checkRecaptchaToken(recaptchaToken);
+    if (!checkRecaptch)
+        return res.status(200).json({ regSuccess: false, recaptchaFails: true });
+    const busq = await functions_1.searchUserByEmail(email);
+    if (busq)
+        return res.status(200).json({ regSuccess: false, userExists: true });
+    const register = await functions_1.registerUser(email, password, group);
+    if (!register)
+        return res.json({ regSuccess: false });
+    res.status(200).json({ regSuccess: true });
 });
 module.exports = router;

@@ -8,25 +8,25 @@ declare module "express" {
         newtoken?: string
         cookies?: any
     }
-};
+}
 
 
-const auth = async(req:Request, res:Response, next:NextFunction) => {
+export const auth = async(req:Request, res:Response, next:NextFunction) => {
 
     try {
-        let token = req.body.token.split('newtoken=')[1] || "abcde";
+        let token = req.body.token.split('newtoken=')[1] || "abcde"
 
         console.log("PASANDO POR /AUTH cookies....", token)    
 
-        const user = await searchUserByToken(token);
+        const user = await searchUserByToken(token)
     
-        console.log("Encontrado usuario por cookie,", user.email);
+        console.log("Encontrado usuario por cookie,", user.email)
         
-        req.token = token;
-        req.user = user;
-        next();
+        req.token = token
+        req.user = user
+        next()
     } catch {
-        console.log("USUARIO NO ENCONTRADO POR TOKEN");
+        console.log("USUARIO NO ENCONTRADO POR TOKEN")
         let userData = {
             isAuth: false,
             isAdmin: false
@@ -35,25 +35,25 @@ const auth = async(req:Request, res:Response, next:NextFunction) => {
     }
 }
 
-const admin = async(req:Request, res:Response, next:NextFunction) => {
+export const admin = async(req:Request, res:Response, next:NextFunction) => {
 
     try {
-        let token = req.body.token.split('newtoken=')[1] || "abcde";
+        let token = req.body.token.split('newtoken=')[1] || "abcde"
 
         console.log("PASANDO POR /AUTH cookies....", token)    
 
-        const user = await searchUserByToken(token);
+        const user = await searchUserByToken(token)
     
-        console.log("Encontrado usuario por cookie,", user.email);
+        console.log("Encontrado usuario por cookie,", user.email)
         
         if (user.role===1) {
-            req.token = token;
-            req.user = user;
-            next();    
+            req.token = token
+            req.user = user
+            next()
         }
 
     } catch {
-        console.log("USUARIO NO ENCONTRADO POR TOKEN");
+        console.log("USUARIO NO ENCONTRADO POR TOKEN")
         let userData = {
             isAuth: false,
             isAdmin: false
@@ -61,5 +61,3 @@ const admin = async(req:Request, res:Response, next:NextFunction) => {
         res.status(200).json(userData)
     }
 }
-
-module.exports = { auth, admin };

@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.admin = exports.auth = void 0;
 const functions_1 = require("../controllers/functions");
-;
-const auth = async (req, res, next) => {
+exports.auth = async (req, res, next) => {
     try {
         let token = req.body.token.split('newtoken=')[1] || "abcde";
         console.log("PASANDO POR /AUTH cookies....", token);
@@ -21,7 +21,7 @@ const auth = async (req, res, next) => {
         res.status(200).json(userData);
     }
 };
-const admin = async (req, res, next) => {
+exports.admin = async (req, res, next) => {
     try {
         let token = req.body.token.split('newtoken=')[1] || "abcde";
         console.log("PASANDO POR /AUTH cookies....", token);
@@ -42,4 +42,3 @@ const admin = async (req, res, next) => {
         res.status(200).json(userData);
     }
 };
-module.exports = { auth, admin };

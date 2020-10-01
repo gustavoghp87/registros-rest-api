@@ -1,19 +1,16 @@
-import express from 'express';
-const router = express.Router();
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
+import express from 'express'
+const router = express.Router()
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+import dotenv from 'dotenv'
 dotenv.config()
-import { searchUserByEmail, addTokenToUser, searchAllUsers } from '../controllers/functions';
-// import { cors, corsOptions } from '../server';
-const { auth, admin } = require('../controllers/auth');
-import { IUser } from "../types/types";
+import { searchUserByEmail, addTokenToUser, searchAllUsers, checkRecaptchaToken, registerUser }
+    from '../controllers/functions'
+import { auth, admin } from '../controllers/auth'
+import { IUser } from '../types/types'
 
 
 router
-
-.post('/register', async (_:any, res:any) => {res.json()})
-
 
 .post('/auth', auth, (req:any, res:any) => {
 
@@ -34,7 +31,7 @@ router
         res.status(200).json(userData)
 
     } catch {
-        console.log("USUARIO NO ENCONTRADO POR TOKEN");
+        console.log("USUARIO NO ENCONTRADO POR TOKEN")
         let userData = {
             isAuth: false
         }
@@ -47,27 +44,30 @@ router
 
 .post('/login', async (req:any, res:any) => {
 
-    console.log(req.body);
+    console.log(req.body)
     
-    
-    const email = req.body.email || "";
-    const password = req.body.password || "";
+    const email = req.body.email || ""
+    const password = req.body.password || ""
+    const recaptchaToken = req.body.recaptchaToken || ""
 
-    const user = await searchUserByEmail(email);
+    const checkRecaptch = await checkRecaptchaToken(recaptchaToken)
+    if (!checkRecaptch) return res.status(200).json({loginSuccess:false, recaptchaFails:true})
 
-    if (!user) res.status(200).json({loginSuccess:false})
+    const user = await searchUserByEmail(email)
+    if (!user) return res.status(200).json({loginSuccess:false})
+    if (user.estado!=="activado") return res.status(200).json({loginSuccess:false, disable:true})
 
     const compare = await bcrypt.compare(password, user.password)
-    console.log("COMPARE:", compare);
+    console.log("COMPARE:", compare)
 
-    const jwt_string:string = process.env.STRING_JWT || "ñmksdfpsdmfbpmfbdf651sdfsdsdASagsdASDG354fab2sdf";
+    const jwt_string:string = process.env.STRING_JWT || "ñmksdfpsdmfbpmfbdf651sdfsdsdASagsdASDG354fab2sdf"
 
     if (compare) {
         const newtoken = await jwt.sign(
             {userId: user._id },
             jwt_string,
             { expiresIn: '2160h' }
-        ).slice(-50);
+        ).slice(-70);
         console.log("\n\nToken creado:", newtoken)
         await addTokenToUser(user.email, newtoken)
 
@@ -92,7 +92,7 @@ router
                 //.cookie("newtoken", "")
                 .status(200)
                 .json({response:"ok"})
-        res.status(200).json({response:"Falló cerrar sesión"})
+        else res.status(200).json({response:"Falló cerrar sesión"})
     } catch {
         res.status(200).json({response:"Falló cerrar sesión"})
     }
@@ -100,10 +100,30 @@ router
 
 
 .post('/getUsers', admin, async (req:any, res:any) => {
-    const users = await searchAllUsers()
-    // console.log(users);
-    
+    const users = await searchAllUsers()    
     res.status(200).json({users})
+})
+
+
+.post('/register', async (req:any, res:any) => {
+
+    console.log(req.body)
+    
+    const email = req.body.email || ""
+    const password = req.body.password || ""
+    const group = req.body.group || 0
+    const recaptchaToken = req.body.recaptchaToken || ""
+
+    const checkRecaptch = await checkRecaptchaToken(recaptchaToken)
+    if (!checkRecaptch) return res.status(200).json({regSuccess:false, recaptchaFails:true})
+
+    const busq = await searchUserByEmail(email)
+    if (busq) return res.status(200).json({regSuccess:false, userExists:true})
+
+    const register = await registerUser(email, password, group)
+    if (!register) return res.json({regSuccess:false})
+
+    res.status(200).json({regSuccess:true})
 })
 
 

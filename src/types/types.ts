@@ -1,6 +1,6 @@
 
 export interface IUser {
-    _id: Object
+    _id?: Object
     role: number
     estado: string
     actividad: Object[]
@@ -11,10 +11,10 @@ export interface IUser {
     isAuth: boolean
     isAdmin: boolean
     asign?: number[]
-};
+}
 
 export type territorioType = {
-    _id: string
+    _id?: string
     inner_id: string
     cuadra_id: string
     territorio: string
@@ -23,7 +23,6 @@ export type territorioType = {
     telefono: string
     estado: string
     fechaUlt?: string
-    noAbonado?: boolean
-    observaciones?: string
-};
+    noAbonado: boolean
+}
 

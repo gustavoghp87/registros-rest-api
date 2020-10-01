@@ -1,7 +1,8 @@
-import dotenv from 'dotenv';
+import dotenv from 'dotenv'
 dotenv.config()
 
-const MongoClient = require('mongodb').MongoClient;
+
+const MongoClient = require('mongodb').MongoClient
 
 export const client = new MongoClient( process.env.DB_URL,
     {
@@ -11,7 +12,5 @@ export const client = new MongoClient( process.env.DB_URL,
 );
 
 (async () => {
-    await client.connect();
-    // const consulta = await client.db("Misericordia-Web").collection('usuarios').findOne()
-    //console.log(consulta);
-})();
+    await client.connect()
+})()

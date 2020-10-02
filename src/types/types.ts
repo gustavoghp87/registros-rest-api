@@ -4,13 +4,15 @@ export interface IVivienda {
     inner_id: string
     territorio: string
     manzana: string
-    cuadra: string
     direccion: string
     telefono: string
-    estado: string
+    estado: typeEstado
     noAbonado: boolean
     fechaUlt?: string
 }
+
+export type typeEstado = "No predicado" | "No contestó" | "Contestó" | "No llamar" | "A dejar carta"
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -31,7 +33,6 @@ export interface IUser {
 export type territorioType = {
     _id?: string
     inner_id: string
-    cuadra_id: string
     territorio: string
     manzana: string
     direccion: string
@@ -40,4 +41,3 @@ export type territorioType = {
     fechaUlt?: string
     noAbonado: boolean
 }
-

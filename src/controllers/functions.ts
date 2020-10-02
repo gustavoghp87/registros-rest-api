@@ -78,16 +78,16 @@ export const checkRecaptchaToken = async (token:string) => {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-export const searchBuildingsByNumber = async (num:string) => {
-    console.log("Buscando viviendas por inner_id", num);
-    const terr = await client.db(dbMW).collection(collTerr)
-        .find({territorio:num}).toArray()
-    return terr
+export const searchBuildingsByTerritory = async (terr:String) => {
+    console.log("Buscando viviendas por territorio", terr);
+    const viviendas = await client.db(dbMW).collection(collTerr)
+        .find({territorio:terr}).toArray()
+    return viviendas
 }
 
 export const searchBuildingByNumber = async (num:string) => {
     console.log("Buscando vivienda por inner_id", num);
-    const terr = await client.db(dbMW).collection(collTerr)
-        .findOne({territorio:num})
-    return terr
+    const vivienda = await client.db(dbMW).collection(collTerr)
+        .findOne({inner_id:num})
+    return vivienda
 }

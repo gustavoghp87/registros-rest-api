@@ -14,17 +14,6 @@ const port = process.env.PORT || 4005;
 require('./controllers/database');
 // middlewares
 exports.app.use(cors_1.default());
-// const whitelist = ['http://localhost:3000'];
-// export const corsOptions = {
-//     'Access-Control-Allow-Credentials': true,
-//     origin: function (origin:any, callback:any) {
-//         if(whitelist.indexOf(origin) !== -1) {
-//             callback(null, true);
-//         } else {
-//             callback(new Error('Not allowed by CORS'));
-//         };
-//     }
-// };
 exports.app.use(cookie_parser_1.default());
 exports.app.use(express_1.default.urlencoded({ extended: true }));
 exports.app.use(express_1.default.json());
@@ -50,5 +39,4 @@ exports.app.use(express_1.default.static(path_1.default.join(__dirname, 'build')
     catch (error) {
         console.log(error);
     }
-    ;
 })();

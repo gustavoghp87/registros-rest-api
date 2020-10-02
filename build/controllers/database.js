@@ -16,4 +16,5 @@ exports.client = new MongoClient(process.env.DB_URL, {
 });
 (async () => {
     await exports.client.connect();
+    console.log("DB connected");
 })();

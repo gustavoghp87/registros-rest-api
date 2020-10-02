@@ -24,6 +24,19 @@ interface IActivar {
     }
 }
 
+interface IAvivienda {
+    input: {
+        inner_id: string
+        territorio: string
+        manzana: string
+        direccion: string
+        telefono: string
+        estado?: string
+        noAbonado?: boolean
+        fechaUlt?: string
+    }
+}
+
 
 module.exports = {
     cambiarEstado: async (root:any, { input }:ICambiar) => {
@@ -35,8 +48,8 @@ module.exports = {
             const viviendaNuevoEstado = await functions.searchBuildingByNumber(input.inner_id)
             return viviendaNuevoEstado
         } catch (error) {
-            console.log(error);
-            return `Error cambiando estado, ${Date.now().toLocaleString()}`
+            console.log(error, `${Date.now().toLocaleString()}`);
+            return `Error cambiando estado`
         }
     },
     cambiarNoAbonado: async (root:any, { input }:ICambiar) => {
@@ -48,8 +61,8 @@ module.exports = {
             const viviendaNoAbon = await functions.searchBuildingByNumber(input.inner_id)
             return viviendaNoAbon
         } catch (error) {
-            console.log(error)
-            return `Error cambiando estado, ${Date.now().toLocaleString()}`
+            console.log(error, `${Date.now().toLocaleString()}`)
+            return `Error cambiando estado`
         }
     },
     asignar: async (root:any, { input }:IAsign) => {
@@ -66,8 +79,8 @@ module.exports = {
             }
             return user
         } catch (error) {
-            console.log(error)
-            return `Error asignando territorio, ${Date.now().toLocaleString()}`
+            console.log(error, `${Date.now().toLocaleString()}`)
+            return `Error asignando territorio`
         }
     },
     desasignar: async (root:any, { input }:IAsign) => {
@@ -83,8 +96,8 @@ module.exports = {
             }
             return user
         } catch (error) {
-            console.log(error)
-            return `Error desasignando territorio, ${Date.now().toLocaleString()}`
+            console.log(error, `${Date.now().toLocaleString()}`)
+            return `Error desasignando territorio`
         }
     },
     activar: async (root:any, { input }:IActivar) => {
@@ -100,8 +113,8 @@ module.exports = {
             }
             return user
         } catch (error) {
-            console.log(error)
-            return `Error activando usuario, ${Date.now().toLocaleString()}`
+            console.log(error, `${Date.now().toLocaleString()}`)
+            return `Error activando usuario`
         }
     },
     desactivar: async (root:any, { input }:IActivar) => {
@@ -117,8 +130,8 @@ module.exports = {
             }
             return user
         } catch (error) {
-            console.log(error)
-            return `Error desactivando usuario, ${Date.now().toLocaleString()}`
+            console.log(error, `${Date.now().toLocaleString()}`)
+            return `Error desactivando usuario`
         }
     },
     hacerAdmin: async (root:any, { input }:IActivar) => {
@@ -134,8 +147,8 @@ module.exports = {
             }
             return user
         } catch (error) {
-            console.log(error)
-            return `Error activando usuario, ${Date.now().toLocaleString()}`
+            console.log(error, `${Date.now().toLocaleString()}`)
+            return `Error activando usuario`
         }
     },
     deshacerAdmin: async (root:any, { input }:IActivar) => {
@@ -151,8 +164,43 @@ module.exports = {
             }
             return user
         } catch (error) {
-            console.log(error)
-            return `Error desactivando usuario, ${Date.now().toLocaleString()}`
+            console.log(error, `${Date.now().toLocaleString()}`)
+            return `Error desactivando usuario`
+        }
+    },
+    agregarVivienda: async (root:any, { input }:IAvivienda) => {
+        try {
+            let inner_id = "24878"
+            let busqMayor = true
+            while (busqMayor) {
+                inner_id = (parseInt(inner_id) + 1).toString()
+                busqMayor = await functions.searchBuildingByNumber(inner_id)
+            }
+            console.log("El inner_id que sige es ", inner_id);
+            
+            const estado = input.estado ? input.estado : "No predicado"
+            const noAbonado = input.noAbonado ? input.noAbonado : false
+            const fechaUlt = input.estado || input.noAbonado ? Date.now() : null
+
+            await client.db(dbMW).collection(collTerr).insertOne({
+                inner_id,
+                territorio: input.territorio,
+                manzana: input.manzana,
+                direccion: input.direccion,
+                telefono: input.telefono,
+                estado,
+                noAbonado,
+                fechaUlt
+            })
+
+            const viviendaNueva = await functions.searchBuildingByNumber(inner_id)
+            console.log(viviendaNueva)
+
+            return viviendaNueva
+
+        } catch (error) {
+            console.log(error, `${Date.now().toLocaleString()}`)
+            return `Error agregando vivienda`
         }
     }
 }

@@ -13,7 +13,7 @@ const typeDefs = readFileSync(
 
 const schema = makeExecutableSchema({typeDefs, resolvers})
 
-router.use('/graphql', graphqlHTTP({
+router.use('/', graphqlHTTP({
     schema: schema,
     rootValue: resolvers,
     graphiql: true

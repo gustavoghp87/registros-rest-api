@@ -12,7 +12,7 @@ const router = express_1.default.Router();
 const resolvers = require('./resolvers');
 const typeDefs = fs_1.readFileSync(path_1.join(__dirname, "schema.graphql"), 'utf-8');
 const schema = graphql_tools_1.makeExecutableSchema({ typeDefs, resolvers });
-router.use('/graphql', express_graphql_1.graphqlHTTP({
+router.use('/', express_graphql_1.graphqlHTTP({
     schema: schema,
     rootValue: resolvers,
     graphiql: true

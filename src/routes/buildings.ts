@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import { territorioType } from "../types/types";
-import { searchBuildingsByNumber } from '../controllers/functions';
+import * as functions from '../controllers/functions';
 
 const router = express.Router();
 const { auth } = require('../controllers/auth');
@@ -16,7 +16,7 @@ router
 
 
 .post('/getBuildings/:terri', async (req, res) => {
-    const territorio = await searchBuildingsByNumber(req.params.terri)
+    const territorio = await functions.searchBuildingByNumber(req.params.terri)
     let unterritorio:territorioType[] = territorio;
     res.status(200).json({unterritorio});
 })

@@ -4,9 +4,10 @@ type typeVivienda {
     inner_id: String
     manzana: String
     territorio: String
+    telefono: String
     direccion: String
     estado: String
-    ultVez: String
+    fechaUlt: String
     noAbonado: Boolean
 }
 
@@ -27,6 +28,29 @@ type typeAdmin {
     role: Int!
 }
 
+type typeActividad {
+    inner_id: String
+    estado: String
+    fechaUlt: String
+    noAbonado: String
+    direccion: String
+    telefono: String
+    territorio: String
+    manzana: String
+}
+
+type typeUser {
+    _id: ID
+    role: Int
+    estado: String
+    actividad: [typeActividad]
+    email: String
+    password: String
+    group: Int
+    isAuth: Boolean
+    isAdmin: Boolean
+    asign: [Int]
+}
 
 
 input inputCambiarEstado {
@@ -50,15 +74,28 @@ input inputActivar {
     user_id: ID!
 }
 
+input inputAvivienda {
+    territorio: String!
+    manzana: String!
+    direccion: String!
+    telefono: String!
+    estado: String
+    noAbonado: Boolean
+    fechaUlt: String
+}
+
 
 # /////////////////////////////////////////////////////////////////////// #
 
 type Query {
-    "Devuelve la primera vivienda"
-    getVivienda: typeVivienda
+    "Devuelve todas las viviendas de un territorio"
+    getApartmentsByTerritory(terr:String!): [typeVivienda]
 
     "Devuelve una vivienda por inner_id"
-    getVivienda2(inner_id:String!): typeVivienda
+    getApartment(inner_id:String!): typeVivienda
+
+    "Devuelve todos los usuarios"
+    getUsers: [typeUser]
 }
 
 
@@ -68,6 +105,9 @@ type Mutation {
 
     "Modifica un no abonado"
     cambiarNoAbonado(input:inputNoAbonado!): typeVivienda
+
+    "Agrega una vivienda"
+    agregarVivienda(input:inputAvivienda!): typeVivienda
 
     "Asigna un territorio a un usuario"
     asignar(input:inputAsignar!): typeAsignado

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.searchBuildingByNumber = exports.searchBuildingsByNumber = exports.checkRecaptchaToken = exports.registerUser = exports.addTokenToUser = exports.searchAllUsers = exports.searchUserByToken = exports.searchUserById = exports.searchUserByEmail = void 0;
+exports.searchBuildingByNumber = exports.searchBuildingsByTerritory = exports.checkRecaptchaToken = exports.registerUser = exports.addTokenToUser = exports.searchAllUsers = exports.searchUserByToken = exports.searchUserById = exports.searchUserByEmail = void 0;
 const database_1 = require("./database");
 const axios_1 = __importDefault(require("axios"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
@@ -70,15 +70,15 @@ exports.checkRecaptchaToken = async (token) => {
     return success;
 };
 ////////////////////////////////////////////////////////////////////////////////////////////////
-exports.searchBuildingsByNumber = async (num) => {
-    console.log("Buscando viviendas por inner_id", num);
-    const terr = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr)
-        .find({ territorio: num }).toArray();
-    return terr;
+exports.searchBuildingsByTerritory = async (terr) => {
+    console.log("Buscando viviendas por territorio", terr);
+    const viviendas = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr)
+        .find({ territorio: terr }).toArray();
+    return viviendas;
 };
 exports.searchBuildingByNumber = async (num) => {
     console.log("Buscando vivienda por inner_id", num);
-    const terr = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr)
-        .findOne({ territorio: num });
-    return terr;
+    const vivienda = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr)
+        .findOne({ inner_id: num });
+    return vivienda;
 };

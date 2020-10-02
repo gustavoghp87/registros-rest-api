@@ -31,8 +31,8 @@ module.exports = {
             return viviendaNuevoEstado;
         }
         catch (error) {
-            console.log(error);
-            return `Error cambiando estado, ${Date.now().toLocaleString()}`;
+            console.log(error, `${Date.now().toLocaleString()}`);
+            return `Error cambiando estado`;
         }
     },
     cambiarNoAbonado: async (root, { input }) => {
@@ -43,8 +43,8 @@ module.exports = {
             return viviendaNoAbon;
         }
         catch (error) {
-            console.log(error);
-            return `Error cambiando estado, ${Date.now().toLocaleString()}`;
+            console.log(error, `${Date.now().toLocaleString()}`);
+            return `Error cambiando estado`;
         }
     },
     asignar: async (root, { input }) => {
@@ -61,8 +61,8 @@ module.exports = {
             return user;
         }
         catch (error) {
-            console.log(error);
-            return `Error asignando territorio, ${Date.now().toLocaleString()}`;
+            console.log(error, `${Date.now().toLocaleString()}`);
+            return `Error asignando territorio`;
         }
     },
     desasignar: async (root, { input }) => {
@@ -77,8 +77,8 @@ module.exports = {
             return user;
         }
         catch (error) {
-            console.log(error);
-            return `Error desasignando territorio, ${Date.now().toLocaleString()}`;
+            console.log(error, `${Date.now().toLocaleString()}`);
+            return `Error desasignando territorio`;
         }
     },
     activar: async (root, { input }) => {
@@ -93,8 +93,8 @@ module.exports = {
             return user;
         }
         catch (error) {
-            console.log(error);
-            return `Error activando usuario, ${Date.now().toLocaleString()}`;
+            console.log(error, `${Date.now().toLocaleString()}`);
+            return `Error activando usuario`;
         }
     },
     desactivar: async (root, { input }) => {
@@ -109,8 +109,8 @@ module.exports = {
             return user;
         }
         catch (error) {
-            console.log(error);
-            return `Error desactivando usuario, ${Date.now().toLocaleString()}`;
+            console.log(error, `${Date.now().toLocaleString()}`);
+            return `Error desactivando usuario`;
         }
     },
     hacerAdmin: async (root, { input }) => {
@@ -125,8 +125,8 @@ module.exports = {
             return user;
         }
         catch (error) {
-            console.log(error);
-            return `Error activando usuario, ${Date.now().toLocaleString()}`;
+            console.log(error, `${Date.now().toLocaleString()}`);
+            return `Error activando usuario`;
         }
     },
     deshacerAdmin: async (root, { input }) => {
@@ -141,8 +141,39 @@ module.exports = {
             return user;
         }
         catch (error) {
-            console.log(error);
-            return `Error desactivando usuario, ${Date.now().toLocaleString()}`;
+            console.log(error, `${Date.now().toLocaleString()}`);
+            return `Error desactivando usuario`;
+        }
+    },
+    agregarVivienda: async (root, { input }) => {
+        try {
+            let inner_id = "24878";
+            let busqMayor = true;
+            while (busqMayor) {
+                inner_id = (parseInt(inner_id) + 1).toString();
+                busqMayor = await functions.searchBuildingByNumber(inner_id);
+            }
+            console.log("El inner_id que sige es ", inner_id);
+            const estado = input.estado ? input.estado : "No predicado";
+            const noAbonado = input.noAbonado ? input.noAbonado : false;
+            const fechaUlt = input.estado || input.noAbonado ? Date.now() : null;
+            await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).insertOne({
+                inner_id,
+                territorio: input.territorio,
+                manzana: input.manzana,
+                direccion: input.direccion,
+                telefono: input.telefono,
+                estado,
+                noAbonado,
+                fechaUlt
+            });
+            const viviendaNueva = await functions.searchBuildingByNumber(inner_id);
+            console.log(viviendaNueva);
+            return viviendaNueva;
+        }
+        catch (error) {
+            console.log(error, `${Date.now().toLocaleString()}`);
+            return `Error agregando vivienda`;
         }
     }
 };

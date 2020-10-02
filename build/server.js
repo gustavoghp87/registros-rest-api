@@ -30,11 +30,12 @@ exports.app.use(express_1.default.urlencoded({ extended: true }));
 exports.app.use(express_1.default.json());
 exports.app.use(morgan_1.default('dev'));
 // routes
-// app.all('/', function(req, res, next) {
-//     res.header({"Access-Control-Allow-Origin":true});
-//     res.header("Access-Control-Allow-Headers", "X-Requested-With");
-//     next()
-// });
+exports.app.all('/', function (req, res, next) {
+    res.header({ "Access-Control-Allow-Origin": true });
+    res.header("Access-Control-Allow-Headers", "X-Requested-With");
+    next();
+});
+exports.app.use('/api/graphql', require('./graphql/gql.index'));
 exports.app.use('/api/users', require('./routes/users'));
 exports.app.use('/api/buildings', require('./routes/buildings'));
 //static files

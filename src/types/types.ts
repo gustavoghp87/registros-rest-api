@@ -1,4 +1,19 @@
 
+export interface IVivienda {
+    _id: Object
+    inner_id: string
+    territorio: string
+    manzana: string
+    cuadra: string
+    direccion: string
+    telefono: string
+    estado: string
+    noAbonado: boolean
+    fechaUlt?: string
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
 export interface IUser {
     _id?: Object
     role: number

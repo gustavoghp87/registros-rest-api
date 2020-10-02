@@ -2,9 +2,8 @@ import express from 'express'
 const router = express.Router()
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import dotenv from 'dotenv'
-dotenv.config()
-import { searchUserByEmail, addTokenToUser, searchAllUsers, checkRecaptchaToken, registerUser }
+import dotenv from 'dotenv'; dotenv.config()
+import * as functions
     from '../controllers/functions'
 import { auth, admin } from '../controllers/auth'
 import { IUser } from '../types/types'
@@ -50,10 +49,10 @@ router
     const password = req.body.password || ""
     const recaptchaToken = req.body.recaptchaToken || ""
 
-    const checkRecaptch = await checkRecaptchaToken(recaptchaToken)
+    const checkRecaptch = await functions.checkRecaptchaToken(recaptchaToken)
     if (!checkRecaptch) return res.status(200).json({loginSuccess:false, recaptchaFails:true})
 
-    const user = await searchUserByEmail(email)
+    const user = await functions.searchUserByEmail(email)
     if (!user) return res.status(200).json({loginSuccess:false})
     if (user.estado!=="activado") return res.status(200).json({loginSuccess:false, disable:true})
 
@@ -69,7 +68,7 @@ router
             { expiresIn: '2160h' }
         ).slice(-70);
         console.log("\n\nToken creado:", newtoken)
-        await addTokenToUser(user.email, newtoken)
+        await functions.addTokenToUser(user.email, newtoken)
 
        // res.cookie("w_authExp", 160000000);
         res
@@ -86,7 +85,7 @@ router
 .post('/logout', auth, async (req:any, res:any) => {
     try {
         // console.log("COOKIE AL SALIR", req.cookies.newtoken);
-        const done = await addTokenToUser(req.user.email, "")
+        const done = await functions.addTokenToUser(req.user.email, "")
         if (done)
             res
                 //.cookie("newtoken", "")
@@ -100,7 +99,7 @@ router
 
 
 .post('/getUsers', admin, async (req:any, res:any) => {
-    const users = await searchAllUsers()    
+    const users = await functions.searchAllUsers()    
     res.status(200).json({users})
 })
 
@@ -114,13 +113,13 @@ router
     const group = req.body.group || 0
     const recaptchaToken = req.body.recaptchaToken || ""
 
-    const checkRecaptch = await checkRecaptchaToken(recaptchaToken)
+    const checkRecaptch = await functions.checkRecaptchaToken(recaptchaToken)
     if (!checkRecaptch) return res.status(200).json({regSuccess:false, recaptchaFails:true})
 
-    const busq = await searchUserByEmail(email)
+    const busq = await functions.searchUserByEmail(email)
     if (busq) return res.status(200).json({regSuccess:false, userExists:true})
 
-    const register = await registerUser(email, password, group)
+    const register = await functions.registerUser(email, password, group)
     if (!register) return res.json({regSuccess:false})
 
     res.status(200).json({regSuccess:true})
@@ -129,4 +128,4 @@ router
 
 
 
-module.exports = router;
+module.exports = router

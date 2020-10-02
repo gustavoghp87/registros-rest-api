@@ -3,25 +3,32 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.searchBuildingsByNumber = exports.checkRecaptchaToken = exports.registerUser = exports.addTokenToUser = exports.searchAllUsers = exports.searchUserByToken = exports.searchUserByEmail = void 0;
+exports.searchBuildingByNumber = exports.searchBuildingsByNumber = exports.checkRecaptchaToken = exports.registerUser = exports.addTokenToUser = exports.searchAllUsers = exports.searchUserByToken = exports.searchUserById = exports.searchUserByEmail = void 0;
 const database_1 = require("./database");
 const axios_1 = __importDefault(require("axios"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const mongodb_1 = require("mongodb");
 exports.searchUserByEmail = async (email) => {
-    const user = await database_1.client.db("Misericordia-Web").collection('usuarios').findOne({ email });
+    const user = await database_1.client.db(database_1.dbMW).collection(database_1.collUsers).findOne({ email });
+    return user;
+};
+exports.searchUserById = async (_id) => {
+    console.log("buscando por id,", _id);
+    const user = await database_1.client.db(database_1.dbMW).collection(database_1.collUsers)
+        .findOne({ _id: new mongodb_1.ObjectId(_id) });
     return user;
 };
 exports.searchUserByToken = async (newtoken) => {
-    const user = await database_1.client.db("Misericordia-Web").collection('usuarios').findOne({ newtoken });
+    const user = await database_1.client.db(database_1.dbMW).collection(database_1.collUsers).findOne({ newtoken });
     return user;
 };
 exports.searchAllUsers = async () => {
-    const users = await database_1.client.db("Misericordia-Web").collection('usuarios').find().toArray();
+    const users = await database_1.client.db(database_1.dbMW).collection(database_1.collUsers).find().toArray();
     return users;
 };
 exports.addTokenToUser = async (email, token) => {
     try {
-        await database_1.client.db("Misericordia-Web").collection('usuarios').updateOne({ email }, { $set: { newtoken: token } });
+        await database_1.client.db(database_1.dbMW).collection(database_1.collUsers).updateOne({ email }, { $set: { newtoken: token } });
         console.log("Token agregado a db correctamente", token);
         return true;
     }
@@ -43,7 +50,7 @@ exports.registerUser = async (email, password, group) => {
         isAdmin: false
     };
     try {
-        await database_1.client.db("Misericordia-Web").collection('usuarios').insertOne(newUser);
+        await database_1.client.db(database_1.dbMW).collection(database_1.collUsers).insertOne(newUser);
         console.log(newUser);
         return true;
     }
@@ -64,7 +71,14 @@ exports.checkRecaptchaToken = async (token) => {
 };
 ////////////////////////////////////////////////////////////////////////////////////////////////
 exports.searchBuildingsByNumber = async (num) => {
-    const terr = await database_1.client.db("Misericordia-Web").collection('viviendas')
+    console.log("Buscando viviendas por inner_id", num);
+    const terr = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr)
         .find({ territorio: num }).toArray();
+    return terr;
+};
+exports.searchBuildingByNumber = async (num) => {
+    console.log("Buscando vivienda por inner_id", num);
+    const terr = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr)
+        .findOne({ territorio: num });
     return terr;
 };

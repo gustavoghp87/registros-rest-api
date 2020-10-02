@@ -1,0 +1,89 @@
+
+type typeVivienda {
+    _id: ID
+    inner_id: String
+    manzana: String
+    territorio: String
+    direccion: String
+    estado: String
+    ultVez: String
+    noAbonado: Boolean
+}
+
+type typeAsignado {
+    email: String!
+    asign: [Int]!
+}
+
+type typeActivado {
+    _id: ID!
+    email: String!
+    estado: String!
+}
+
+type typeAdmin {
+    _id: ID!
+    email: String!
+    role: Int!
+}
+
+
+
+input inputCambiarEstado {
+    inner_id: String!
+    estado: String!
+
+}
+
+input inputNoAbonado {
+    inner_id: String!
+    noAbonado: Boolean!
+
+}
+
+input inputAsignar {
+    user_id: ID!
+    terr: String!
+}
+
+input inputActivar {
+    user_id: ID!
+}
+
+
+# /////////////////////////////////////////////////////////////////////// #
+
+type Query {
+    "Devuelve la primera vivienda"
+    getVivienda: typeVivienda
+
+    "Devuelve una vivienda por inner_id"
+    getVivienda2(inner_id:String!): typeVivienda
+}
+
+
+type Mutation {
+    "Modifica un estado"
+    cambiarEstado(input:inputCambiarEstado!): typeVivienda
+
+    "Modifica un no abonado"
+    cambiarNoAbonado(input:inputNoAbonado!): typeVivienda
+
+    "Asigna un territorio a un usuario"
+    asignar(input:inputAsignar!): typeAsignado
+
+    "Desasigna un territorio a un usuario"
+    desasignar(input:inputAsignar!): typeAsignado
+
+    "Activa a un usuario registrado"
+    activar(input:inputActivar!): typeActivado
+
+    "Desactiva a un usuario registrado"
+    desactivar(input:inputActivar!): typeActivado
+
+    "Hacer administrador a un usuario"
+    hacerAdmin(input:inputActivar!): typeAdmin
+
+    "Quitar de administrador a un usuario"
+    deshacerAdmin(input:inputActivar!): typeAdmin
+}

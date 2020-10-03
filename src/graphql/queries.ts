@@ -9,7 +9,7 @@ type typeArgs = {
 module.exports = {
 
     getApartmentsByTerritory: async (root:any, args:typeArgs) => {
-        const viviendas = await functions.searchBuildingsByTerritory(args.terr)
+        const viviendas = await functions.searchTerritoryByNumber(args.terr)
         return viviendas
     },
     getApartment: async (root:any, args:typeArgs) => {

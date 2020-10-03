@@ -14,7 +14,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -22,7 +22,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const functions = __importStar(require("../controllers/functions"));
 module.exports = {
     getApartmentsByTerritory: async (root, args) => {
-        const viviendas = await functions.searchBuildingsByTerritory(args.terr);
+        const viviendas = await functions.searchTerritoryByNumber(args.terr);
         return viviendas;
     },
     getApartment: async (root, args) => {

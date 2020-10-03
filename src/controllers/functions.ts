@@ -1,6 +1,6 @@
 import { client, dbMW, collUsers, collTerr } from './database'
 import Axios from 'axios'
-import { IUser } from '../types/types'
+import { typeUser, typeVivienda } from '../types/types'
 import bcrypt from 'bcrypt'
 import { ObjectId } from 'mongodb'
 
@@ -42,7 +42,7 @@ export const registerUser = async (email:string, password:string, group:number) 
 
     const passwordEncrypted = await bcrypt.hash(password, 12)
 
-    const newUser = <IUser> {
+    const newUser = <typeUser> {
         role: 0,
         estado: "desactivado",
         actividad: [],
@@ -88,6 +88,6 @@ export const searchBuildingsByTerritory = async (terr:String) => {
 export const searchBuildingByNumber = async (num:string) => {
     console.log("Buscando vivienda por inner_id", num);
     const vivienda = await client.db(dbMW).collection(collTerr)
-        .findOne({inner_id:num})
+        .find({inner_id:num}).toArray()
     return vivienda
 }

@@ -1,6 +1,5 @@
-import { client, dbMW, collUsers, collTerr } from '../controllers/database'
 import * as functions from '../controllers/functions'
-import { IVivienda } from '../types/types'
+
 
 type typeArgs = {
     terr: string

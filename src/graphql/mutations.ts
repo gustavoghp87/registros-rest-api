@@ -3,7 +3,7 @@ import * as functions from '../controllers/functions'
 import { ObjectId } from 'mongodb'
 
 
-interface ICambiar {
+type typeCambiar = {
     input: {
         inner_id: string
         estado?: string
@@ -11,20 +11,19 @@ interface ICambiar {
     }
 }
 
-interface IAsign {
+type typeAsign = typeActivar & {
     input: {
-        user_id: string
         terr: string
     }
 }
 
-interface IActivar {
+type typeActivar = {
     input: {
         user_id: string
     }
 }
 
-interface IAvivienda {
+type typeAvivienda = {
     input: {
         inner_id: string
         territorio: string
@@ -39,7 +38,7 @@ interface IAvivienda {
 
 
 module.exports = {
-    cambiarEstado: async (root:any, { input }:ICambiar) => {
+    cambiarEstado: async (root:any, { input }:typeCambiar) => {
         try {
             console.log("Cambiando estado,", input.inner_id, input.estado)
             await client.db(dbMW).collection(collTerr).updateOne({inner_id: input.inner_id},
@@ -52,7 +51,7 @@ module.exports = {
             return `Error cambiando estado`
         }
     },
-    cambiarNoAbonado: async (root:any, { input }:ICambiar) => {
+    cambiarNoAbonado: async (root:any, { input }:typeCambiar) => {
         try {
             console.log("Cambiando estado,", input.inner_id, input.noAbonado)
             await client.db(dbMW).collection(collTerr).updateOne({inner_id: input.inner_id},
@@ -65,7 +64,7 @@ module.exports = {
             return `Error cambiando estado`
         }
     },
-    asignar: async (root:any, { input }:IAsign) => {
+    asignar: async (root:any, { input }:typeAsign) => {
         try {
             console.log(`Asignando territorio ${input.terr} a ${input.user_id}`);
             console.log(typeof input.user_id)
@@ -83,7 +82,7 @@ module.exports = {
             return `Error asignando territorio`
         }
     },
-    desasignar: async (root:any, { input }:IAsign) => {
+    desasignar: async (root:any, { input }:typeAsign) => {
         try {
             console.log(`Desasignando territorio ${input.terr} a ${input.user_id}`);
             await client.db(dbMW).collection(collUsers).updateOne({_id: new ObjectId(input.user_id)},
@@ -100,7 +99,7 @@ module.exports = {
             return `Error desasignando territorio`
         }
     },
-    activar: async (root:any, { input }:IActivar) => {
+    activar: async (root:any, { input }:typeActivar) => {
         try {
             await client.db(dbMW).collection(collUsers).updateOne({_id: new ObjectId(input.user_id)},
                 {$set: {estado: "activado"}}
@@ -117,7 +116,7 @@ module.exports = {
             return `Error activando usuario`
         }
     },
-    desactivar: async (root:any, { input }:IActivar) => {
+    desactivar: async (root:any, { input }:typeActivar) => {
         try {
             await client.db(dbMW).collection(collUsers).updateOne({_id: new ObjectId(input.user_id)},
                 {$set: {estado: "desactivado"}}
@@ -134,7 +133,7 @@ module.exports = {
             return `Error desactivando usuario`
         }
     },
-    hacerAdmin: async (root:any, { input }:IActivar) => {
+    hacerAdmin: async (root:any, { input }:typeActivar) => {
         try {
             await client.db(dbMW).collection(collUsers).updateOne({_id: new ObjectId(input.user_id)},
                 {$set: {role: 1}}
@@ -151,7 +150,7 @@ module.exports = {
             return `Error activando usuario`
         }
     },
-    deshacerAdmin: async (root:any, { input }:IActivar) => {
+    deshacerAdmin: async (root:any, { input }:typeActivar) => {
         try {
             await client.db(dbMW).collection(collUsers).updateOne({_id: new ObjectId(input.user_id)},
                 {$set: {role: 0}}
@@ -168,7 +167,7 @@ module.exports = {
             return `Error desactivando usuario`
         }
     },
-    agregarVivienda: async (root:any, { input }:IAvivienda) => {
+    agregarVivienda: async (root:any, { input }:typeAvivienda) => {
         try {
             let inner_id = "24878"
             let busqMayor = true

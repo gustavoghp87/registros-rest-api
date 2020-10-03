@@ -6,7 +6,7 @@ import dotenv from 'dotenv'; dotenv.config()
 import * as functions
     from '../controllers/functions'
 import { auth, admin } from '../controllers/auth'
-import { IUser } from '../types/types'
+import { typeUser } from '../types/types'
 
 
 router
@@ -14,7 +14,7 @@ router
 .post('/auth', auth, (req:any, res:any) => {
 
     try {
-        let userData:IUser = {
+        let userData:typeUser = {
             _id: req.user._id,
             role: req.user.role,
             email: req.user.email,

@@ -79,6 +79,6 @@ exports.searchBuildingsByTerritory = async (terr) => {
 exports.searchBuildingByNumber = async (num) => {
     console.log("Buscando vivienda por inner_id", num);
     const vivienda = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr)
-        .findOne({ inner_id: num });
+        .find({ inner_id: num }).toArray();
     return vivienda;
 };

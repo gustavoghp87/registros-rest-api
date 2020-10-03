@@ -1,5 +1,5 @@
 
-export interface IVivienda {
+export type typeVivienda = {
     _id: Object
     inner_id: string
     territorio: string
@@ -16,7 +16,7 @@ export type typeEstado = "No predicado" | "No contestó" | "Contestó" | "No lla
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-export interface IUser {
+export type typeUser = {
     _id?: Object
     role: number
     estado: string

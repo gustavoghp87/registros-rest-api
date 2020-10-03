@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.app = void 0;
+exports.NODE_ENV = exports.app = void 0;
 const express_1 = __importDefault(require("express"));
 const path_1 = __importDefault(require("path"));
 const morgan_1 = __importDefault(require("morgan"));
@@ -11,6 +11,7 @@ const cors_1 = __importDefault(require("cors"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 exports.app = express_1.default();
 const port = process.env.PORT || 4005;
+exports.NODE_ENV = process.env.NODE_ENV || "dev";
 require('./controllers/database');
 // middlewares
 exports.app.use(cors_1.default());

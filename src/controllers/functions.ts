@@ -78,7 +78,7 @@ export const checkRecaptchaToken = async (token:string) => {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-export const searchBuildingsByTerritory = async (terr:String) => {
+export const searchTerritoryByNumber = async (terr:String) => {
     console.log("Buscando viviendas por territorio", terr);
     const viviendas = await client.db(dbMW).collection(collTerr)
         .find({territorio:terr}).toArray()

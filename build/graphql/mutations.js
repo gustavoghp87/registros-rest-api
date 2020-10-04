@@ -14,17 +14,21 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const database_1 = require("../controllers/database");
 const functions = __importStar(require("../controllers/functions"));
+const auth_1 = require("../controllers/auth");
 const mongodb_1 = require("mongodb");
 module.exports = {
     cambiarEstado: async (root, { input }) => {
         try {
+            const userAuth = await auth_1.authGraph(input.token);
+            if (!userAuth)
+                return null;
             console.log("Cambiando estado,", input.inner_id, input.estado);
             await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).updateOne({ inner_id: input.inner_id }, { $set: { estado: input.estado, fechaUlt: Date.now() } });
             const viviendaNuevoEstado = await functions.searchBuildingByNumber(input.inner_id);
@@ -37,6 +41,9 @@ module.exports = {
     },
     cambiarNoAbonado: async (root, { input }) => {
         try {
+            const userAuth = await auth_1.authGraph(input.token);
+            if (!userAuth)
+                return null;
             console.log("Cambiando estado,", input.inner_id, input.noAbonado);
             await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).updateOne({ inner_id: input.inner_id }, { $set: { noAbonado: input.noAbonado, fechaUlt: Date.now() } });
             const viviendaNoAbon = await functions.searchBuildingByNumber(input.inner_id);
@@ -49,6 +56,9 @@ module.exports = {
     },
     asignar: async (root, { input }) => {
         try {
+            const userAuth = await auth_1.adminGraph(input.token);
+            if (!userAuth)
+                return null;
             console.log(`Asignando territorio ${input.terr} a ${input.user_id}`);
             console.log(typeof input.user_id);
             await database_1.client.db(database_1.dbMW).collection(database_1.collUsers).updateOne({ _id: new mongodb_1.ObjectId(input.user_id) }, { $addToSet: { asign: parseInt(input.terr) }
@@ -67,6 +77,9 @@ module.exports = {
     },
     desasignar: async (root, { input }) => {
         try {
+            const userAuth = await auth_1.adminGraph(input.token);
+            if (!userAuth)
+                return null;
             console.log(`Desasignando territorio ${input.terr} a ${input.user_id}`);
             await database_1.client.db(database_1.dbMW).collection(database_1.collUsers).updateOne({ _id: new mongodb_1.ObjectId(input.user_id) }, { $pull: { asign: { $in: [parseInt(input.terr)] } } }, { multi: true });
             const busq = await functions.searchUserById(input.user_id);
@@ -83,6 +96,10 @@ module.exports = {
     },
     activar: async (root, { input }) => {
         try {
+            const userAuth = await auth_1.adminGraph(input.token);
+            if (!userAuth)
+                return null;
+            console.log("Activando usuario", input.user_id);
             await database_1.client.db(database_1.dbMW).collection(database_1.collUsers).updateOne({ _id: new mongodb_1.ObjectId(input.user_id) }, { $set: { estado: "activado" } });
             const busq = await functions.searchUserById(input.user_id);
             const user = {
@@ -99,6 +116,10 @@ module.exports = {
     },
     desactivar: async (root, { input }) => {
         try {
+            const userAuth = await auth_1.adminGraph(input.token);
+            if (!userAuth)
+                return null;
+            console.log("Desactivando usuario", input.user_id);
             await database_1.client.db(database_1.dbMW).collection(database_1.collUsers).updateOne({ _id: new mongodb_1.ObjectId(input.user_id) }, { $set: { estado: "desactivado" } });
             const busq = await functions.searchUserById(input.user_id);
             const user = {
@@ -115,6 +136,10 @@ module.exports = {
     },
     hacerAdmin: async (root, { input }) => {
         try {
+            const userAuth = await auth_1.adminGraph(input.token);
+            if (!userAuth)
+                return null;
+            console.log("Haciendo admin a usuario", input.user_id);
             await database_1.client.db(database_1.dbMW).collection(database_1.collUsers).updateOne({ _id: new mongodb_1.ObjectId(input.user_id) }, { $set: { role: 1 } });
             const busq = await functions.searchUserById(input.user_id);
             const user = {
@@ -131,6 +156,10 @@ module.exports = {
     },
     deshacerAdmin: async (root, { input }) => {
         try {
+            const userAuth = await auth_1.adminGraph(input.token);
+            if (!userAuth)
+                return null;
+            console.log("Deshaciendo admin a usuario", input.user_id);
             await database_1.client.db(database_1.dbMW).collection(database_1.collUsers).updateOne({ _id: new mongodb_1.ObjectId(input.user_id) }, { $set: { role: 0 } });
             const busq = await functions.searchUserById(input.user_id);
             const user = {
@@ -147,6 +176,9 @@ module.exports = {
     },
     agregarVivienda: async (root, { input }) => {
         try {
+            const userAuth = await auth_1.adminGraph(input.token);
+            if (!userAuth)
+                return null;
             let inner_id = "24878";
             let busqMayor = true;
             while (busqMayor) {

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.searchBuildingByNumber = exports.searchTerritoryByNumber = exports.checkRecaptchaToken = exports.registerUser = exports.addTokenToUser = exports.searchAllUsers = exports.searchUserByToken = exports.searchUserById = exports.searchUserByEmail = void 0;
+exports.searchBuildingByNumber = exports.searchTerritoryByNumber = exports.countBlocks = exports.checkRecaptchaToken = exports.registerUser = exports.addTokenToUser = exports.searchAllUsers = exports.searchUserByToken = exports.searchUserById = exports.searchUserByEmail = void 0;
 const database_1 = require("./database");
 const axios_1 = __importDefault(require("axios"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
@@ -19,10 +19,12 @@ exports.searchUserById = async (_id) => {
     return user;
 };
 exports.searchUserByToken = async (newtoken) => {
+    console.log("Buscando por token");
     const user = await database_1.client.db(database_1.dbMW).collection(database_1.collUsers).findOne({ newtoken });
     return user;
 };
 exports.searchAllUsers = async () => {
+    console.log("Buscando a todos los usuarios");
     const users = await database_1.client.db(database_1.dbMW).collection(database_1.collUsers).find().toArray();
     return users;
 };
@@ -70,15 +72,35 @@ exports.checkRecaptchaToken = async (token) => {
     return success;
 };
 ////////////////////////////////////////////////////////////////////////////////////////////////
-exports.searchTerritoryByNumber = async (terr) => {
-    console.log("Buscando viviendas por territorio", terr);
-    const viviendas = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr)
-        .find({ territorio: terr }).toArray();
+exports.countBlocks = async (terr) => {
+    let cantidad = 0, cond = true;
+    do {
+        cantidad = cantidad + 1;
+        console.log("Territorio", terr, "cantidad al entrar al ciclo", cantidad);
+        let busq = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).findOne({
+            territorio: { $in: [terr] },
+            manzana: { $in: [cantidad.toString()] }
+        });
+        if (!busq) {
+            cantidad = cantidad - 1;
+            cond = false;
+        }
+    } while (cond === true);
+    console.log("Cantidad de salida", cantidad);
+    return cantidad;
+};
+exports.searchTerritoryByNumber = async (terr, manzana) => {
+    console.log("Buscando viviendas por territorio", terr, "manzana", manzana);
+    const viviendas = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({
+        territorio: { $in: [terr] },
+        manzana: { $in: [manzana] }
+    }).limit(10).toArray();
     return viviendas;
 };
 exports.searchBuildingByNumber = async (num) => {
     console.log("Buscando vivienda por inner_id", num);
     const vivienda = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr)
-        .find({ inner_id: num }).toArray();
+        .findOne({ inner_id: num });
+    console.log(vivienda);
     return vivienda;
 };

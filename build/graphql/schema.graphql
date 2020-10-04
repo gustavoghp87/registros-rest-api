@@ -1,3 +1,6 @@
+type typeCantidad {
+    cantidad: String
+}
 
 type typeVivienda {
     _id: ID
@@ -12,20 +15,20 @@ type typeVivienda {
 }
 
 type typeAsignado {
-    email: String!
-    asign: [Int]!
+    email: String
+    asign: [Int]
 }
 
 type typeActivado {
-    _id: ID!
-    email: String!
-    estado: String!
+    _id: ID
+    email: String
+    estado: String
 }
 
 type typeAdmin {
-    _id: ID!
-    email: String!
-    role: Int!
+    _id: ID
+    email: String
+    role: Int
 }
 
 type typeActividad {
@@ -54,27 +57,31 @@ type typeUser {
 
 
 input inputCambiarEstado {
+    token: String!
     inner_id: String!
     estado: String!
 
 }
 
 input inputNoAbonado {
+    token: String!
     inner_id: String!
     noAbonado: Boolean!
-
 }
 
 input inputAsignar {
-    user_id: ID!
+    token: String!
+    user_id: String!
     terr: String!
 }
 
 input inputActivar {
-    user_id: ID!
+    token: String!
+    user_id: String!
 }
 
 input inputAvivienda {
+    token: String!
     territorio: String!
     manzana: String!
     direccion: String!
@@ -88,42 +95,45 @@ input inputAvivienda {
 # /////////////////////////////////////////////////////////////////////// #
 
 type Query {
+    "Devuelve la cantidad de manzanas que hay en un territorio"
+    countBlocks(terr:String!): typeCantidad
+
     "Devuelve todas las viviendas de un territorio"
-    getApartmentsByTerritory(terr:String!): [typeVivienda]
+    getApartmentsByTerritory(token:String!, terr:String!, manzana:String!): [typeVivienda]
 
     "Devuelve una vivienda por inner_id"
-    getApartment(inner_id:String!): typeVivienda
+    getApartment(token:String!, inner_id:String!): typeVivienda
 
     "Devuelve todos los usuarios"
-    getUsers: [typeUser]
+    getUsers(token:String!): [typeUser]
 }
 
 
 type Mutation {
     "Modifica un estado"
-    cambiarEstado(input:inputCambiarEstado!): typeVivienda
+    cambiarEstado(input:inputCambiarEstado): typeVivienda
 
     "Modifica un no abonado"
-    cambiarNoAbonado(input:inputNoAbonado!): typeVivienda
+    cambiarNoAbonado(input:inputNoAbonado): typeVivienda
 
     "Agrega una vivienda"
-    agregarVivienda(input:inputAvivienda!): typeVivienda
+    agregarVivienda(input:inputAvivienda): typeVivienda
 
     "Asigna un territorio a un usuario"
-    asignar(input:inputAsignar!): typeAsignado
+    asignar(input:inputAsignar): typeAsignado
 
     "Desasigna un territorio a un usuario"
-    desasignar(input:inputAsignar!): typeAsignado
+    desasignar(input:inputAsignar): typeAsignado
 
     "Activa a un usuario registrado"
-    activar(input:inputActivar!): typeActivado
+    activar(input:inputActivar): typeActivado
 
     "Desactiva a un usuario registrado"
-    desactivar(input:inputActivar!): typeActivado
+    desactivar(input:inputActivar): typeActivado
 
     "Hacer administrador a un usuario"
-    hacerAdmin(input:inputActivar!): typeAdmin
+    hacerAdmin(input:inputActivar): typeAdmin
 
     "Quitar de administrador a un usuario"
-    deshacerAdmin(input:inputActivar!): typeAdmin
+    deshacerAdmin(input:inputActivar): typeAdmin
 }

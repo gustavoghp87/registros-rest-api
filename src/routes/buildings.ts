@@ -14,7 +14,7 @@ router
 
 
 .post('/getBuildings/:terri', async (req, res) => {
-    const territorio = await functions.searchTerritoryByNumber(req.params.terri)
+    const territorio = await functions.searchTerritoryByNumber(req.params.terri, "1")
     let unterritorio:territorioType[] = territorio
     res.status(200).json({unterritorio})
 })

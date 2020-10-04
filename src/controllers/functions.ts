@@ -18,11 +18,13 @@ export const searchUserById = async (_id:string) => {
 }
 
 export const searchUserByToken = async (newtoken:string) => {
+    console.log("Buscando por token");
     const user = await client.db(dbMW).collection(collUsers).findOne({newtoken})
     return user
 }
 
 export const searchAllUsers = async () => {
+    console.log("Buscando a todos los usuarios")
     const users = await client.db(dbMW).collection(collUsers).find().toArray()
     return users
 }
@@ -78,16 +80,34 @@ export const checkRecaptchaToken = async (token:string) => {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-export const searchTerritoryByNumber = async (terr:String) => {
-    console.log("Buscando viviendas por territorio", terr);
-    const viviendas = await client.db(dbMW).collection(collTerr)
-        .find({territorio:terr}).toArray()
+export const countBlocks = async (terr:String) => {
+    let cantidad = 0, cond = true
+    do {
+        cantidad=cantidad+1
+        console.log("Territorio", terr, "cantidad al entrar al ciclo", cantidad);
+        let busq = await client.db(dbMW).collection(collTerr).findOne({
+            territorio: {$in: [terr]},
+            manzana: {$in: [cantidad.toString()]}
+        })
+        if (!busq) {cantidad = cantidad-1; cond = false}
+    } while (cond===true) 
+    console.log("Cantidad de salida", cantidad)
+    return cantidad
+}
+
+export const searchTerritoryByNumber = async (terr:String, manzana:String) => {
+    console.log("Buscando viviendas por territorio", terr, "manzana", manzana)
+    const viviendas = await client.db(dbMW).collection(collTerr).find({
+        territorio: {$in: [terr]},
+        manzana: {$in: [manzana]}
+    }).limit(10).toArray()
     return viviendas
 }
 
 export const searchBuildingByNumber = async (num:string) => {
-    console.log("Buscando vivienda por inner_id", num);
+    console.log("Buscando vivienda por inner_id", num)
     const vivienda = await client.db(dbMW).collection(collTerr)
-        .find({inner_id:num}).toArray()
+        .findOne({inner_id:num})
+    console.log(vivienda)
     return vivienda
 }

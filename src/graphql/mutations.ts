@@ -1,10 +1,12 @@
 import { client, dbMW, collUsers, collTerr } from '../controllers/database'
 import * as functions from '../controllers/functions'
+import { authGraph, adminGraph } from '../controllers/auth'
 import { ObjectId } from 'mongodb'
 
 
 type typeCambiar = {
     input: {
+        token: string
         inner_id: string
         estado?: string
         noAbonado?: boolean
@@ -19,12 +21,14 @@ type typeAsign = typeActivar & {
 
 type typeActivar = {
     input: {
+        token: string
         user_id: string
     }
 }
 
 type typeAvivienda = {
     input: {
+        token: string
         inner_id: string
         territorio: string
         manzana: string
@@ -40,6 +44,8 @@ type typeAvivienda = {
 module.exports = {
     cambiarEstado: async (root:any, { input }:typeCambiar) => {
         try {
+            const userAuth = await authGraph(input.token)
+            if (!userAuth) return null
             console.log("Cambiando estado,", input.inner_id, input.estado)
             await client.db(dbMW).collection(collTerr).updateOne({inner_id: input.inner_id},
                 {$set: {estado: input.estado, fechaUlt: Date.now()}}
@@ -53,6 +59,8 @@ module.exports = {
     },
     cambiarNoAbonado: async (root:any, { input }:typeCambiar) => {
         try {
+            const userAuth = await authGraph(input.token)
+            if (!userAuth) return null
             console.log("Cambiando estado,", input.inner_id, input.noAbonado)
             await client.db(dbMW).collection(collTerr).updateOne({inner_id: input.inner_id},
                 {$set: {noAbonado: input.noAbonado, fechaUlt: Date.now()}}
@@ -66,6 +74,8 @@ module.exports = {
     },
     asignar: async (root:any, { input }:typeAsign) => {
         try {
+            const userAuth = await adminGraph(input.token)
+            if (!userAuth) return null
             console.log(`Asignando territorio ${input.terr} a ${input.user_id}`);
             console.log(typeof input.user_id)
             await client.db(dbMW).collection(collUsers).updateOne({_id: new ObjectId(input.user_id)},
@@ -84,6 +94,8 @@ module.exports = {
     },
     desasignar: async (root:any, { input }:typeAsign) => {
         try {
+            const userAuth = await adminGraph(input.token)
+            if (!userAuth) return null
             console.log(`Desasignando territorio ${input.terr} a ${input.user_id}`);
             await client.db(dbMW).collection(collUsers).updateOne({_id: new ObjectId(input.user_id)},
                 {$pull: {asign: { $in: [parseInt(input.terr)] } } }, {multi:true}
@@ -99,8 +111,11 @@ module.exports = {
             return `Error desasignando territorio`
         }
     },
-    activar: async (root:any, { input }:typeActivar) => {
+    activar: async (root:any, { input }:typeActivar) => {        
         try {
+            const userAuth = await adminGraph(input.token)
+            if (!userAuth) return null
+            console.log("Activando usuario", input.user_id)
             await client.db(dbMW).collection(collUsers).updateOne({_id: new ObjectId(input.user_id)},
                 {$set: {estado: "activado"}}
             )
@@ -118,6 +133,9 @@ module.exports = {
     },
     desactivar: async (root:any, { input }:typeActivar) => {
         try {
+            const userAuth = await adminGraph(input.token)
+            if (!userAuth) return null
+            console.log("Desactivando usuario", input.user_id)
             await client.db(dbMW).collection(collUsers).updateOne({_id: new ObjectId(input.user_id)},
                 {$set: {estado: "desactivado"}}
             )
@@ -135,6 +153,9 @@ module.exports = {
     },
     hacerAdmin: async (root:any, { input }:typeActivar) => {
         try {
+            const userAuth = await adminGraph(input.token)
+            if (!userAuth) return null
+            console.log("Haciendo admin a usuario", input.user_id)
             await client.db(dbMW).collection(collUsers).updateOne({_id: new ObjectId(input.user_id)},
                 {$set: {role: 1}}
             )
@@ -152,6 +173,9 @@ module.exports = {
     },
     deshacerAdmin: async (root:any, { input }:typeActivar) => {
         try {
+            const userAuth = await adminGraph(input.token)
+            if (!userAuth) return null
+            console.log("Deshaciendo admin a usuario", input.user_id)
             await client.db(dbMW).collection(collUsers).updateOne({_id: new ObjectId(input.user_id)},
                 {$set: {role: 0}}
             )
@@ -169,6 +193,8 @@ module.exports = {
     },
     agregarVivienda: async (root:any, { input }:typeAvivienda) => {
         try {
+            const userAuth = await adminGraph(input.token)
+            if (!userAuth) return null
             let inner_id = "24878"
             let busqMayor = true
             while (busqMayor) {
@@ -191,12 +217,9 @@ module.exports = {
                 noAbonado,
                 fechaUlt
             })
-
             const viviendaNueva = await functions.searchBuildingByNumber(inner_id)
             console.log(viviendaNueva)
-
             return viviendaNueva
-
         } catch (error) {
             console.log(error, `${Date.now().toLocaleString()}`)
             return `Error agregando vivienda`

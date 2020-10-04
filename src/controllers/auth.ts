@@ -61,3 +61,23 @@ export const admin = async(req:Request, res:Response, next:NextFunction) => {
         res.status(200).json(userData)
     }
 }
+
+export const authGraph = async (token:string) => {
+    try {
+        const Token = token.split('newtoken=')[1] || "abcde"
+        console.log("PASANDO POR /AUTH GraphQL....", Token)    
+        const user = await searchUserByToken(Token)
+        console.log("Encontrado usuario por cookie,", user.email)
+        return user
+    } catch(e) {console.log("Falló búsqueda por token", token)}
+}
+
+export const adminGraph = async (token:string) => {
+    try {
+        const Token = token.split('newtoken=')[1] || "abcde"
+        console.log("PASANDO POR /AUTH GraphQL....", Token)    
+        const user = await searchUserByToken(Token)
+        if (user && user.role===1) return user
+        return null
+    } catch(e) {console.log("Falló búsqueda por token", token)}
+}

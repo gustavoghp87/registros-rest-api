@@ -25,7 +25,6 @@ app.all('/', function(req, res, next) {
 })
 app.use('/api/graphql', require('./graphql/gql.index'))
 app.use('/api/users', require('./routes/users'))
-app.use('/api/buildings', require('./routes/buildings'))
 
 //static files
 app.use(express.static(path.join(__dirname, 'frontend-src')))

@@ -27,7 +27,6 @@ exports.app.all('/', function (req, res, next) {
 });
 exports.app.use('/api/graphql', require('./graphql/gql.index'));
 exports.app.use('/api/users', require('./routes/users'));
-exports.app.use('/api/buildings', require('./routes/buildings'));
 //static files
 exports.app.use(express_1.default.static(path_1.default.join(__dirname, 'frontend-src')));
 exports.app.use(express_1.default.static(path_1.default.join(__dirname, 'build')));

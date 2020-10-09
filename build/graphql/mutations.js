@@ -30,26 +30,11 @@ module.exports = {
             const userAuth = await auth_1.authGraph(input.token);
             if (!userAuth)
                 return null;
-            console.log("Cambiando estado,", input.inner_id, input.estado);
-            await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).updateOne({ inner_id: input.inner_id }, { $set: { estado: input.estado, fechaUlt: Date.now() } });
+            console.log("Cambiando estado,", input.inner_id, input.estado, input.noAbonado);
+            await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).updateOne({ inner_id: input.inner_id }, { $set: { estado: input.estado, noAbonado: input.noAbonado, fechaUlt: Date.now() } });
             const viviendaNuevoEstado = await functions.searchBuildingByNumber(input.inner_id);
             resolvers_1.pubsub.publish('cambiarEstado', { escucharCambioDeEstado: viviendaNuevoEstado });
             return viviendaNuevoEstado;
-        }
-        catch (error) {
-            console.log(error, `${Date.now().toLocaleString()}`);
-            return `Error cambiando estado`;
-        }
-    },
-    cambiarNoAbonado: async (root, { input }) => {
-        try {
-            const userAuth = await auth_1.authGraph(input.token);
-            if (!userAuth)
-                return null;
-            console.log("Cambiando estado,", input.inner_id, input.noAbonado);
-            await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).updateOne({ inner_id: input.inner_id }, { $set: { noAbonado: input.noAbonado, fechaUlt: Date.now() } });
-            const viviendaNoAbon = await functions.searchBuildingByNumber(input.inner_id);
-            return viviendaNoAbon;
         }
         catch (error) {
             console.log(error, `${Date.now().toLocaleString()}`);

@@ -30,13 +30,10 @@ exports.app.use('/api/users', require('./routes/users'));
 //static files
 exports.app.use(express_1.default.static(path_1.default.join(__dirname, 'frontend-src')));
 exports.app.use(express_1.default.static(path_1.default.join(__dirname, 'build')));
-(() => {
-    try {
-        exports.app.listen(exports.port, () => {
-            console.log(`\n\nServer listening on port ${exports.port}`);
-        });
-    }
-    catch (error) {
-        console.log(error);
-    }
-})();
+// ;(() => {
+//     try {
+//         app.listen(port, () => {
+//             console.log(`\n\nServer listening on port ${port}`)
+//         });
+//     } catch (error) {console.log(error)}
+// })()

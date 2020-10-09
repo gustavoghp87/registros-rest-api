@@ -8,6 +8,7 @@ export const app = express()
 export const port = process.env.PORT || 4005
 export const NODE_ENV = process.env.NODE_ENV || "dev"
 
+
 require('./controllers/database')
 
 // middlewares
@@ -31,10 +32,10 @@ app.use(express.static(path.join(__dirname, 'frontend-src')))
 app.use(express.static(path.join(__dirname, 'build')))
 
 
-;(() => {
-    try {
-        app.listen(port, () => {
-            console.log(`\n\nServer listening on port ${port}`)
-        });
-    } catch (error) {console.log(error)}
-})()
+// ;(() => {
+//     try {
+//         app.listen(port, () => {
+//             console.log(`\n\nServer listening on port ${port}`)
+//         });
+//     } catch (error) {console.log(error)}
+// })()

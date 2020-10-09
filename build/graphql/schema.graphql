@@ -60,12 +60,6 @@ input inputCambiarEstado {
     token: String!
     inner_id: String!
     estado: String!
-
-}
-
-input inputNoAbonado {
-    token: String!
-    inner_id: String!
     noAbonado: Boolean!
 }
 
@@ -117,9 +111,6 @@ type Query {
 type Mutation {
     "Modifica un estado"
     cambiarEstado(input:inputCambiarEstado): typeVivienda
-
-    "Modifica un no abonado"
-    cambiarNoAbonado(input:inputNoAbonado): typeVivienda
 
     "Agrega una vivienda"
     agregarVivienda(input:inputAvivienda): typeVivienda

@@ -28,7 +28,7 @@ module.exports = router
 
 //////////////////////////////////////////////////
 
-const port2 = process.env.PORT ? process.env.PORT : 4006
+const port2 = process.env.PORT ? process.env.PORT + 1 : 4006
 
 const apollo = new ApolloServer({
     typeDefs,

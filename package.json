@@ -13,6 +13,7 @@
     "node": "14.x"
   },
   "dependencies": {
+    "apollo-server-express": "^2.18.2",
     "axios": "^0.20.0",
     "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
@@ -22,10 +23,12 @@
     "express": "^4.17.1",
     "express-graphql": "^0.11.0",
     "graphql": "^15.3.0",
+    "graphql-subscriptions": "^1.1.0",
     "graphql-tools": "^6.2.4",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.6.2",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "subscriptions-transport-ws": "^0.9.18"
   },
   "devDependencies": {
     "@types/axios": "^0.14.0",

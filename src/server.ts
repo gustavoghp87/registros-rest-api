@@ -3,8 +3,9 @@ import path from 'path'
 import morgan from 'morgan'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
+
 export const app = express()
-const port = process.env.PORT || 4005
+export const port = process.env.PORT || 4005
 export const NODE_ENV = process.env.NODE_ENV || "dev"
 
 require('./controllers/database')

@@ -2,6 +2,7 @@ import { client, dbMW, collUsers, collTerr } from '../controllers/database'
 import * as functions from '../controllers/functions'
 import { authGraph, adminGraph } from '../controllers/auth'
 import { ObjectId } from 'mongodb'
+import { pubsub } from './resolvers'
 
 
 type typeCambiar = {
@@ -51,6 +52,7 @@ module.exports = {
                 {$set: {estado: input.estado, fechaUlt: Date.now()}}
             )
             const viviendaNuevoEstado = await functions.searchBuildingByNumber(input.inner_id)
+            pubsub.publish('cambiarEstado', {escucharCambioDeEstado: viviendaNuevoEstado})
             return viviendaNuevoEstado
         } catch (error) {
             console.log(error, `${Date.now().toLocaleString()}`);
@@ -226,4 +228,3 @@ module.exports = {
         }
     }
 }
-

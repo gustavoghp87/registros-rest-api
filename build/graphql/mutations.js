@@ -14,7 +14,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -23,6 +23,7 @@ const database_1 = require("../controllers/database");
 const functions = __importStar(require("../controllers/functions"));
 const auth_1 = require("../controllers/auth");
 const mongodb_1 = require("mongodb");
+const resolvers_1 = require("./resolvers");
 module.exports = {
     cambiarEstado: async (root, { input }) => {
         try {
@@ -32,6 +33,7 @@ module.exports = {
             console.log("Cambiando estado,", input.inner_id, input.estado);
             await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).updateOne({ inner_id: input.inner_id }, { $set: { estado: input.estado, fechaUlt: Date.now() } });
             const viviendaNuevoEstado = await functions.searchBuildingByNumber(input.inner_id);
+            resolvers_1.pubsub.publish('cambiarEstado', { escucharCambioDeEstado: viviendaNuevoEstado });
             return viviendaNuevoEstado;
         }
         catch (error) {

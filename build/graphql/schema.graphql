@@ -94,6 +94,11 @@ input inputAvivienda {
 
 # /////////////////////////////////////////////////////////////////////// #
 
+type Subscription {
+    "Escucha el estado de una manzana"
+    escucharCambioDeEstado: typeVivienda
+}
+
 type Query {
     "Devuelve la cantidad de manzanas que hay en un territorio"
     countBlocks(terr:String!): typeCantidad

@@ -24,7 +24,7 @@ router
             group: req.user.group,
             asign: req.user.asign,
             isAuth: true,
-            isAdmin: req.user.role=1 ? true : false
+            isAdmin: req.user.role==1 ? true : false
         }
 
         res.status(200).json(userData)

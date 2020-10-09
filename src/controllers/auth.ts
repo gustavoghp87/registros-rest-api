@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { searchUserByToken } from '../controllers/functions';
 
+
 declare module "express" {
     export interface Request {
         user?: any
@@ -35,6 +36,7 @@ export const auth = async(req:Request, res:Response, next:NextFunction) => {
     }
 }
 
+
 export const admin = async(req:Request, res:Response, next:NextFunction) => {
 
     try {
@@ -62,9 +64,10 @@ export const admin = async(req:Request, res:Response, next:NextFunction) => {
     }
 }
 
+
 export const authGraph = async (token:string) => {
     try {
-        const Token = token.split('newtoken=')[1] || "abcde"
+        let Token = token.split('newtoken=')[1] || "abcde"
         console.log("PASANDO POR /AUTH GraphQL....", Token)    
         const user = await searchUserByToken(Token)
         console.log("Encontrado usuario por cookie,", user.email)
@@ -72,12 +75,13 @@ export const authGraph = async (token:string) => {
     } catch(e) {console.log("Falló búsqueda por token", token)}
 }
 
+
 export const adminGraph = async (token:string) => {
     try {
-        const Token = token.split('newtoken=')[1] || "abcde"
+        let Token = token.split('newtoken=')[1] || "abcde"
         console.log("PASANDO POR /AUTH GraphQL....", Token)    
-        const user = await searchUserByToken(Token)
-        if (user && user.role===1) return user
+        const user = await searchUserByToken(Token)        
+        if (user && user.role==1) return user
         return null
     } catch(e) {console.log("Falló búsqueda por token", token)}
 }

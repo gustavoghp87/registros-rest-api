@@ -44,7 +44,7 @@ exports.admin = async (req, res, next) => {
 };
 exports.authGraph = async (token) => {
     try {
-        const Token = token.split('newtoken=')[1] || "abcde";
+        let Token = token.split('newtoken=')[1] || "abcde";
         console.log("PASANDO POR /AUTH GraphQL....", Token);
         const user = await functions_1.searchUserByToken(Token);
         console.log("Encontrado usuario por cookie,", user.email);
@@ -56,10 +56,10 @@ exports.authGraph = async (token) => {
 };
 exports.adminGraph = async (token) => {
     try {
-        const Token = token.split('newtoken=')[1] || "abcde";
+        let Token = token.split('newtoken=')[1] || "abcde";
         console.log("PASANDO POR /AUTH GraphQL....", Token);
         const user = await functions_1.searchUserByToken(Token);
-        if (user && user.role === 1)
+        if (user && user.role == 1)
             return user;
         return null;
     }

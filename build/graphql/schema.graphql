@@ -27,6 +27,15 @@ type typeUser {
     asign: [Int]
 }
 
+type typeGlobalStatistics {
+    count: Int!
+    countContesto: Int!
+    countNoContesto: Int!
+    countDejarCarta: Int!
+    countNoLlamar: Int!
+    countNoAbonado: Int!
+}
+
 
 
 input inputCambiarEstado {
@@ -86,6 +95,9 @@ type Query {
 
     "Devuelve todos los usuarios"
     getUsers(token:String!): [typeUser]
+
+    "Devuelve las estadísticas globales"
+    getGlobalStatistics(token:String!): typeGlobalStatistics
 }
 
 

@@ -1,5 +1,6 @@
 import * as functions from '../controllers/functions'
 import { authGraph, adminGraph } from '../controllers/auth'
+import { client, dbMW, collTerr } from '../controllers/database'
 
 type typeArgs0 = {
     terr: string
@@ -17,6 +18,10 @@ type typeArgs2 = {
 }
 
 type typeArgs3 = {
+    token: string
+}
+
+type typeGlobalStatistics = {
     token: string
 }
 
@@ -56,7 +61,26 @@ module.exports = {
             console.log(error, `${Date.now().toLocaleString()}`)
             return `Error desactivando usuario`
         }
+    },
+    getGlobalStatistics: async (root:any, args:typeGlobalStatistics) => {
+        const userAuth = await adminGraph(args.token)
+        if (!userAuth) return null
+
+        const count = await client.db(dbMW).collection(collTerr).find().count()
+        const countContesto = await client.db(dbMW).collection(collTerr).find({estado:'Contestó'}).count()
+        const countNoContesto = await client.db(dbMW).collection(collTerr).find({estado:'No contestó'}).count()
+        const countDejarCarta = await client.db(dbMW).collection(collTerr).find({estado:'A dejar carta'}).count()
+        const countNoLlamar = await client.db(dbMW).collection(collTerr).find({estado:'No llamar'}).count()
+        const countNoAbonado = await client.db(dbMW).collection(collTerr).find({noAbonado:true}).count()
+        console.log(count, countContesto, countNoContesto, countDejarCarta, countNoLlamar);
+        return {
+            count,
+            countContesto,
+            countNoContesto,
+            countDejarCarta,
+            countNoLlamar,
+            countNoAbonado
+        }
     }
-    
 }
 

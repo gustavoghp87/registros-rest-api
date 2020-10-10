@@ -39,7 +39,9 @@ input inputCambiarEstado {
 input inputAsignar {
     token: String!
     user_id: String!
-    terr: String!
+    asignar: Int
+    desasignar: Int
+    all: Boolean
 }
 
 input inputControlar {
@@ -65,8 +67,11 @@ input inputAvivienda {
 # /////////////////////////////////////////////////////////////////////// #
 
 type Subscription {
-    "Escucha el estado de una manzana"
+    "Escucha el cambio de estado de una vivienda"
     escucharCambioDeEstado: typeVivienda
+
+    "Escucha el cambio de datos de un usuario por administrador"
+    escucharCambioDeUsuario: typeUser
 }
 
 type Query {
@@ -94,9 +99,6 @@ type Mutation {
     "Agrega una vivienda"
     agregarVivienda(input:inputAvivienda): typeVivienda
 
-    "Asigna un territorio a un usuario"
+    "Asigna o desasigna un territorio a un usuario o desasigna todos"
     asignar(input:inputAsignar): typeUser
-
-    "Desasigna un territorio a un usuario"
-    desasignar(input:inputAsignar): typeUser
 }

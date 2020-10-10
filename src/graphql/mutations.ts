@@ -3,6 +3,7 @@ import * as functions from '../controllers/functions'
 import { authGraph, adminGraph } from '../controllers/auth'
 import { ObjectId } from 'mongodb'
 import { pubsub } from './resolvers'
+import { typeUser } from '../controllers/types'
 
 
 type typeCambiar = {
@@ -14,9 +15,13 @@ type typeCambiar = {
     }
 }
 
-type typeAsignar = typeControlar & {
+type typeAsignar = {
     input: {
-        terr: string
+        token: string
+        user_id: string
+        asignar?: number
+        desasignar?: number
+        all?: boolean
     }
 }
 
@@ -51,61 +56,52 @@ module.exports = {
         const userAuth = await adminGraph(input.token)
         if (!userAuth) return null
         console.log("Actualizando ", input.user_id)
-        await client.db(dbMW).collection(collUsers).updateOne({_id: new ObjectId(input.user_id)},
+        await client.db(dbMW).collection(collUsers).updateOne(
+            {_id: new ObjectId(input.user_id)},
             {$set: {estado:input.estado, role:input.role, group:input.group}}
         )
         const user = await functions.searchUserById(input.user_id)
+        pubsub.publish('cambiarUsuario', {escucharCambioDeUsuario: user})
+        return user
+    },
+    asignar: async (root:any, { input }:typeAsignar) => {
+        const userAuth = await adminGraph(input.token)
+        if (!userAuth) return null
+        if (input.all) await client.db(dbMW).collection(collUsers).updateOne(
+            {_id: new ObjectId(input.user_id)},
+            {$set: {asign: []}}
+        )
+
+        if (input.asignar) {
+            const userToMod:typeUser = await functions.searchUserById(input.user_id)
+            if (!userToMod) return null
+            let arrayV = userToMod.asign || []
+            arrayV.indexOf(input.asignar)===-1 ? arrayV.push(input.asignar) : console.log("Ya estaba")
+            arrayV.sort((a:number, b:number) => a - b)
+            await client.db(dbMW).collection(collUsers).updateOne(
+                {_id: new ObjectId(input.user_id)},
+                {$set: {asign: arrayV}}
+            )
+        }
+
+        if (input.desasignar) await client.db(dbMW).collection(collUsers).updateOne(
+            {_id: new ObjectId(input.user_id)},
+            {$pullAll: {asign: [input.desasignar]}
+        })
+        const user = await functions.searchUserById(input.user_id)
+        pubsub.publish('cambiarUsuario', {escucharCambioDeUsuario: user})
         return user
     },
     cambiarEstado: async (root:any, { input }:typeCambiar) => {
-        try {
-            const userAuth = await authGraph(input.token)
-            if (!userAuth) return null
-            console.log("Cambiando estado,", input.inner_id, input.estado, input.noAbonado)
-            await client.db(dbMW).collection(collTerr).updateOne({inner_id: input.inner_id},
-                {$set: {estado:input.estado, noAbonado:input.noAbonado, fechaUlt:Date.now()}}
-            )
-            const viviendaNuevoEstado = await functions.searchBuildingByNumber(input.inner_id)
-            pubsub.publish('cambiarEstado', {escucharCambioDeEstado: viviendaNuevoEstado})
-            return viviendaNuevoEstado
-        } catch (error) {
-            console.log(error, `${Date.now().toLocaleString()}`);
-            return null
-        }
-    },
-    asignar: async (root:any, { input }:typeAsignar) => {
-        try {
-            const userAuth = await adminGraph(input.token)
-            if (!userAuth) return null
-            console.log(`Asignando territorio ${input.terr} a ${input.user_id}`);
-            await client.db(dbMW).collection(collUsers).updateOne({_id: new ObjectId(input.user_id)},
-                {$addToSet: {asign: parseInt(input.terr)}
-            })
-            const user = await functions.searchUserById(input.user_id)
-            return user
-        } catch (error) {
-            console.log(error, `${Date.now().toLocaleString()}`)
-            return null
-        }
-    },
-    desasignar: async (root:any, { input }:typeAsignar) => {
-        try {
-            const userAuth = await adminGraph(input.token)
-            if (!userAuth) return null
-            console.log(`Desasignando territorio ${input.terr} a ${input.user_id}`);
-            await client.db(dbMW).collection(collUsers).updateOne({_id: new ObjectId(input.user_id)},
-                {$pull: {asign: { $in: [parseInt(input.terr)] } } }, {multi:true}
-            )
-            const busq = await functions.searchUserById(input.user_id)
-            const user = {
-                email: busq.email,
-                asign: busq.asign
-            }
-            return user
-        } catch (error) {
-            console.log(error, `${Date.now().toLocaleString()}`)
-            return null
-        }
+        const userAuth = await authGraph(input.token)
+        if (!userAuth) return null
+        console.log("Cambiando estado,", input.inner_id, input.estado, input.noAbonado)
+        await client.db(dbMW).collection(collTerr).updateOne({inner_id: input.inner_id},
+            {$set: {estado:input.estado, noAbonado:input.noAbonado, fechaUlt:Date.now()}}
+        )
+        const viviendaNuevoEstado = await functions.searchBuildingByNumber(input.inner_id)
+        pubsub.publish('cambiarEstado', {escucharCambioDeEstado: viviendaNuevoEstado})
+        return viviendaNuevoEstado
     },
     agregarVivienda: async (root:any, { input }:typeAvivienda) => {
         try {

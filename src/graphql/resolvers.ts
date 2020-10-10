@@ -13,6 +13,12 @@ module.exports = {
                 console.log(`escuchando /////////////////////////////////////`)
                 return pubsub.asyncIterator('cambiarEstado')
             }
+        },
+        escucharCambioDeUsuario: {
+            subscribe: () => {
+                console.log(`escuchando /////////////////////////////////////`)
+                return pubsub.asyncIterator('cambiarUsuario')
+            }
         }
     }
 

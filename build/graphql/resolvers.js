@@ -12,6 +12,12 @@ module.exports = {
                 console.log(`escuchando /////////////////////////////////////`);
                 return exports.pubsub.asyncIterator('cambiarEstado');
             }
+        },
+        escucharCambioDeUsuario: {
+            subscribe: () => {
+                console.log(`escuchando /////////////////////////////////////`);
+                return exports.pubsub.asyncIterator('cambiarUsuario');
+            }
         }
     }
 };

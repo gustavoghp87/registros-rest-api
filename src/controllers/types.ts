@@ -19,8 +19,7 @@ export type typeEstado = "No predicado" | "No contestó" | "Contestó" | "No lla
 export type typeUser = {
     _id?: Object
     role: number
-    estado: string
-    actividad: Object[]
+    estado: boolean
     email: string
     password: string
     __v?: number

@@ -14,16 +14,19 @@ type typeCambiar = {
     }
 }
 
-type typeAsign = typeActivar & {
+type typeAsignar = typeControlar & {
     input: {
         terr: string
     }
 }
 
-type typeActivar = {
+type typeControlar = {
     input: {
         token: string
         user_id: string
+        estado: boolean
+        role: number
+        group: number
     }
 }
 
@@ -43,6 +46,17 @@ type typeAvivienda = {
 
 
 module.exports = {
+    controlarUsuario: async (root:any, { input }:typeControlar) => {        
+        console.log("aca1", input)
+        const userAuth = await adminGraph(input.token)
+        if (!userAuth) return null
+        console.log("Actualizando ", input.user_id)
+        await client.db(dbMW).collection(collUsers).updateOne({_id: new ObjectId(input.user_id)},
+            {$set: {estado:input.estado, role:input.role, group:input.group}}
+        )
+        const user = await functions.searchUserById(input.user_id)
+        return user
+    },
     cambiarEstado: async (root:any, { input }:typeCambiar) => {
         try {
             const userAuth = await authGraph(input.token)
@@ -56,30 +70,25 @@ module.exports = {
             return viviendaNuevoEstado
         } catch (error) {
             console.log(error, `${Date.now().toLocaleString()}`);
-            return `Error cambiando estado`
+            return null
         }
     },
-    asignar: async (root:any, { input }:typeAsign) => {
+    asignar: async (root:any, { input }:typeAsignar) => {
         try {
             const userAuth = await adminGraph(input.token)
             if (!userAuth) return null
             console.log(`Asignando territorio ${input.terr} a ${input.user_id}`);
-            console.log(typeof input.user_id)
             await client.db(dbMW).collection(collUsers).updateOne({_id: new ObjectId(input.user_id)},
                 {$addToSet: {asign: parseInt(input.terr)}
             })
-            const busq = await functions.searchUserById(input.user_id)
-            const user = {
-                email: busq.email,
-                asign: busq.asign
-            }
+            const user = await functions.searchUserById(input.user_id)
             return user
         } catch (error) {
             console.log(error, `${Date.now().toLocaleString()}`)
-            return `Error asignando territorio`
+            return null
         }
     },
-    desasignar: async (root:any, { input }:typeAsign) => {
+    desasignar: async (root:any, { input }:typeAsignar) => {
         try {
             const userAuth = await adminGraph(input.token)
             if (!userAuth) return null
@@ -95,87 +104,7 @@ module.exports = {
             return user
         } catch (error) {
             console.log(error, `${Date.now().toLocaleString()}`)
-            return `Error desasignando territorio`
-        }
-    },
-    activar: async (root:any, { input }:typeActivar) => {        
-        try {
-            const userAuth = await adminGraph(input.token)
-            if (!userAuth) return null
-            console.log("Activando usuario", input.user_id)
-            await client.db(dbMW).collection(collUsers).updateOne({_id: new ObjectId(input.user_id)},
-                {$set: {estado: "activado"}}
-            )
-            const busq = await functions.searchUserById(input.user_id)
-            const user = {
-                _id: busq._id,
-                email: busq.email,
-                estado: busq.estado
-            }
-            return user
-        } catch (error) {
-            console.log(error, `${Date.now().toLocaleString()}`)
-            return `Error activando usuario`
-        }
-    },
-    desactivar: async (root:any, { input }:typeActivar) => {
-        try {
-            const userAuth = await adminGraph(input.token)
-            if (!userAuth) return null
-            console.log("Desactivando usuario", input.user_id)
-            await client.db(dbMW).collection(collUsers).updateOne({_id: new ObjectId(input.user_id)},
-                {$set: {estado: "desactivado"}}
-            )
-            const busq = await functions.searchUserById(input.user_id)
-            const user = {
-                _id: busq._id,
-                email: busq.email,
-                estado: busq.estado
-            }
-            return user
-        } catch (error) {
-            console.log(error, `${Date.now().toLocaleString()}`)
-            return `Error desactivando usuario`
-        }
-    },
-    hacerAdmin: async (root:any, { input }:typeActivar) => {
-        try {
-            const userAuth = await adminGraph(input.token)
-            if (!userAuth) return null
-            console.log("Haciendo admin a usuario", input.user_id)
-            await client.db(dbMW).collection(collUsers).updateOne({_id: new ObjectId(input.user_id)},
-                {$set: {role: 1}}
-            )
-            const busq = await functions.searchUserById(input.user_id)
-            const user = {
-                _id: busq._id,
-                email: busq.email,
-                role: busq.role
-            }
-            return user
-        } catch (error) {
-            console.log(error, `${Date.now().toLocaleString()}`)
-            return `Error activando usuario`
-        }
-    },
-    deshacerAdmin: async (root:any, { input }:typeActivar) => {
-        try {
-            const userAuth = await adminGraph(input.token)
-            if (!userAuth) return null
-            console.log("Deshaciendo admin a usuario", input.user_id)
-            await client.db(dbMW).collection(collUsers).updateOne({_id: new ObjectId(input.user_id)},
-                {$set: {role: 0}}
-            )
-            const busq = await functions.searchUserById(input.user_id)
-            const user = {
-                _id: busq._id,
-                email: busq.email,
-                role: busq.role
-            }
-            return user
-        } catch (error) {
-            console.log(error, `${Date.now().toLocaleString()}`)
-            return `Error desactivando usuario`
+            return null
         }
     },
     agregarVivienda: async (root:any, { input }:typeAvivienda) => {
@@ -209,7 +138,7 @@ module.exports = {
             return viviendaNueva
         } catch (error) {
             console.log(error, `${Date.now().toLocaleString()}`)
-            return `Error agregando vivienda`
+            return null
         }
     }
 }

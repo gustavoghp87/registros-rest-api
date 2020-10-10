@@ -43,7 +43,7 @@ exports.registerUser = async (email, password, group) => {
     const passwordEncrypted = await bcrypt_1.default.hash(password, 12);
     const newUser = {
         role: 0,
-        estado: "desactivado",
+        estado: false,
         actividad: [],
         email,
         password: passwordEncrypted,

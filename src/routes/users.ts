@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'; dotenv.config()
 import * as functions from '../controllers/functions'
 import { auth } from '../controllers/auth'
-import { typeUser } from '../types/types'
+import { typeUser } from '../controllers/types'
 const router = express.Router()
 
 
@@ -49,7 +49,7 @@ router
 
     const user = await functions.searchUserByEmail(email)
     if (!user) return res.status(200).json({loginSuccess:false})
-    if (user.estado!=="activado") return res.status(200).json({loginSuccess:false, disable:true})
+    if (!user.estado) return res.status(200).json({loginSuccess:false, disable:true})
 
     const compare = await bcrypt.compare(password, user.password)
 

@@ -25,6 +25,16 @@ const auth_1 = require("../controllers/auth");
 const mongodb_1 = require("mongodb");
 const resolvers_1 = require("./resolvers");
 module.exports = {
+    controlarUsuario: async (root, { input }) => {
+        console.log("aca1", input);
+        const userAuth = await auth_1.adminGraph(input.token);
+        if (!userAuth)
+            return null;
+        console.log("Actualizando ", input.user_id);
+        await database_1.client.db(database_1.dbMW).collection(database_1.collUsers).updateOne({ _id: new mongodb_1.ObjectId(input.user_id) }, { $set: { estado: input.estado, role: input.role, group: input.group } });
+        const user = await functions.searchUserById(input.user_id);
+        return user;
+    },
     cambiarEstado: async (root, { input }) => {
         try {
             const userAuth = await auth_1.authGraph(input.token);
@@ -38,7 +48,7 @@ module.exports = {
         }
         catch (error) {
             console.log(error, `${Date.now().toLocaleString()}`);
-            return `Error cambiando estado`;
+            return null;
         }
     },
     asignar: async (root, { input }) => {
@@ -47,19 +57,14 @@ module.exports = {
             if (!userAuth)
                 return null;
             console.log(`Asignando territorio ${input.terr} a ${input.user_id}`);
-            console.log(typeof input.user_id);
             await database_1.client.db(database_1.dbMW).collection(database_1.collUsers).updateOne({ _id: new mongodb_1.ObjectId(input.user_id) }, { $addToSet: { asign: parseInt(input.terr) }
             });
-            const busq = await functions.searchUserById(input.user_id);
-            const user = {
-                email: busq.email,
-                asign: busq.asign
-            };
+            const user = await functions.searchUserById(input.user_id);
             return user;
         }
         catch (error) {
             console.log(error, `${Date.now().toLocaleString()}`);
-            return `Error asignando territorio`;
+            return null;
         }
     },
     desasignar: async (root, { input }) => {
@@ -78,87 +83,7 @@ module.exports = {
         }
         catch (error) {
             console.log(error, `${Date.now().toLocaleString()}`);
-            return `Error desasignando territorio`;
-        }
-    },
-    activar: async (root, { input }) => {
-        try {
-            const userAuth = await auth_1.adminGraph(input.token);
-            if (!userAuth)
-                return null;
-            console.log("Activando usuario", input.user_id);
-            await database_1.client.db(database_1.dbMW).collection(database_1.collUsers).updateOne({ _id: new mongodb_1.ObjectId(input.user_id) }, { $set: { estado: "activado" } });
-            const busq = await functions.searchUserById(input.user_id);
-            const user = {
-                _id: busq._id,
-                email: busq.email,
-                estado: busq.estado
-            };
-            return user;
-        }
-        catch (error) {
-            console.log(error, `${Date.now().toLocaleString()}`);
-            return `Error activando usuario`;
-        }
-    },
-    desactivar: async (root, { input }) => {
-        try {
-            const userAuth = await auth_1.adminGraph(input.token);
-            if (!userAuth)
-                return null;
-            console.log("Desactivando usuario", input.user_id);
-            await database_1.client.db(database_1.dbMW).collection(database_1.collUsers).updateOne({ _id: new mongodb_1.ObjectId(input.user_id) }, { $set: { estado: "desactivado" } });
-            const busq = await functions.searchUserById(input.user_id);
-            const user = {
-                _id: busq._id,
-                email: busq.email,
-                estado: busq.estado
-            };
-            return user;
-        }
-        catch (error) {
-            console.log(error, `${Date.now().toLocaleString()}`);
-            return `Error desactivando usuario`;
-        }
-    },
-    hacerAdmin: async (root, { input }) => {
-        try {
-            const userAuth = await auth_1.adminGraph(input.token);
-            if (!userAuth)
-                return null;
-            console.log("Haciendo admin a usuario", input.user_id);
-            await database_1.client.db(database_1.dbMW).collection(database_1.collUsers).updateOne({ _id: new mongodb_1.ObjectId(input.user_id) }, { $set: { role: 1 } });
-            const busq = await functions.searchUserById(input.user_id);
-            const user = {
-                _id: busq._id,
-                email: busq.email,
-                role: busq.role
-            };
-            return user;
-        }
-        catch (error) {
-            console.log(error, `${Date.now().toLocaleString()}`);
-            return `Error activando usuario`;
-        }
-    },
-    deshacerAdmin: async (root, { input }) => {
-        try {
-            const userAuth = await auth_1.adminGraph(input.token);
-            if (!userAuth)
-                return null;
-            console.log("Deshaciendo admin a usuario", input.user_id);
-            await database_1.client.db(database_1.dbMW).collection(database_1.collUsers).updateOne({ _id: new mongodb_1.ObjectId(input.user_id) }, { $set: { role: 0 } });
-            const busq = await functions.searchUserById(input.user_id);
-            const user = {
-                _id: busq._id,
-                email: busq.email,
-                role: busq.role
-            };
-            return user;
-        }
-        catch (error) {
-            console.log(error, `${Date.now().toLocaleString()}`);
-            return `Error desactivando usuario`;
+            return null;
         }
     },
     agregarVivienda: async (root, { input }) => {
@@ -192,7 +117,7 @@ module.exports = {
         }
         catch (error) {
             console.log(error, `${Date.now().toLocaleString()}`);
-            return `Error agregando vivienda`;
+            return null;
         }
     }
 };

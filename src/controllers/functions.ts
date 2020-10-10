@@ -1,6 +1,6 @@
 import { client, dbMW, collUsers, collTerr } from './database'
 import Axios from 'axios'
-import { typeUser, typeVivienda } from '../types/types'
+import { typeUser, typeVivienda } from '../controllers/types'
 import bcrypt from 'bcrypt'
 import { ObjectId } from 'mongodb'
 
@@ -46,7 +46,7 @@ export const registerUser = async (email:string, password:string, group:number) 
 
     const newUser = <typeUser> {
         role: 0,
-        estado: "desactivado",
+        estado: false,
         actividad: [],
         email,
         password: passwordEncrypted,
@@ -58,7 +58,6 @@ export const registerUser = async (email:string, password:string, group:number) 
     try {
         await client.db(dbMW).collection(collUsers).insertOne(newUser)
         console.log(newUser);
-        
         return true
     } catch (e) {
         console.error(e);

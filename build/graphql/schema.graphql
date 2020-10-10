@@ -1,3 +1,4 @@
+
 type typeCantidad {
     cantidad: String
 }
@@ -14,39 +15,10 @@ type typeVivienda {
     noAbonado: Boolean
 }
 
-type typeAsignado {
-    email: String
-    asign: [Int]
-}
-
-type typeActivado {
-    _id: ID
-    email: String
-    estado: String
-}
-
-type typeAdmin {
-    _id: ID
-    email: String
-    role: Int
-}
-
-type typeActividad {
-    inner_id: String
-    estado: String
-    fechaUlt: String
-    noAbonado: String
-    direccion: String
-    telefono: String
-    territorio: String
-    manzana: String
-}
-
 type typeUser {
     _id: ID
     role: Int
-    estado: String
-    actividad: [typeActividad]
+    estado: Boolean
     email: String
     password: String
     group: Int
@@ -54,6 +26,7 @@ type typeUser {
     isAdmin: Boolean
     asign: [Int]
 }
+
 
 
 input inputCambiarEstado {
@@ -69,9 +42,12 @@ input inputAsignar {
     terr: String!
 }
 
-input inputActivar {
+input inputControlar {
     token: String!
     user_id: String!
+    estado: Boolean!
+    role: Int!
+    group: Int!
 }
 
 input inputAvivienda {
@@ -109,27 +85,18 @@ type Query {
 
 
 type Mutation {
-    "Modifica un estado"
+    "Modifica un estado de vivienda"
     cambiarEstado(input:inputCambiarEstado): typeVivienda
+
+    "Activa o desactiva a un usuario registrado o sus privilegios o cambia grupo"
+    controlarUsuario(input:inputControlar): typeUser
 
     "Agrega una vivienda"
     agregarVivienda(input:inputAvivienda): typeVivienda
 
     "Asigna un territorio a un usuario"
-    asignar(input:inputAsignar): typeAsignado
+    asignar(input:inputAsignar): typeUser
 
     "Desasigna un territorio a un usuario"
-    desasignar(input:inputAsignar): typeAsignado
-
-    "Activa a un usuario registrado"
-    activar(input:inputActivar): typeActivado
-
-    "Desactiva a un usuario registrado"
-    desactivar(input:inputActivar): typeActivado
-
-    "Hacer administrador a un usuario"
-    hacerAdmin(input:inputActivar): typeAdmin
-
-    "Quitar de administrador a un usuario"
-    deshacerAdmin(input:inputActivar): typeAdmin
+    desasignar(input:inputAsignar): typeUser
 }

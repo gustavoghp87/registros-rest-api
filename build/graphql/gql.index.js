@@ -26,10 +26,9 @@ const server = new apollo_server_express_1.ApolloServer({ typeDefs, resolvers })
 server.applyMiddleware({ app: server_1.app });
 const httpServer = http_1.createServer(server_1.app);
 server.installSubscriptionHandlers(httpServer);
-// ⚠️ Pay attention to the fact that we are calling `listen` on the http server variable, and not on `app`.
 httpServer.listen(server_1.port, () => {
-    console.log(`🚀 Server ready at http://localhost:${server_1.port}${server.graphqlPath}`);
-    console.log(`🚀 Subscriptions ready at ws://localhost:${server_1.port}${server.subscriptionsPath}`);
+    console.log(`Server ready at http://localhost:${server_1.port}${server.graphqlPath}`);
+    console.log(`Subscriptions ready at ws://localhost:${server_1.port}${server.subscriptionsPath}`);
 });
 //////////////////////////////////////////////////
 // const port2 = process.env.PORT ? process.env.PORT + 1 : 4006

@@ -64,7 +64,7 @@ router
     const user = await functions.searchUserByEmail(email);
     if (!user)
         return res.status(200).json({ loginSuccess: false });
-    if (user.estado !== "activado")
+    if (!user.estado)
         return res.status(200).json({ loginSuccess: false, disable: true });
     const compare = await bcrypt_1.default.compare(password, user.password);
     const jwt_string = process.env.STRING_JWT || "ñmksdfpsdmfbpmfbdf651sdfsdsdASagsdASDG354fab2sdf";

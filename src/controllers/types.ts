@@ -24,8 +24,8 @@ export type typeUser = {
     password: string
     __v?: number
     group: number
-    isAuth: boolean
-    isAdmin: boolean
+    isAuth?: boolean
+    isAdmin?: boolean
     asign?: number[]
 }
 

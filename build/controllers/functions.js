@@ -44,12 +44,9 @@ exports.registerUser = async (email, password, group) => {
     const newUser = {
         role: 0,
         estado: false,
-        actividad: [],
         email,
         password: passwordEncrypted,
-        group,
-        isAuth: false,
-        isAdmin: false
+        group
     };
     try {
         await database_1.client.db(database_1.dbMW).collection(database_1.collUsers).insertOne(newUser);

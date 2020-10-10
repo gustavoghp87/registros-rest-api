@@ -47,12 +47,9 @@ export const registerUser = async (email:string, password:string, group:number) 
     const newUser = <typeUser> {
         role: 0,
         estado: false,
-        actividad: [],
         email,
         password: passwordEncrypted,
-        group,
-        isAuth: false,
-        isAdmin: false
+        group
     }
 
     try {

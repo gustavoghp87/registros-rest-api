@@ -39,7 +39,6 @@ router
             email: req.user.email,
             password: req.user.password,
             estado: req.user.estado,
-            actividad: req.user.actividad,
             group: req.user.group,
             asign: req.user.asign,
             isAuth: true,

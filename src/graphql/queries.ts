@@ -2,6 +2,7 @@ import * as functions from '../controllers/functions'
 import { authGraph, adminGraph } from '../controllers/auth'
 import { client, dbMW, collTerr } from '../controllers/database'
 
+
 type typeArgs0 = {
     terr: string
 }
@@ -10,6 +11,7 @@ type typeArgs1 = {
     token: string
     terr: string
     manzana: string
+    todo: boolean
 }
 
 type typeArgs2 = {
@@ -23,6 +25,11 @@ type typeArgs3 = {
 
 type typeGlobalStatistics = {
     token: string
+}
+
+type typeLocalStatistics = {
+    token: string
+    territorio: string
 }
 
 
@@ -41,7 +48,9 @@ module.exports = {
     getApartmentsByTerritory: async (root:any, args:typeArgs1) => {
         const user = await authGraph(args.token)
         if (!user) return null
-        const viviendas = await functions.searchTerritoryByNumber(args.terr, args.manzana)
+        console.log("buscando", args.terr, args.manzana, args.todo);
+        
+        const viviendas = await functions.searchTerritoryByNumber(args.terr, args.manzana, args.todo)
         return viviendas
     },
     getApartment: async (root:any, args:typeArgs2) => {
@@ -72,6 +81,26 @@ module.exports = {
         const countDejarCarta = await client.db(dbMW).collection(collTerr).find({estado:'A dejar carta'}).count()
         const countNoLlamar = await client.db(dbMW).collection(collTerr).find({estado:'No llamar'}).count()
         const countNoAbonado = await client.db(dbMW).collection(collTerr).find({noAbonado:true}).count()
+        console.log(count, countContesto, countNoContesto, countDejarCarta, countNoLlamar);
+        return {
+            count,
+            countContesto,
+            countNoContesto,
+            countDejarCarta,
+            countNoLlamar,
+            countNoAbonado
+        }
+    },
+    getLocalStatistics: async (root:any, args:typeLocalStatistics) => {
+        const userAuth = await adminGraph(args.token)
+        if (!userAuth) return null
+
+        const count = await client.db(dbMW).collection(collTerr).find({territorio:args.territorio}).count()
+        const countContesto = await client.db(dbMW).collection(collTerr).find({ $and: [{territorio:args.territorio}, {estado:'Contestó'}] }).count()
+        const countNoContesto = await client.db(dbMW).collection(collTerr).find({ $and: [{territorio:args.territorio}, {estado:'No contestó'}] }).count()
+        const countDejarCarta = await client.db(dbMW).collection(collTerr).find({ $and: [{territorio:args.territorio}, {estado:'A dejar carta'}] }).count()
+        const countNoLlamar = await client.db(dbMW).collection(collTerr).find({ $and: [{territorio:args.territorio}, {estado:'No llamar'}] }).count()
+        const countNoAbonado = await client.db(dbMW).collection(collTerr).find({ $and: [{territorio:args.territorio}, {noAbonado:true}] }).count()
         console.log(count, countContesto, countNoContesto, countDejarCarta, countNoLlamar);
         return {
             count,

@@ -86,12 +86,19 @@ exports.countBlocks = async (terr) => {
     console.log("Cantidad de salida", cantidad);
     return cantidad;
 };
-exports.searchTerritoryByNumber = async (terr, manzana) => {
+exports.searchTerritoryByNumber = async (terr, manzana, todo) => {
     console.log("Buscando viviendas por territorio", terr, "manzana", manzana);
-    const viviendas = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({
-        territorio: { $in: [terr] },
-        manzana: { $in: [manzana] }
-    }).limit(10).toArray();
+    let viviendas;
+    if (!todo)
+        viviendas = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({
+            $and: [{ territorio: { $in: [terr] } }, { manzana: { $in: [manzana] } }],
+            $or: [{ estado: 'No predicado' }]
+        }).limit(10).toArray();
+    else
+        viviendas = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({
+            territorio: { $in: [terr] },
+            manzana: { $in: [manzana] }
+        }).limit(10).toArray();
     return viviendas;
 };
 exports.searchBuildingByNumber = async (num) => {

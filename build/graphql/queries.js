@@ -38,7 +38,8 @@ module.exports = {
         const user = await auth_1.authGraph(args.token);
         if (!user)
             return null;
-        const viviendas = await functions.searchTerritoryByNumber(args.terr, args.manzana);
+        console.log("buscando", args.terr, args.manzana, args.todo);
+        const viviendas = await functions.searchTerritoryByNumber(args.terr, args.manzana, args.todo);
         return viviendas;
     },
     getApartment: async (root, args) => {
@@ -72,6 +73,26 @@ module.exports = {
         const countDejarCarta = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({ estado: 'A dejar carta' }).count();
         const countNoLlamar = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({ estado: 'No llamar' }).count();
         const countNoAbonado = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({ noAbonado: true }).count();
+        console.log(count, countContesto, countNoContesto, countDejarCarta, countNoLlamar);
+        return {
+            count,
+            countContesto,
+            countNoContesto,
+            countDejarCarta,
+            countNoLlamar,
+            countNoAbonado
+        };
+    },
+    getLocalStatistics: async (root, args) => {
+        const userAuth = await auth_1.adminGraph(args.token);
+        if (!userAuth)
+            return null;
+        const count = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({ territorio: args.territorio }).count();
+        const countContesto = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({ $and: [{ territorio: args.territorio }, { estado: 'Contestó' }] }).count();
+        const countNoContesto = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({ $and: [{ territorio: args.territorio }, { estado: 'No contestó' }] }).count();
+        const countDejarCarta = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({ $and: [{ territorio: args.territorio }, { estado: 'A dejar carta' }] }).count();
+        const countNoLlamar = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({ $and: [{ territorio: args.territorio }, { estado: 'No llamar' }] }).count();
+        const countNoAbonado = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({ $and: [{ territorio: args.territorio }, { noAbonado: true }] }).count();
         console.log(count, countContesto, countNoContesto, countDejarCarta, countNoLlamar);
         return {
             count,

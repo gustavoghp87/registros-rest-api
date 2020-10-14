@@ -28,8 +28,7 @@
     "graphql-tools": "^6.2.4",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.6.2",
-    "morgan": "^1.10.0",
-    "subscriptions-transport-ws": "^0.9.18"
+    "morgan": "^1.10.0"
   },
   "devDependencies": {
     "@types/axios": "^0.14.0",

@@ -6,7 +6,7 @@ export const dbMW = "Misericordia-Web"
 export const collUsers = "usuarios"
 export const collTerr = "viviendas"
 
-export const client = new MongoClient( process.env.DB_URL,
+export const client = new MongoClient(process.env.DB_URL,
     {
         useNewUrlParser:true,
         useUnifiedTopology:true
@@ -16,5 +16,5 @@ export const client = new MongoClient( process.env.DB_URL,
 
 ;(async () => {
     await client.connect()
-    console.log("DB connected");    
+    console.log("DB connected")
 })()

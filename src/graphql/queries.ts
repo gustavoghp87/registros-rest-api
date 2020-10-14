@@ -12,6 +12,8 @@ type typeArgs1 = {
     terr: string
     manzana: string
     todo: boolean
+    traidos: number
+    traerTodos: boolean
 }
 
 type typeArgs2 = {
@@ -48,9 +50,12 @@ module.exports = {
     getApartmentsByTerritory: async (root:any, args:typeArgs1) => {
         const user = await authGraph(args.token)
         if (!user) return null
-        console.log("buscando", args.terr, args.manzana, args.todo);
+        console.log("buscando", args.terr, args.manzana, args.todo, args.traidos, args.traerTodos)
         
-        const viviendas = await functions.searchTerritoryByNumber(args.terr, args.manzana, args.todo)
+        const viviendas = await functions.searchTerritoryByNumber(
+            args.terr, args.manzana, args.todo, args.traidos, args.traerTodos
+        )
+
         return viviendas
     },
     getApartment: async (root:any, args:typeArgs2) => {

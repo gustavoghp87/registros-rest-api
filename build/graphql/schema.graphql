@@ -88,7 +88,9 @@ type Query {
     countBlocks(terr:String!): typeCantidad
 
     "Devuelve todas las viviendas de un territorio"
-    getApartmentsByTerritory(token:String!, terr:String!, manzana:String!, todo:Boolean!): [typeVivienda]
+    getApartmentsByTerritory(
+        token:String!, terr:String!, manzana:String!, todo:Boolean!, traidos:Int!, traerTodos:Boolean!
+    ): [typeVivienda]
 
     "Devuelve una vivienda por inner_id"
     getApartment(token:String!, inner_id:String!): typeVivienda

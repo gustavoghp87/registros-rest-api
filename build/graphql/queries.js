@@ -38,8 +38,8 @@ module.exports = {
         const user = await auth_1.authGraph(args.token);
         if (!user)
             return null;
-        console.log("buscando", args.terr, args.manzana, args.todo);
-        const viviendas = await functions.searchTerritoryByNumber(args.terr, args.manzana, args.todo);
+        console.log("buscando", args.terr, args.manzana, args.todo, args.traidos, args.traerTodos);
+        const viviendas = await functions.searchTerritoryByNumber(args.terr, args.manzana, args.todo, args.traidos, args.traerTodos);
         return viviendas;
     },
     getApartment: async (root, args) => {

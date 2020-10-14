@@ -91,19 +91,25 @@ export const countBlocks = async (terr:String) => {
     return cantidad
 }
 
-export const searchTerritoryByNumber = async (terr:String, manzana:String, todo:Boolean) => {
+export const searchTerritoryByNumber = async (
+    terr:string, manzana:string, todo:boolean, traidos:number, traerTodos:boolean
+) => {
     console.log("Buscando viviendas por territorio", terr, "manzana", manzana)
     let viviendas:any
     
     if (!todo) viviendas = await client.db(dbMW).collection(collTerr).find({
         $and: [{territorio: {$in: [terr]}}, {manzana: {$in: [manzana]} }],
         $or: [{estado: 'No predicado'}]
-    }).limit(10).toArray()
+    }).limit(traidos).toArray()
 
-    else viviendas = await client.db(dbMW).collection(collTerr).find({
-        territorio: {$in: [terr]},
-        manzana: {$in: [manzana]}
-    }).limit(10).toArray()
+    else {
+        if (traerTodos) viviendas = await client.db(dbMW).collection(collTerr).find(
+            {territorio: {$in: [terr]}, manzana: {$in: [manzana]}}
+        ).toArray()
+        else viviendas = await client.db(dbMW).collection(collTerr).find(
+            {territorio: {$in: [terr]}, manzana: {$in: [manzana]}}
+        ).limit(traidos).toArray()
+    }
     
     return viviendas
 }

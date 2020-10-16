@@ -54,10 +54,10 @@ export const registerUser = async (email:string, password:string, group:number) 
 
     try {
         await client.db(dbMW).collection(collUsers).insertOne(newUser)
-        console.log(newUser);
+        console.log("Creado nuevo usuario", newUser)
         return true
     } catch (e) {
-        console.error(e);
+        console.error(e)
         return false
     }
 }

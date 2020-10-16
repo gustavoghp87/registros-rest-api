@@ -42,6 +42,8 @@ router
     const email = req.body.email || ""
     const password = req.body.password || ""
     const recaptchaToken = req.body.recaptchaToken || ""
+    console.log("Entra en login", email, recaptchaToken);
+    
 
     const checkRecaptch = await functions.checkRecaptchaToken(recaptchaToken)
     if (!checkRecaptch) return res.status(200).json({loginSuccess:false, recaptchaFails:true})
@@ -52,18 +54,12 @@ router
 
     const compare = await bcrypt.compare(password, user.password)
 
-    const jwt_string:string = process.env.STRING_JWT || "ñmksdfpsdmfbpmfbdf651sdfsdsdASagsdASDG354fab2sdf"
-
     if (compare) {
-        const newtoken = await jwt.sign(
-            {userId: user._id },
-            jwt_string,
-            { expiresIn: '2160h' }
-        )
-        await functions.addTokenToUser(user.email, newtoken)
-
-        res.json({loginSuccess: true, newtoken});
-
+        const jwt_string:string = process.env.STRING_JWT || "ñmksdfpsdmfbpmfbdf651sdfsdsdASagsdASDG354fab2sdf"
+        const newtoken = await jwt.sign({userId:user._id}, jwt_string, {expiresIn:'2160h'})
+        const addToken = await functions.addTokenToUser(user.email, newtoken)
+        if (!addToken) res.status(200).json({loginSuccess:false})
+        res.json({loginSuccess:true, newtoken})
     } else res.status(200).json({loginSuccess:false})
 })
 
@@ -83,6 +79,7 @@ router
     const password = req.body.password || ""
     const group = req.body.group || 0
     const recaptchaToken = req.body.recaptchaToken || ""
+    if (!email || !password || !group || !recaptchaToken) return res.status(200).json({regSuccess:false})
 
     const checkRecaptch = await functions.checkRecaptchaToken(recaptchaToken)
     if (!checkRecaptch) return res.status(200).json({regSuccess:false, recaptchaFails:true})

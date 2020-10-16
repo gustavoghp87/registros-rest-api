@@ -14,6 +14,8 @@ declare module "express" {
 
 export const auth = async(req:Request, res:Response, next:NextFunction) => {
 
+    console.log("Entra en auth", req.body)
+
     try {
         let token = req.body.token.split('newtoken=')[1] || "abcde"
         console.log("PASANDO POR /AUTH cookies....", token)

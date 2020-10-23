@@ -105,7 +105,7 @@ export const searchTerritoryByNumber = async (
     else {
         if (traerTodos) viviendas = await client.db(dbMW).collection(collTerr).find(
             {territorio: {$in: [terr]}, manzana: {$in: [manzana]}}
-        ).toArray()
+        ).sort({fechaUlt:1}).toArray()
         else viviendas = await client.db(dbMW).collection(collTerr).find(
             {territorio: {$in: [terr]}, manzana: {$in: [manzana]}}
         ).limit(traidos).toArray()
@@ -116,8 +116,7 @@ export const searchTerritoryByNumber = async (
 
 export const searchBuildingByNumber = async (num:string) => {
     console.log("Buscando vivienda por inner_id", num)
-    const vivienda = await client.db(dbMW).collection(collTerr)
-        .findOne({inner_id:num})
+    const vivienda = await client.db(dbMW).collection(collTerr).findOne({inner_id:num})
     console.log(vivienda)
     return vivienda
 }

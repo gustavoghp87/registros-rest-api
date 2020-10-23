@@ -50,7 +50,7 @@ exports.registerUser = async (email, password, group) => {
     };
     try {
         await database_1.client.db(database_1.dbMW).collection(database_1.collUsers).insertOne(newUser);
-        console.log(newUser);
+        console.log("Creado nuevo usuario", newUser);
         return true;
     }
     catch (e) {
@@ -96,7 +96,7 @@ exports.searchTerritoryByNumber = async (terr, manzana, todo, traidos, traerTodo
         }).limit(traidos).toArray();
     else {
         if (traerTodos)
-            viviendas = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({ territorio: { $in: [terr] }, manzana: { $in: [manzana] } }).toArray();
+            viviendas = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({ territorio: { $in: [terr] }, manzana: { $in: [manzana] } }).sort({ fechaUlt: 1 }).toArray();
         else
             viviendas = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({ territorio: { $in: [terr] }, manzana: { $in: [manzana] } }).limit(traidos).toArray();
     }
@@ -104,8 +104,7 @@ exports.searchTerritoryByNumber = async (terr, manzana, todo, traidos, traerTodo
 };
 exports.searchBuildingByNumber = async (num) => {
     console.log("Buscando vivienda por inner_id", num);
-    const vivienda = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr)
-        .findOne({ inner_id: num });
+    const vivienda = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).findOne({ inner_id: num });
     console.log(vivienda);
     return vivienda;
 };

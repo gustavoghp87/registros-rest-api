@@ -57,6 +57,7 @@ router
     const email = req.body.email || "";
     const password = req.body.password || "";
     const recaptchaToken = req.body.recaptchaToken || "";
+    console.log("Entra en login", email, recaptchaToken);
     const checkRecaptch = await functions.checkRecaptchaToken(recaptchaToken);
     if (!checkRecaptch)
         return res.status(200).json({ loginSuccess: false, recaptchaFails: true });
@@ -66,10 +67,12 @@ router
     if (!user.estado)
         return res.status(200).json({ loginSuccess: false, disable: true });
     const compare = await bcrypt_1.default.compare(password, user.password);
-    const jwt_string = process.env.STRING_JWT || "ñmksdfpsdmfbpmfbdf651sdfsdsdASagsdASDG354fab2sdf";
     if (compare) {
+        const jwt_string = process.env.STRING_JWT || "ñmksdfpsdmfbpmfbdf651sdfsdsdASagsdASDG354fab2sdf";
         const newtoken = await jsonwebtoken_1.default.sign({ userId: user._id }, jwt_string, { expiresIn: '2160h' });
-        await functions.addTokenToUser(user.email, newtoken);
+        const addToken = await functions.addTokenToUser(user.email, newtoken);
+        if (!addToken)
+            res.status(200).json({ loginSuccess: false });
         res.json({ loginSuccess: true, newtoken });
     }
     else
@@ -92,6 +95,8 @@ router
     const password = req.body.password || "";
     const group = req.body.group || 0;
     const recaptchaToken = req.body.recaptchaToken || "";
+    if (!email || !password || !group || !recaptchaToken)
+        return res.status(200).json({ regSuccess: false });
     const checkRecaptch = await functions.checkRecaptchaToken(recaptchaToken);
     if (!checkRecaptch)
         return res.status(200).json({ regSuccess: false, recaptchaFails: true });

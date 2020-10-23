@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.adminGraph = exports.authGraph = exports.admin = exports.auth = void 0;
 const functions_1 = require("../controllers/functions");
 exports.auth = async (req, res, next) => {
+    console.log("Entra en auth", req.body);
     try {
         let token = req.body.token.split('newtoken=')[1] || "abcde";
         console.log("PASANDO POR /AUTH cookies....", token);

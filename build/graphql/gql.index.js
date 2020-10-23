@@ -27,7 +27,7 @@ server.applyMiddleware({ app: server_1.app });
 const httpServer = http_1.createServer(server_1.app);
 server.installSubscriptionHandlers(httpServer);
 httpServer.listen(server_1.port, () => {
-    console.log(`Server ready at http://localhost:${server_1.port}${server.graphqlPath}`);
+    console.log(`\n\nServer ready at http://localhost:${server_1.port}${server.graphqlPath}`);
     console.log(`Subscriptions ready at ws://localhost:${server_1.port}${server.subscriptionsPath}`);
 });
 //////////////////////////////////////////////////

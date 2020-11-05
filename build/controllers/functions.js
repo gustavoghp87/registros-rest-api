@@ -70,21 +70,32 @@ exports.checkRecaptchaToken = async (token) => {
 };
 ////////////////////////////////////////////////////////////////////////////////////////////////
 exports.countBlocks = async (terr) => {
-    let cantidad = 0, cond = true;
-    do {
-        cantidad = cantidad + 1;
-        console.log("Territorio", terr, "cantidad al entrar al ciclo", cantidad);
+    const buscar = ['1', '2', '3', '4', '5', '6', '7', '8'];
+    let manzanas = [];
+    let cantidad = 1;
+    while (cantidad < buscar.length) {
         let busq = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).findOne({
             territorio: { $in: [terr] },
             manzana: { $in: [cantidad.toString()] }
         });
-        if (!busq) {
-            cantidad = cantidad - 1;
-            cond = false;
-        }
-    } while (cond === true);
-    console.log("Cantidad de salida", cantidad);
-    return cantidad;
+        if (busq)
+            manzanas.push(cantidad);
+        cantidad++;
+    }
+    console.log("Array de manzanas:", manzanas);
+    return manzanas[manzanas.length - 1].toString();
+    // let cond = true
+    // do {
+    //     cantidad=cantidad+1
+    //     console.log("Territorio", terr, "cantidad al entrar al ciclo", cantidad);
+    //     let busq = await client.db(dbMW).collection(collTerr).findOne({
+    //         territorio: {$in: [terr]},
+    //         manzana: {$in: [cantidad.toString()]}
+    //     })
+    //     if (!busq) {cantidad = cantidad-1; cond = false}
+    // } while (cond===true) 
+    // console.log("Cantidad de salida", cantidad)
+    // return cantidad
 };
 exports.searchTerritoryByNumber = async (terr, manzana, todo, traidos, traerTodos) => {
     console.log("Buscando viviendas por territorio", terr, "manzana", manzana);

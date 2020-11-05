@@ -69,7 +69,7 @@ export const checkRecaptchaToken = async (token:string) => {
     const verifyURL = `${url}?secret=${privateKey}&response=${publicKey}`
     const axios = await Axios.post(verifyURL)
     const { success } = axios.data
-    console.log("Recaptcha:", success);
+    console.log("Recaptcha:", success)
     return success
 }
 
@@ -77,18 +77,34 @@ export const checkRecaptchaToken = async (token:string) => {
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const countBlocks = async (terr:String) => {
-    let cantidad = 0, cond = true
-    do {
-        cantidad=cantidad+1
-        console.log("Territorio", terr, "cantidad al entrar al ciclo", cantidad);
+
+    const buscar = ['1', '2', '3', '4', '5', '6', '7', '8']
+
+    let manzanas = []
+    let cantidad = 1
+    while ( cantidad < buscar.length) {
         let busq = await client.db(dbMW).collection(collTerr).findOne({
             territorio: {$in: [terr]},
             manzana: {$in: [cantidad.toString()]}
         })
-        if (!busq) {cantidad = cantidad-1; cond = false}
-    } while (cond===true) 
-    console.log("Cantidad de salida", cantidad)
-    return cantidad
+        if (busq) manzanas.push(cantidad)
+        cantidad++
+    }
+    console.log("Array de manzanas:", manzanas)
+    return manzanas[manzanas.length-1].toString()
+
+    // let cond = true
+    // do {
+    //     cantidad=cantidad+1
+    //     console.log("Territorio", terr, "cantidad al entrar al ciclo", cantidad);
+    //     let busq = await client.db(dbMW).collection(collTerr).findOne({
+    //         territorio: {$in: [terr]},
+    //         manzana: {$in: [cantidad.toString()]}
+    //     })
+    //     if (!busq) {cantidad = cantidad-1; cond = false}
+    // } while (cond===true) 
+    // console.log("Cantidad de salida", cantidad)
+    // return cantidad
 }
 
 export const searchTerritoryByNumber = async (

@@ -41,7 +41,7 @@ module.exports = {
         console.log("Buscando cantidad de manzanas")        
         try {
             const cantidad = (await functions.countBlocks(args.terr)).toString()
-            return {cantidad} 
+            return {cantidad}
         } catch(error) {
             console.log(error)
             return null

@@ -5,3 +5,7 @@ env.json
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+territorios-todo.xlsx
+territorio-automatizacion-final.xlsx
+venv/

@@ -102,12 +102,16 @@ exports.searchTerritoryByNumber = async (terr, manzana, todo, traidos, traerTodo
     let viviendas;
     if (!todo)
         viviendas = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({
-            $and: [{ territorio: { $in: [terr] } }, { manzana: { $in: [manzana] } }],
-            $or: [{ estado: 'No predicado' }]
+            $and: [
+                { territorio: { $in: [terr] } },
+                { manzana: { $in: [manzana] } },
+                { estado: 'No predicado' },
+                { $or: [{ noAbonado: false }, { noAbonado: null }] }
+            ]
         }).limit(traidos).toArray();
     else {
         if (traerTodos)
-            viviendas = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({ territorio: { $in: [terr] }, manzana: { $in: [manzana] } }).sort({ fechaUlt: 1 }).toArray();
+            viviendas = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({ territorio: { $in: [terr] }, manzana: { $in: [manzana] } }).sort({ fechaUlt: -1 }).toArray();
         else
             viviendas = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({ territorio: { $in: [terr] }, manzana: { $in: [manzana] } }).limit(traidos).toArray();
     }

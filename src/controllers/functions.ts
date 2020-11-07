@@ -114,14 +114,19 @@ export const searchTerritoryByNumber = async (
     let viviendas:any
     
     if (!todo) viviendas = await client.db(dbMW).collection(collTerr).find({
-        $and: [{territorio: {$in: [terr]}}, {manzana: {$in: [manzana]} }],
-        $or: [{estado: 'No predicado'}]
+        $and: [
+            {territorio: {$in: [terr]}},
+            {manzana: {$in: [manzana]}},
+            {estado: 'No predicado'},
+            {$or: [{noAbonado: false}, {noAbonado: null}]}
+        ]
     }).limit(traidos).toArray()
 
     else {
-        if (traerTodos) viviendas = await client.db(dbMW).collection(collTerr).find(
-            {territorio: {$in: [terr]}, manzana: {$in: [manzana]}}
-        ).sort({fechaUlt:1}).toArray()
+        if (traerTodos)
+            viviendas = await client.db(dbMW).collection(collTerr).find(
+                {territorio: {$in: [terr]}, manzana: {$in: [manzana]}}
+            ).sort({fechaUlt:-1}).toArray()
         else viviendas = await client.db(dbMW).collection(collTerr).find(
             {territorio: {$in: [terr]}, manzana: {$in: [manzana]}}
         ).limit(traidos).toArray()

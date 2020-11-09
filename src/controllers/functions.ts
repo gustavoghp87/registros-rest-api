@@ -25,7 +25,7 @@ export const searchUserByToken = async (newtoken:string) => {
 
 export const searchAllUsers = async () => {
     console.log("Buscando a todos los usuarios")
-    const users = await client.db(dbMW).collection(collUsers).find().toArray()
+    const users = (await client.db(dbMW).collection(collUsers).find().toArray()).reverse()
     return users
 }
 
@@ -126,7 +126,7 @@ export const searchTerritoryByNumber = async (
         if (traerTodos)
             viviendas = await client.db(dbMW).collection(collTerr).find(
                 {territorio: {$in: [terr]}, manzana: {$in: [manzana]}}
-            ).sort({fechaUlt:-1}).toArray()
+            ).sort({fechaUlt:1}).toArray()
         else viviendas = await client.db(dbMW).collection(collTerr).find(
             {territorio: {$in: [terr]}, manzana: {$in: [manzana]}}
         ).limit(traidos).toArray()

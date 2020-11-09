@@ -17,7 +17,7 @@ mydb = myclient["Misericordia-Web"]
 
 print(myclient)
 
-data = pd.read_excel('territorio-automatizacion-final.xlsx')
+data = pd.read_excel('territorio-automatizacion-final2.xlsx')
 
 for i in data.index:
 	# territorio   = str(int(data['territorio'][i]))
@@ -30,9 +30,9 @@ for i in data.index:
 	else:
 	 	noAbonado = False
 
-	timestamp = round(datetime.timestamp(datetime.now())*1000)
-	if (estado=="No predicado" and noAbonado==False):
-		timestamp = ""
+	timestamp = 1604232000000
+	if (estado=="No predicado"):
+		timestamp = 1
 
 	# mydb.viviendas.insert_one(vivienda)
 	myquery = { "telefono": telefono }

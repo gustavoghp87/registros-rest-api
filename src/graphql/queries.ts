@@ -73,7 +73,7 @@ module.exports = {
             return users
         } catch (error) {
             console.log(error, `${Date.now().toLocaleString()}`)
-            return `Error desactivando usuario`
+            return `Error buscando usuarios`
         }
     },
     getGlobalStatistics: async (root:any, args:typeGlobalStatistics) => {

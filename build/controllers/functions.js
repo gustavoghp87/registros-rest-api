@@ -25,7 +25,7 @@ exports.searchUserByToken = async (newtoken) => {
 };
 exports.searchAllUsers = async () => {
     console.log("Buscando a todos los usuarios");
-    const users = await database_1.client.db(database_1.dbMW).collection(database_1.collUsers).find().toArray();
+    const users = (await database_1.client.db(database_1.dbMW).collection(database_1.collUsers).find().toArray()).reverse();
     return users;
 };
 exports.addTokenToUser = async (email, token) => {
@@ -111,7 +111,7 @@ exports.searchTerritoryByNumber = async (terr, manzana, todo, traidos, traerTodo
         }).limit(traidos).toArray();
     else {
         if (traerTodos)
-            viviendas = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({ territorio: { $in: [terr] }, manzana: { $in: [manzana] } }).sort({ fechaUlt: -1 }).toArray();
+            viviendas = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({ territorio: { $in: [terr] }, manzana: { $in: [manzana] } }).sort({ fechaUlt: 1 }).toArray();
         else
             viviendas = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({ territorio: { $in: [terr] }, manzana: { $in: [manzana] } }).limit(traidos).toArray();
     }

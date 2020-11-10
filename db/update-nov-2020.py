@@ -3,7 +3,6 @@ import pandas as pd
 import json
 from datetime import datetime
 
-#pip3 install pymongo[srv]     python2 sin "encoding" en la lectura del archivo
 
 with open('../env.json') as envJSON:
 	env = json.load(envJSON)
@@ -17,7 +16,7 @@ mydb = myclient["Misericordia-Web"]
 
 print(myclient)
 
-data = pd.read_excel('territorio-automatizacion-final2.xlsx')
+data = pd.read_excel('territorio-automatizacion-final5.xlsx')
 
 for i in data.index:
 	# territorio   = str(int(data['territorio'][i]))

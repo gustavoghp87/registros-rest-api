@@ -100,7 +100,7 @@ exports.countBlocks = async (terr) => {
 exports.searchTerritoryByNumber = async (terr, manzana, todo, traidos, traerTodos) => {
     console.log("Buscando viviendas por territorio", terr, "manzana", manzana);
     let viviendas;
-    if (!todo)
+    if (!todo && !traerTodos)
         viviendas = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({
             $and: [
                 { territorio: { $in: [terr] } },
@@ -109,7 +109,16 @@ exports.searchTerritoryByNumber = async (terr, manzana, todo, traidos, traerTodo
                 { $or: [{ noAbonado: false }, { noAbonado: null }] }
             ]
         }).limit(traidos).toArray();
-    else {
+    if (!todo && traerTodos)
+        viviendas = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({
+            $and: [
+                { territorio: { $in: [terr] } },
+                { manzana: { $in: [manzana] } },
+                { estado: 'No predicado' },
+                { $or: [{ noAbonado: false }, { noAbonado: null }] }
+            ]
+        }).toArray();
+    if (todo) {
         if (traerTodos)
             viviendas = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({ territorio: { $in: [terr] }, manzana: { $in: [manzana] } }).sort({ fechaUlt: 1 }).toArray();
         else

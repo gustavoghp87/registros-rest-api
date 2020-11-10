@@ -7,6 +7,5 @@ yarn-debug.log*
 yarn-error.log*
 
 territorios-todo.xlsx
-territorio-automatizacion-final.xlsx
-territorio-automatizacion-final2.xlsx
+*territorio-automatizacion-final*.xlsx
 venv/

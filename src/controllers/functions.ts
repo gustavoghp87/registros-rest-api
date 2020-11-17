@@ -91,20 +91,8 @@ export const countBlocks = async (terr:String) => {
         cantidad++
     }
     console.log("Array de manzanas:", manzanas)
-    return manzanas[manzanas.length-1].toString()
-
-    // let cond = true
-    // do {
-    //     cantidad=cantidad+1
-    //     console.log("Territorio", terr, "cantidad al entrar al ciclo", cantidad);
-    //     let busq = await client.db(dbMW).collection(collTerr).findOne({
-    //         territorio: {$in: [terr]},
-    //         manzana: {$in: [cantidad.toString()]}
-    //     })
-    //     if (!busq) {cantidad = cantidad-1; cond = false}
-    // } while (cond===true) 
-    // console.log("Cantidad de salida", cantidad)
-    // return cantidad
+    //return manzanas[manzanas.length-1].toString()       // manzana mayor
+    return manzanas
 }
 
 export const searchTerritoryByNumber = async (

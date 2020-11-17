@@ -1,6 +1,6 @@
 
 type typeCantidad {
-    cantidad: String
+    cantidad: [String]
 }
 
 type typeVivienda {
@@ -84,7 +84,7 @@ type Subscription {
 }
 
 type Query {
-    "Devuelve la cantidad de manzanas que hay en un territorio"
+    "Devuelve el array de manzanas que hay en un territorio"
     countBlocks(terr:String!): typeCantidad
 
     "Devuelve todas las viviendas de un territorio"

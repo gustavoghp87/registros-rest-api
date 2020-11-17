@@ -38,9 +38,10 @@ type typeLocalStatistics = {
 module.exports = {
 
     countBlocks: async (root:any, args:typeArgs0) => {
-        console.log("Buscando cantidad de manzanas")        
+        console.log("Buscando array de manzanas")        
         try {
-            const cantidad = (await functions.countBlocks(args.terr)).toString()
+            //const cantidad = (await functions.countBlocks(args.terr)).toString()
+            const cantidad = await functions.countBlocks(args.terr)
             return {cantidad}
         } catch(error) {
             console.log(error)

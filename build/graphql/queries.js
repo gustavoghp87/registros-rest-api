@@ -24,9 +24,10 @@ const auth_1 = require("../controllers/auth");
 const database_1 = require("../controllers/database");
 module.exports = {
     countBlocks: async (root, args) => {
-        console.log("Buscando cantidad de manzanas");
+        console.log("Buscando array de manzanas");
         try {
-            const cantidad = (await functions.countBlocks(args.terr)).toString();
+            //const cantidad = (await functions.countBlocks(args.terr)).toString()
+            const cantidad = await functions.countBlocks(args.terr);
             return { cantidad };
         }
         catch (error) {

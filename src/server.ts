@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser'
 export const app = express()
 export const port = process.env.PORT || 4005
 export const NODE_ENV = process.env.NODE_ENV || "dev"
+export const emailPSW = process.env.EMAILPSW || ""
 
 
 require('./controllers/database')
@@ -31,6 +32,7 @@ app.use('/api/users', require('./routes/users'))
 app.use(express.static(path.join(__dirname, 'frontend-src')))
 app.use(express.static(path.join(__dirname, 'build')))
 
+require('./controllers/email').sendEmail()
 
 // ;(() => {
 //     try {

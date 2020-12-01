@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer'
 import { emailPSW } from '../server'
 
-const myEmail = 'maslabook.app@gmail.com'
+const myEmail = 'misericordiawebapp@gmail.com'
 const yourEmail = 'ghc.8786@gmail.com'
 
 let transporter = nodemailer.createTransport({

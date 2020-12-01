@@ -108,7 +108,7 @@ export const searchTerritoryByNumber = async (
             {estado: 'No predicado'},
             {$or: [{noAbonado: false}, {noAbonado: null}]}
         ]
-    }).limit(traidos).toArray()
+    }).toArray()   // quito limit
 
     if (!todo && traerTodos) viviendas = await client.db(dbMW).collection(collTerr).find({
         $and: [

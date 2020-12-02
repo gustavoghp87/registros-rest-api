@@ -1,6 +1,8 @@
 import nodemailer from 'nodemailer'
 import { emailPSW } from '../server'
 
+console.log(emailPSW)
+
 const myEmail = 'misericordiawebapp@gmail.com'
 const yourEmail = 'ghc.8786@gmail.com'
 

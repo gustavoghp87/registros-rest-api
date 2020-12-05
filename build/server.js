@@ -31,7 +31,6 @@ exports.app.use('/api/users', require('./routes/users'));
 //static files
 exports.app.use(express_1.default.static(path_1.default.join(__dirname, 'frontend-src')));
 exports.app.use(express_1.default.static(path_1.default.join(__dirname, 'build')));
-require('./controllers/email').sendEmail();
 // ;(() => {
 //     try {
 //         app.listen(port, () => {

@@ -4,6 +4,7 @@ import { authGraph, adminGraph } from '../controllers/auth'
 import { ObjectId } from 'mongodb'
 import { pubsub } from './resolvers'
 import { typeUser } from '../controllers/types'
+import { checkAlert } from '../controllers/checkAlert'
 
 
 type typeCambiar = {
@@ -101,6 +102,7 @@ module.exports = {
         )
         const viviendaNuevoEstado = await functions.searchBuildingByNumber(input.inner_id)
         pubsub.publish('cambiarEstado', {escucharCambioDeEstado: viviendaNuevoEstado})
+        checkAlert()
         return viviendaNuevoEstado
     },
     agregarVivienda: async (root:any, { input }:typeAvivienda) => {

@@ -1,7 +1,6 @@
 import nodemailer from 'nodemailer'
 import { emailPSW } from '../server'
 
-console.log(emailPSW)
 
 const myEmail = 'misericordiawebapp@gmail.com'
 const yourEmail = 'ghc.8786@gmail.com'
@@ -14,21 +13,25 @@ let transporter = nodemailer.createTransport({
     }
 })
 
-const mailOptions = {
+export const sendEmail = (territorios:number[]) => {
+
+  const mailOptions = {
     from: myEmail,
     to: yourEmail,
-    subject: 'App: Territorio casi terminado',
-    html: '<h1>Welcome</h1><p>That was easy!</p>'
-}
+    subject: 'App: Alerta de territorios casi terminados',
+    html: `<h1>Misericordia Web</h1>
+      <p>Este correo automático advierte que los siguientes territorios tienen menos de 50 viviendas libres para predicar:</p><br/>
+      ${territorios.map((territorio:number) => (
+        `<p>Territorio ${territorio}</p><br/>`
+      ))}
+    `
+  }
 
-// text: 'Quedan pocos teléfonos sin predicar en los siguientes territorios:',
-
-export const sendEmail = () => {
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.log("No se mandó correo:", error)
-      } else {
-        console.log('Email sent: ' + info.response)
-      }
-    })
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log("No se mandó correo:", error)
+    } else {
+      console.log('Email sent: ' + info.response)
+    }
+  })
 }

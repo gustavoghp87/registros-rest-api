@@ -24,6 +24,7 @@ const functions = __importStar(require("../controllers/functions"));
 const auth_1 = require("../controllers/auth");
 const mongodb_1 = require("mongodb");
 const resolvers_1 = require("./resolvers");
+const checkAlert_1 = require("../controllers/checkAlert");
 module.exports = {
     controlarUsuario: async (root, { input }) => {
         console.log("aca1", input);
@@ -66,6 +67,7 @@ module.exports = {
         await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).updateOne({ inner_id: input.inner_id }, { $set: { estado: input.estado, noAbonado: input.noAbonado, fechaUlt: Date.now() } });
         const viviendaNuevoEstado = await functions.searchBuildingByNumber(input.inner_id);
         resolvers_1.pubsub.publish('cambiarEstado', { escucharCambioDeEstado: viviendaNuevoEstado });
+        checkAlert_1.checkAlert();
         return viviendaNuevoEstado;
     },
     agregarVivienda: async (root, { input }) => {

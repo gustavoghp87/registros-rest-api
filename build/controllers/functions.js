@@ -97,7 +97,7 @@ exports.searchTerritoryByNumber = async (terr, manzana, todo, traidos, traerTodo
                 { estado: 'No predicado' },
                 { $or: [{ noAbonado: false }, { noAbonado: null }] }
             ]
-        }).limit(traidos).toArray();
+        }).toArray(); // quito limit
     if (!todo && traerTodos)
         viviendas = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({
             $and: [

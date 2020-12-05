@@ -32,7 +32,6 @@ app.use('/api/users', require('./routes/users'))
 app.use(express.static(path.join(__dirname, 'frontend-src')))
 app.use(express.static(path.join(__dirname, 'build')))
 
-require('./controllers/email').sendEmail()
 
 // ;(() => {
 //     try {

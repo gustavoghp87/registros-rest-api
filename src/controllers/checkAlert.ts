@@ -1,5 +1,6 @@
 import { client, dbMW, collTerr } from './database'
 import { sendEmail } from './email'
+import { ObjectId } from 'mongodb'
 
 
 // esta función chequea en base de datos si ya se envió una alerta por email en las últimas 24 hs
@@ -9,17 +10,16 @@ export const checkAlert = async () => {
     const timestampRightNow = + new Date()
     console.log(`Timestamp: ${timestampRightNow}`)
 
-    new Promise(resolve => setTimeout(resolve, 10000)).then(async () => {
+    //new Promise(resolve => setTimeout(resolve, 10000)).then(async () => {
     
         const lastEmailTime = (await client.db(dbMW).collection('emailAlert').findOne()).lastEmail
         console.log(`Timestamp ultimo email: ${lastEmailTime}`);
         
         console.log(`Diferencia: ${timestampRightNow - lastEmailTime}, o sea ${(timestampRightNow-lastEmailTime)/1000/60/60} horas`);
         
-        //if (timestampRightNow - lastEmailTime > 86400000) checkTerritories()   // 24 horas
+        if (timestampRightNow - lastEmailTime > 86400000) checkTerritories()   // 24 horas
 
-        checkTerritories()
-    })
+    //})
 
 }
 
@@ -42,9 +42,15 @@ const checkTerritories = async () => {
         }).count()
         console.log(`Territorio ${i}, libres: ${libres}`)
         if (libres<50) alert.push(i)
-        console.log(`Alert: ${alert}`);
-        
+        console.log(`Alert: ${alert}`)
         i++
     }
-    if (alert.length) sendEmail(alert)
+
+    if (alert.length) {
+        sendEmail(alert)
+        client.db(dbMW).collection('emailAlert').updateOne(
+            {_id:new ObjectId('5fcbdce29382c6966fa4d583')},
+            {lastEmail: + new Date()}
+        )
+    }
 }

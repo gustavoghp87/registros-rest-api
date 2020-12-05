@@ -1,9 +1,6 @@
 import nodemailer from 'nodemailer'
-import { emailPSW } from '../server'
+import { myEmail, yourEmail, emailPSW } from '../server'
 
-
-const myEmail = 'misericordiawebapp@gmail.com'
-const yourEmail = 'ghc.8786@gmail.com'
 
 let transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -12,6 +9,7 @@ let transporter = nodemailer.createTransport({
         pass: emailPSW
     }
 })
+
 
 export const sendEmail = (territorios:number[]) => {
 
@@ -22,7 +20,7 @@ export const sendEmail = (territorios:number[]) => {
     html: `<h1>Misericordia Web</h1>
       <p>Este correo automático advierte que los siguientes territorios tienen menos de 50 viviendas libres para predicar:</p><br/>
       ${territorios.map((territorio:number) => (
-        `<p>Territorio ${territorio}</p><br/>`
+        `<p>Territorio ${territorio}</p>`
       ))}
     `
   }

@@ -8,6 +8,8 @@ export const app = express()
 export const port = process.env.PORT || 4005
 export const NODE_ENV = process.env.NODE_ENV || "dev"
 export const emailPSW = process.env.EMAILPSW || ""
+export const myEmail = process.env.myEmail || ""
+export const yourEmail = process.env.yourEmail || ""
 
 
 require('./controllers/database')

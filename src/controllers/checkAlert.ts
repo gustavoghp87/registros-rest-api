@@ -50,7 +50,7 @@ const checkTerritories = async () => {
         sendEmail(alert)
         client.db(dbMW).collection('emailAlert').updateOne(
             {_id:new ObjectId('5fcbdce29382c6966fa4d583')},
-            {lastEmail: + new Date()}
+            {$set: {lastEmail: + new Date()}}
         )
     }
 }

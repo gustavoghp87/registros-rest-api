@@ -1,6 +1,7 @@
-import { client, dbMW, collTerr } from './database'
+import { client, dbMW, collTerr, collUsers } from './database'
 import { sendEmail } from './email'
 import { ObjectId } from 'mongodb'
+import { typeUser } from './types'
 
 
 // esta función chequea en base de datos si ya se envió una alerta por email en las últimas 24 hs
@@ -18,7 +19,8 @@ export const checkAlert = async () => {
         console.log(`Diferencia: ${timestampRightNow - lastEmailTime}, o sea ${(timestampRightNow-lastEmailTime)/1000/60/60} horas`);
         
         if (timestampRightNow - lastEmailTime > 86400000) checkTerritories()   // 24 horas
-
+                
+        checkTerritories()
     //})
 
 }
@@ -29,7 +31,7 @@ export const checkAlert = async () => {
 const checkTerritories = async () => {
     console.log("Ejecutando checkTerritories")
 
-    let alert:number[] = []
+    let alert:string[] = []
     
     let i:number = 1
     while (i < 57) {
@@ -41,10 +43,26 @@ const checkTerritories = async () => {
             ]
         }).count()
         console.log(`Territorio ${i}, libres: ${libres}`)
-        if (libres<50) alert.push(i)
-        console.log(`Alert: ${alert}`)
+
+        if (libres<50) {
+            let text:string = `Territorio ${i.toString()}`
+            const users = await client.db(dbMW).collection(collUsers).find({
+                asign: {$in: [i]}
+            }).toArray()
+
+            if (users.length) {
+                text += `, asignado a `
+                users.forEach((user:typeUser) => {
+                    text += `${user.email} `
+                })
+            }
+            alert.push(text)
+            console.log(text)
+        }
         i++
     }
+
+    console.log(`Alert: ${alert}`)
 
     if (alert.length) {
         sendEmail(alert)

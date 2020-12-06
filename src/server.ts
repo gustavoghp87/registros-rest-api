@@ -22,7 +22,7 @@ app.use(express.json())
 app.use(morgan('dev'))
 
 // routes
-app.all('/', function(req, res, next) {
+app.all('/', (req, res, next) => {
     res.header({"Access-Control-Allow-Origin":true})
     res.header("Access-Control-Allow-Headers", "X-Requested-With")
     next()

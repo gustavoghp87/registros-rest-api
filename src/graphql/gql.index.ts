@@ -26,12 +26,12 @@ router.use('/', graphqlHTTP({
 
 module.exports = router
 
-const server = new ApolloServer({ typeDefs, resolvers });
+const server = new ApolloServer({ typeDefs, resolvers })
 
 server.applyMiddleware({app})
 
-const httpServer = createServer(app);
-server.installSubscriptionHandlers(httpServer);
+const httpServer = createServer(app)
+server.installSubscriptionHandlers(httpServer)
 
 httpServer.listen(port, () => {
   console.log(`\n\nServer ready at http://localhost:${port}${server.graphqlPath}`)

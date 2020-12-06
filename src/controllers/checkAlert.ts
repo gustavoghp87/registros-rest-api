@@ -19,8 +19,6 @@ export const checkAlert = async () => {
         console.log(`Diferencia: ${timestampRightNow - lastEmailTime}, o sea ${(timestampRightNow-lastEmailTime)/1000/60/60} horas`);
         
         if (timestampRightNow - lastEmailTime > 86400000) checkTerritories()   // 24 horas
-                
-        checkTerritories()
     //})
 
 }

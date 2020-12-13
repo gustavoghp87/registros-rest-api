@@ -43,17 +43,22 @@ const checkTerritories = async () => {
         console.log(`Territorio ${i}, libres: ${libres}`)
 
         if (libres<50) {
-            let text:string = `Territorio ${i.toString()}`
-            const users = await client.db(dbMW).collection(collUsers).find({
+            let users = await client.db(dbMW).collection(collUsers).find({
                 asign: {$in: [i]}
             }).toArray()
-
+                        
+            let text:string = `Territorio ${i.toString()}`
+            
             if (users.length) {
                 text += `, asignado a `
                 users.forEach((user:typeUser) => {
-                    text += `${user.email} `
+                    if (user.email!=='ghp.2120@gmail.com' && user.email!=='ghp.21@hotmail.com')
+                        text += `${user.email} `
                 })
+                if (!text.includes('@')) text = `Territorio ${i.toString()}`
+                
             }
+
             alert.push(text)
             console.log(text)
         }
@@ -65,7 +70,7 @@ const checkTerritories = async () => {
     if (alert.length) {
         sendEmail(alert)
         client.db(dbMW).collection('emailAlert').updateOne(
-            {_id:new ObjectId('5fcbdce29382c6966fa4d583')},
+            {_id: new ObjectId('5fcbdce29382c6966fa4d583')},
             {$set: {lastEmail: + new Date()}}
         )
     }

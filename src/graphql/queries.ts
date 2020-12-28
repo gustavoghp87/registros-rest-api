@@ -107,14 +107,17 @@ module.exports = {
         const countDejarCarta = await client.db(dbMW).collection(collTerr).find({ $and: [{territorio:args.territorio}, {estado:'A dejar carta'}] }).count()
         const countNoLlamar = await client.db(dbMW).collection(collTerr).find({ $and: [{territorio:args.territorio}, {estado:'No llamar'}] }).count()
         const countNoAbonado = await client.db(dbMW).collection(collTerr).find({ $and: [{territorio:args.territorio}, {noAbonado:true}] }).count()
-        console.log(count, countContesto, countNoContesto, countDejarCarta, countNoLlamar);
+        const libres = await client.db(dbMW).collection(collTerr).find({ $and: [{territorio:args.territorio}, {$or: [{estado: 'No predicado'}]}, {$or: [{noAbonado: false}, {noAbonado: null}]}]}).count()
+        console.log(count, countContesto, countNoContesto, countDejarCarta, countNoLlamar, libres)
         return {
+            territorio: args.territorio,
             count,
             countContesto,
             countNoContesto,
             countDejarCarta,
             countNoLlamar,
-            countNoAbonado
+            countNoAbonado,
+            libres
         }
     }
 }

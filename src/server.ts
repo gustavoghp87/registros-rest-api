@@ -22,13 +22,15 @@ app.use(express.json())
 app.use(morgan('dev'))
 
 // routes
-app.all('/', (req, res, next) => {
-    res.header({"Access-Control-Allow-Origin":true})
-    res.header("Access-Control-Allow-Headers", "X-Requested-With")
-    next()
-})
+// app.all('/', (req, res, next) => {
+//     res.header({"Access-Control-Allow-Origin":true})
+//     res.header("Access-Control-Allow-Headers", "X-Requested-With")
+//     next()
+// })
 app.use('/api/graphql', require('./graphql/gql.index'))
 app.use('/api/users', require('./routes/users'))
+app.use('/api/statistics', require('./routes/statistics'))
+app.use('/api/reset', require('./routes/reset'))
 
 //static files
 app.use(express.static(path.join(__dirname, 'frontend-src')))

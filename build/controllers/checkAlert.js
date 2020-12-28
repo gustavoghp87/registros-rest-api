@@ -25,6 +25,7 @@ const checkTerritories = async () => {
         const libres = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).find({
             $and: [
                 { territorio: i.toString() },
+                //{$or: [{estado: 'No predicado'}, {estado: 'No contestó'}]},
                 { estado: 'No predicado' },
                 { $or: [{ noAbonado: false }, { noAbonado: null }] }
             ]

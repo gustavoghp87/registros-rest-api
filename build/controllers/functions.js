@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.searchBuildingByNumber = exports.searchTerritoryByNumber = exports.countBlocks = exports.checkRecaptchaToken = exports.registerUser = exports.addTokenToUser = exports.searchAllUsers = exports.searchUserByToken = exports.searchUserById = exports.searchUserByEmail = void 0;
+exports.resetTerritory = exports.searchBuildingByNumber = exports.searchTerritoryByNumber = exports.countBlocks = exports.checkRecaptchaToken = exports.registerUser = exports.addTokenToUser = exports.searchAllUsers = exports.searchUserByToken = exports.searchUserById = exports.searchUserByEmail = void 0;
 const database_1 = require("./database");
 const axios_1 = __importDefault(require("axios"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
@@ -14,8 +14,7 @@ exports.searchUserByEmail = async (email) => {
 };
 exports.searchUserById = async (_id) => {
     console.log("buscando por id,", _id);
-    const user = await database_1.client.db(database_1.dbMW).collection(database_1.collUsers)
-        .findOne({ _id: new mongodb_1.ObjectId(_id) });
+    const user = await database_1.client.db(database_1.dbMW).collection(database_1.collUsers).findOne({ _id: new mongodb_1.ObjectId(_id) });
     return user;
 };
 exports.searchUserByToken = async (newtoken) => {
@@ -120,4 +119,74 @@ exports.searchBuildingByNumber = async (num) => {
     const vivienda = await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).findOne({ inner_id: num });
     console.log(vivienda);
     return vivienda;
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
+exports.resetTerritory = async (token, option, territorio) => {
+    token = token.split('newtoken=')[1] || "abcde";
+    const user = await exports.searchUserByToken(token);
+    if (!user || user.role !== 1) {
+        console.log("No autenticado por token");
+        return false;
+    }
+    console.log("Pasó auth ############");
+    const time = Date.now(); // todo en milisegundos
+    const sixMonths = 15778458000;
+    const timeSixMonths = time - sixMonths;
+    if (option === 1) {
+        console.log("Entra en opción 1"); // limpiar más de 6 meses
+        await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).updateMany({
+            $and: [
+                { territorio },
+                { $or: [{ noAbonado: false }, { noAbonado: null }] },
+                { fechaUlt: { $lt: timeSixMonths } }
+            ]
+        }, {
+            $set: { estado: "No predicado" }
+        }, {
+            multi: true
+        });
+        return true;
+    }
+    if (option === 2) {
+        console.log("Entra en opción 2"); // limpiar todos
+        await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).updateMany({
+            $and: [
+                { territorio },
+                { $or: [{ noAbonado: false }, { noAbonado: null }] }
+            ]
+        }, {
+            $set: { estado: "No predicado" }
+        }, {
+            multi: true
+        });
+        return true;
+    }
+    if (option === 3) {
+        console.log("Entra en opción 3"); // limpiar y no abonados de más de 6 meses
+        await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).updateMany({
+            $and: [
+                { territorio },
+                { fechaUlt: { $lt: timeSixMonths } }
+            ]
+        }, {
+            $set: { estado: "No predicado", noAbonado: false }
+        }, {
+            multi: true
+        });
+        return true;
+    }
+    if (option === 4) {
+        console.log("Entra en opción 4"); // limpiar absolutamente todo
+        await database_1.client.db(database_1.dbMW).collection(database_1.collTerr).updateMany({
+            $and: [
+                { territorio }
+            ]
+        }, {
+            $set: { estado: "No predicado", noAbonado: false }
+        }, {
+            multi: true
+        });
+        return true;
+    }
+    return false;
 };

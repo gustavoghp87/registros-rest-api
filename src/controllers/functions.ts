@@ -1,6 +1,6 @@
 import { client, dbMW, collUsers, collTerr } from './database'
 import Axios from 'axios'
-import { typeUser, typeVivienda } from '../controllers/types'
+import { typeUser } from './types'
 import bcrypt from 'bcrypt'
 import { ObjectId } from 'mongodb'
 
@@ -12,13 +12,12 @@ export const searchUserByEmail = async (email:string) => {
 
 export const searchUserById = async (_id:string) => {
     console.log("buscando por id,", _id);
-    const user = await client.db(dbMW).collection(collUsers)
-        .findOne({_id: new ObjectId(_id)})
+    const user = await client.db(dbMW).collection(collUsers).findOne({_id: new ObjectId(_id)})
     return user
 }
 
 export const searchUserByToken = async (newtoken:string) => {
-    console.log("Buscando por token");
+    console.log("Buscando por token")
     const user = await client.db(dbMW).collection(collUsers).findOne({newtoken})
     return user
 }
@@ -137,4 +136,81 @@ export const searchBuildingByNumber = async (num:string) => {
     const vivienda = await client.db(dbMW).collection(collTerr).findOne({inner_id:num})
     console.log(vivienda)
     return vivienda
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const resetTerritory = async (token:string, option:number, territorio:string) => {
+
+    token = token.split('newtoken=')[1] || "abcde"
+    const user = await searchUserByToken(token)
+    if (!user || user.role!==1) {console.log("No autenticado por token"); return false}
+    console.log("Pasó auth ############")
+
+    const time = Date.now()                              // todo en milisegundos
+    const sixMonths = 15778458000
+    const timeSixMonths = time - sixMonths
+
+    if (option===1) {
+        console.log("Entra en opción 1")                 // limpiar más de 6 meses
+        await client.db(dbMW).collection(collTerr).updateMany({
+            $and: [
+                {territorio},
+                {$or: [{noAbonado: false}, {noAbonado: null}]},
+                {fechaUlt: {$lt: timeSixMonths}}
+            ]
+        }, {
+            $set: {estado: "No predicado"}
+        }, {
+            multi:true
+        })
+        return true
+    }
+    
+    if (option===2) {
+        console.log("Entra en opción 2")                 // limpiar todos
+        await client.db(dbMW).collection(collTerr).updateMany({
+            $and: [
+                {territorio},
+                {$or: [{noAbonado: false}, {noAbonado: null}]}
+            ]
+        }, {
+            $set: {estado: "No predicado"}
+        }, {
+            multi:true
+        })
+        return true
+    }
+    
+    if (option===3) {
+        console.log("Entra en opción 3")                 // limpiar y no abonados de más de 6 meses
+        await client.db(dbMW).collection(collTerr).updateMany({
+            $and: [
+                {territorio},
+                {fechaUlt: {$lt: timeSixMonths}}
+            ]
+        }, {
+            $set: {estado: "No predicado", noAbonado:false}
+        }, {
+            multi:true
+        })
+        return true
+    }
+    
+    if (option===4) {
+        console.log("Entra en opción 4")                 // limpiar absolutamente todo
+        await client.db(dbMW).collection(collTerr).updateMany({
+            $and: [
+                {territorio}
+            ]
+        }, {
+            $set: {estado: "No predicado", noAbonado:false}
+        }, {
+            multi:true
+        })
+        return true
+    }
+    return false
+
 }

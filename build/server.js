@@ -23,13 +23,15 @@ exports.app.use(express_1.default.urlencoded({ extended: true }));
 exports.app.use(express_1.default.json());
 exports.app.use(morgan_1.default('dev'));
 // routes
-exports.app.all('/', (req, res, next) => {
-    res.header({ "Access-Control-Allow-Origin": true });
-    res.header("Access-Control-Allow-Headers", "X-Requested-With");
-    next();
-});
+// app.all('/', (req, res, next) => {
+//     res.header({"Access-Control-Allow-Origin":true})
+//     res.header("Access-Control-Allow-Headers", "X-Requested-With")
+//     next()
+// })
 exports.app.use('/api/graphql', require('./graphql/gql.index'));
 exports.app.use('/api/users', require('./routes/users'));
+exports.app.use('/api/statistics', require('./routes/statistics'));
+exports.app.use('/api/reset', require('./routes/reset'));
 //static files
 exports.app.use(express_1.default.static(path_1.default.join(__dirname, 'frontend-src')));
 exports.app.use(express_1.default.static(path_1.default.join(__dirname, 'build')));

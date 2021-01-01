@@ -225,3 +225,28 @@ export const resetTerritory = async (token:string, option:number, territorio:str
     return false
 
 }
+
+
+export const getCampaign = async (token:string) => {
+    token = token.split('newtoken=')[1] || "abcde"
+    const user = await searchUserByToken(token)
+    if (!user || user.role!==1) {console.log("No autenticado por token"); return false}
+    console.log("Pasó auth ############ mandando campanya 2021")
+    try {
+        const pack = await client.db(dbMW).collection('campanya').find().toArray()
+        return pack
+    } catch (error) {console.error(error)}
+}
+
+
+export const asignCampaign = async (token:string, id:number, email:string) => {
+    token = token.split('newtoken=')[1] || "abcde"
+    const user = await searchUserByToken(token)
+    if (!user || user.role!==1) {console.log("No autenticado por token"); return false}
+    console.log("Pasó auth ############ asignando usuario a campanya 2021")
+    try {
+        if (email==='Nadie') await client.db(dbMW).collection('campanya').updateOne({id}, {$set: {asignado:'No asignado'}})
+        else await client.db(dbMW).collection('campanya').updateOne({id}, {$set: {asignado:email}})
+        return true
+    } catch (error) {console.error(error); return false}
+}

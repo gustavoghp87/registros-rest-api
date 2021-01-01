@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resetTerritory = exports.searchBuildingByNumber = exports.searchTerritoryByNumber = exports.countBlocks = exports.changeMode = exports.checkRecaptchaToken = exports.registerUser = exports.addTokenToUser = exports.searchAllUsers = exports.searchUserByToken = exports.searchUserById = exports.searchUserByEmail = void 0;
+exports.asignCampaign = exports.getCampaign = exports.resetTerritory = exports.searchBuildingByNumber = exports.searchTerritoryByNumber = exports.countBlocks = exports.changeMode = exports.checkRecaptchaToken = exports.registerUser = exports.addTokenToUser = exports.searchAllUsers = exports.searchUserByToken = exports.searchUserById = exports.searchUserByEmail = void 0;
 const database_1 = require("./database");
 const axios_1 = __importDefault(require("axios"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
@@ -200,4 +200,40 @@ exports.resetTerritory = async (token, option, territorio) => {
         return true;
     }
     return false;
+};
+exports.getCampaign = async (token) => {
+    token = token.split('newtoken=')[1] || "abcde";
+    const user = await exports.searchUserByToken(token);
+    if (!user || user.role !== 1) {
+        console.log("No autenticado por token");
+        return false;
+    }
+    console.log("Pasó auth ############ mandando campanya 2021");
+    try {
+        const pack = await database_1.client.db(database_1.dbMW).collection('campanya').find().toArray();
+        return pack;
+    }
+    catch (error) {
+        console.error(error);
+    }
+};
+exports.asignCampaign = async (token, id, email) => {
+    token = token.split('newtoken=')[1] || "abcde";
+    const user = await exports.searchUserByToken(token);
+    if (!user || user.role !== 1) {
+        console.log("No autenticado por token");
+        return false;
+    }
+    console.log("Pasó auth ############ asignando usuario a campanya 2021");
+    try {
+        if (email === 'Nadie')
+            await database_1.client.db(database_1.dbMW).collection('campanya').updateOne({ id }, { $set: { asignado: 'No asignado' } });
+        else
+            await database_1.client.db(database_1.dbMW).collection('campanya').updateOne({ id }, { $set: { asignado: email } });
+        return true;
+    }
+    catch (error) {
+        console.error(error);
+        return false;
+    }
 };

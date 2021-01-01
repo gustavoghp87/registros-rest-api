@@ -31,6 +31,7 @@ app.use('/api/graphql', require('./graphql/gql.index'))
 app.use('/api/users', require('./routes/users'))
 app.use('/api/statistics', require('./routes/statistics'))
 app.use('/api/reset', require('./routes/reset'))
+app.use('/api/campaign', require('./routes/campaign'))
 
 //static files
 app.use(express.static(path.join(__dirname, 'frontend-src')))

@@ -32,6 +32,7 @@ exports.app.use('/api/graphql', require('./graphql/gql.index'));
 exports.app.use('/api/users', require('./routes/users'));
 exports.app.use('/api/statistics', require('./routes/statistics'));
 exports.app.use('/api/reset', require('./routes/reset'));
+exports.app.use('/api/campaign', require('./routes/campaign'));
 //static files
 exports.app.use(express_1.default.static(path_1.default.join(__dirname, 'frontend-src')));
 exports.app.use(express_1.default.static(path_1.default.join(__dirname, 'build')));

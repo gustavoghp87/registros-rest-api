@@ -72,6 +72,17 @@ export const checkRecaptchaToken = async (token:string) => {
     return success
 }
 
+export const changeMode = async (email:string, darkMode:boolean) => {
+    try {
+        await client.db(dbMW).collection(collUsers).updateOne({email}, {$set:{darkMode}})
+        console.log("Modo oscuro cambiado de", !darkMode, "a", darkMode, "(" + email + ")")
+        return true
+    } catch(error) {
+        console.log("Error al intentar cambiar modo oscuro...", error)
+        return false
+    }
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 

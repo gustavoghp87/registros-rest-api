@@ -22,7 +22,8 @@ router
             group: req.user.group,
             asign: req.user.asign,
             isAuth: true,
-            isAdmin: req.user.role==1 ? true : false
+            isAdmin: req.user.role==1 ? true : false,
+            darkMode: req.user.darkMode
         }
 
         res.status(200).json(userData)
@@ -91,6 +92,17 @@ router
     if (!register) return res.json({regSuccess:false})
 
     res.status(200).json({regSuccess:true})
+})
+
+
+.post('/change-mode', async (req, res) => {
+    const token = req.body.token.split('=')[1]
+    const user = await functions.searchUserByToken(token)
+    if (!user) return res.json({success:false})
+    try {
+        functions.changeMode(user.email, req.body.darkMode)
+        res.json({success:true, darkMode:req.body.darkMode})
+    } catch (e) {console.log(e); res.json({success:false})}
 })
 
 

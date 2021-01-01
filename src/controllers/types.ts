@@ -27,9 +27,10 @@ export type typeUser = {
     isAuth?: boolean
     isAdmin?: boolean
     asign?: number[]
+    darkMode?: boolean
 }
 
-export type territorioType = {
+export type typeTerritorio = {
     _id?: string
     inner_id: string
     territorio: string

@@ -1,6 +1,6 @@
 import { client, dbMW, collUsers, collTerr } from './database'
 import Axios from 'axios'
-import { typeUser } from './types'
+import { typePack, typeUser } from './types'
 import bcrypt from 'bcrypt'
 import { ObjectId } from 'mongodb'
 
@@ -250,3 +250,40 @@ export const asignCampaign = async (token:string, id:number, email:string) => {
         return true
     } catch (error) {console.error(error); return false}
 }
+
+
+export const getPack = async (id:number) => {
+    const pack = await client.db(dbMW).collection('campanya').findOne({id})
+    return pack
+}
+
+
+export const clickBox = async (token:string, tel:number, id:number, checked:boolean) => {
+    try {
+        token = token.split('newtoken=')[1] || "abcde"
+        const user = await searchUserByToken(token)
+        if (!user || user.role!==1) {console.log("No autenticado por token"); return false}
+        
+        const pack:typePack = await client.db(dbMW).collection('campanya').findOne({id})
+        if (pack.asignado!==user.email) return false
+
+        console.log("Pasó auth ############ cambiando estado de tel de campanya 2021")
+
+        if (checked) {
+            await client.db(dbMW).collection('campanya').updateOne({id}, {$pull: {llamados:tel}})
+            await client.db(dbMW).collection('campanya').updateOne({id}, {$set: {terminado:false}})
+        } else {
+            await client.db(dbMW).collection('campanya').updateOne({id}, {$addToSet: {llamados:tel}})
+            const packN:typePack = await client.db(dbMW).collection('campanya').findOne({id})
+            if (packN && packN.llamados && packN.llamados.length===50) {
+                console.log("YA SON 50")
+                await client.db(dbMW).collection('campanya').updateOne({id}, {$set: {terminado:true}})
+            }
+        }
+        return true
+    } catch (error) {
+        console.error(error)
+        return false
+    }
+}
+

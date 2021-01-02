@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.asignCampaign = exports.getCampaign = exports.resetTerritory = exports.searchBuildingByNumber = exports.searchTerritoryByNumber = exports.countBlocks = exports.changeMode = exports.checkRecaptchaToken = exports.registerUser = exports.addTokenToUser = exports.searchAllUsers = exports.searchUserByToken = exports.searchUserById = exports.searchUserByEmail = void 0;
+exports.clickBox = exports.getPack = exports.asignCampaign = exports.getCampaign = exports.resetTerritory = exports.searchBuildingByNumber = exports.searchTerritoryByNumber = exports.countBlocks = exports.changeMode = exports.checkRecaptchaToken = exports.registerUser = exports.addTokenToUser = exports.searchAllUsers = exports.searchUserByToken = exports.searchUserById = exports.searchUserByEmail = void 0;
 const database_1 = require("./database");
 const axios_1 = __importDefault(require("axios"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
@@ -230,6 +230,41 @@ exports.asignCampaign = async (token, id, email) => {
             await database_1.client.db(database_1.dbMW).collection('campanya').updateOne({ id }, { $set: { asignado: 'No asignado' } });
         else
             await database_1.client.db(database_1.dbMW).collection('campanya').updateOne({ id }, { $set: { asignado: email } });
+        return true;
+    }
+    catch (error) {
+        console.error(error);
+        return false;
+    }
+};
+exports.getPack = async (id) => {
+    const pack = await database_1.client.db(database_1.dbMW).collection('campanya').findOne({ id });
+    return pack;
+};
+exports.clickBox = async (token, tel, id, checked) => {
+    try {
+        token = token.split('newtoken=')[1] || "abcde";
+        const user = await exports.searchUserByToken(token);
+        if (!user || user.role !== 1) {
+            console.log("No autenticado por token");
+            return false;
+        }
+        const pack = await database_1.client.db(database_1.dbMW).collection('campanya').findOne({ id });
+        if (pack.asignado !== user.email)
+            return false;
+        console.log("Pasó auth ############ cambiando estado de tel de campanya 2021");
+        if (checked) {
+            await database_1.client.db(database_1.dbMW).collection('campanya').updateOne({ id }, { $pull: { llamados: tel } });
+            await database_1.client.db(database_1.dbMW).collection('campanya').updateOne({ id }, { $set: { terminado: false } });
+        }
+        else {
+            await database_1.client.db(database_1.dbMW).collection('campanya').updateOne({ id }, { $addToSet: { llamados: tel } });
+            const packN = await database_1.client.db(database_1.dbMW).collection('campanya').findOne({ id });
+            if (packN && packN.llamados && packN.llamados.length === 50) {
+                console.log("YA SON 50");
+                await database_1.client.db(database_1.dbMW).collection('campanya').updateOne({ id }, { $set: { terminado: true } });
+            }
+        }
         return true;
     }
     catch (error) {

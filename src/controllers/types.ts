@@ -11,10 +11,9 @@ export type typeVivienda = {
     fechaUlt?: string
 }
 
+
 export type typeEstado = "No predicado" | "No contestó" | "Contestó" | "No llamar" | "A dejar carta"
 
-
-/////////////////////////////////////////////////////////////////////////////////////
 
 export type typeUser = {
     _id?: Object
@@ -30,6 +29,7 @@ export type typeUser = {
     darkMode?: boolean
 }
 
+
 export type typeTerritorio = {
     _id?: string
     inner_id: string
@@ -40,4 +40,15 @@ export type typeTerritorio = {
     estado: string
     fechaUlt?: string
     noAbonado: boolean
+}
+
+
+export type typePack = {
+    paquete: number
+    id: number
+    desde: number
+    al: number
+    asignado?: string
+    terminado?: boolean
+    llamados?: number[]
 }

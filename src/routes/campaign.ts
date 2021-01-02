@@ -14,5 +14,16 @@ router.post('/asign', async (req, res) => {
     else res.json({success:false})
 })
 
+router.post('/getPack', async (req, res) => {
+    const pack = await functions.getPack(parseInt(req.body.id))
+    res.json(pack)
+})
+
+router.post('/clickBox', async (req, res) => {
+    const task = await functions.clickBox(req.body.token, req.body.tel, req.body.id, req.body.checked)
+    if (task) res.json({success:true})
+    else res.json({success:false})
+})
+
 
 module.exports = router

@@ -17,7 +17,7 @@ export const searchUserById = async (_id:string) => {
 }
 
 export const searchUserByToken = async (newtoken:string) => {
-    console.log("Buscando por token")
+    console.log("Buscando por token", newtoken)
     const user = await client.db(dbMW).collection(collUsers).findOne({newtoken})
     return user
 }
@@ -226,11 +226,12 @@ export const resetTerritory = async (token:string, option:number, territorio:str
 
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const getCampaign = async (token:string) => {
     token = token.split('newtoken=')[1] || "abcde"
     const user = await searchUserByToken(token)
-    if (!user || user.role!==1) {console.log("No autenticado por token"); return false}
+    if (!user) {console.log("No autenticado por token"); return false}
     console.log("Pasó auth ############ mandando campanya 2021")
     try {
         const pack = await client.db(dbMW).collection('campanya').find().toArray()

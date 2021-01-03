@@ -18,7 +18,7 @@ exports.searchUserById = async (_id) => {
     return user;
 };
 exports.searchUserByToken = async (newtoken) => {
-    console.log("Buscando por token");
+    console.log("Buscando por token", newtoken);
     const user = await database_1.client.db(database_1.dbMW).collection(database_1.collUsers).findOne({ newtoken });
     return user;
 };
@@ -201,10 +201,11 @@ exports.resetTerritory = async (token, option, territorio) => {
     }
     return false;
 };
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 exports.getCampaign = async (token) => {
     token = token.split('newtoken=')[1] || "abcde";
     const user = await exports.searchUserByToken(token);
-    if (!user || user.role !== 1) {
+    if (!user) {
         console.log("No autenticado por token");
         return false;
     }

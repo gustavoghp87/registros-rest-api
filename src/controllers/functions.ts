@@ -263,7 +263,7 @@ export const clickBox = async (token:string, tel:number, id:number, checked:bool
     try {
         token = token.split('newtoken=')[1] || "abcde"
         const user = await searchUserByToken(token)
-        if (!user || user.role!==1) {console.log("No autenticado por token"); return false}
+        if (!user) {console.log("No autenticado por token"); return false}
         
         const pack:typePack = await client.db(dbMW).collection('campanya').findOne({id})
         if (pack.asignado!==user.email) return false

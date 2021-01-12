@@ -2,7 +2,7 @@ import express from 'express'
 import { graphqlHTTP } from 'express-graphql'
 import { makeExecutableSchema } from 'graphql-tools'
 import { readFileSync } from 'fs'
-import { join } from 'path'
+import { resolve } from 'path'
 import { NODE_ENV, app, port } from '../server'
 import { createServer } from 'http'
 import { ApolloServer } from 'apollo-server-express'
@@ -12,8 +12,8 @@ const resolvers = require('./resolvers')
 
 
 const typeDefs = readFileSync(
-    join(__dirname, "schema.graphql"),
-    'utf-8'
+  resolve(__dirname, "..", "..", "src", "graphql", "schema.graphql"),
+  'utf-8'
 )
 export const schema = makeExecutableSchema({typeDefs, resolvers})
 

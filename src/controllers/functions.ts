@@ -19,6 +19,7 @@ export const searchUserById = async (_id:string) => {
 export const searchUserByToken = async (newtoken:string) => {
     console.log("Buscando por token", newtoken)
     const user = await client.db(dbMW).collection(collUsers).findOne({newtoken})
+    if (user) console.log("Usuario encontrado:", user.email)
     return user
 }
 
@@ -40,10 +41,9 @@ export const addTokenToUser = async (email:string, token:string) => {
 }
 
 export const registerUser = async (email:string, password:string, group:number) => {
-
     const passwordEncrypted = await bcrypt.hash(password, 12)
 
-    const newUser = <typeUser> {
+    const newUser:typeUser = {
         role: 0,
         estado: false,
         email,
@@ -79,6 +79,19 @@ export const changeMode = async (email:string, darkMode:boolean) => {
         return true
     } catch(error) {
         console.log("Error al intentar cambiar modo oscuro...", error)
+        return false
+    }
+}
+
+export const changePsw = async (email:string, newPsw:string) => {
+    try {
+        const passwordEncrypted = await bcrypt.hash(newPsw, 12)
+        const user = await searchUserByEmail(email)
+        if (!user) {console.log("Problema de usuario en changePsw", email); return false}
+        await client.db(dbMW).collection(collUsers).updateOne({email}, {$set: {password:passwordEncrypted}})
+        return true
+    } catch (error) {
+        console.log("Error al intentar cambiar el password", error);
         return false
     }
 }

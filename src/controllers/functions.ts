@@ -105,7 +105,7 @@ export const countBlocks = async (terr:String) => {
 
     let manzanas = []
     let cantidad = 1
-    while ( cantidad < buscar.length) {
+    while (cantidad < buscar.length) {
         let busq = await client.db(dbMW).collection(collTerr).findOne({
             territorio: {$in: [terr]},
             manzana: {$in: [cantidad.toString()]}
@@ -166,11 +166,6 @@ export const searchBuildingByNumber = async (num:string) => {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const resetTerritory = async (token:string, option:number, territorio:string) => {
-
-    token = token.split('newtoken=')[1] || "abcde"
-
-    if (token[token.length] == ';') token = token.substring(0, token.length-1)
-
     const user = await searchUserByToken(token)
     if (!user || user.role!==1) {console.log("No autenticado por token"); return false}
     console.log("Pasó auth ############")
@@ -245,10 +240,6 @@ export const resetTerritory = async (token:string, option:number, territorio:str
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const getCampaign = async (token:string) => {
-    token = token.split('newtoken=')[1] || "abcde"
-
-    if (token[token.length] == ';') token = token.substring(0, token.length-1)
-
     const user = await searchUserByToken(token)
     if (!user) {console.log("No autenticado por token"); return false}
     console.log("Pasó auth ############ mandando campanya 2021")
@@ -260,10 +251,6 @@ export const getCampaign = async (token:string) => {
 
 
 export const asignCampaign = async (token:string, id:number, email:string) => {
-    token = token.split('newtoken=')[1] || "abcde"
-
-    if (token[token.length] == ';') token = token.substring(0, token.length-1)
-    
     const user = await searchUserByToken(token)
     if (!user || user.role!==1) {console.log("No autenticado por token"); return false}
     console.log("Pasó auth ############ asignando usuario a campanya 2021")
@@ -283,10 +270,6 @@ export const getPack = async (id:number) => {
 
 export const clickBox = async (token:string, tel:number, id:number, checked:boolean) => {
     try {
-        token = token.split('newtoken=')[1] || "abcde"
-
-        if (token[token.length] == ';') token = token.substring(0, token.length-1)
-
         const user = await searchUserByToken(token)
         if (!user) {console.log("No autenticado por token"); return false}
         

@@ -89,7 +89,8 @@ router
 
 
 .post('/change-mode', async (req, res) => {
-    const token = req.body.token.split('=')[1]
+    let token = req.body.token.split('=')[1]
+    if (token[token.length] == ';') token = token.substring(0, token.length-1)
     const user = await functions.searchUserByToken(token)
     if (!user) return res.json({success:false})
     try {
@@ -100,7 +101,8 @@ router
 
 
 .post('/change-psw', async (req, res) => {
-    const token = req.body.token.split('=')[1]
+    let token = req.body.token.split('=')[1]
+    if (token[token.length] == ';') token = token.substring(0, token.length-1)
     const { psw, newPsw } = req.body
     console.log("Cambiar psw de " + psw + " a " + newPsw);
     const user = await functions.searchUserByToken(token)

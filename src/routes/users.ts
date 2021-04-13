@@ -89,8 +89,8 @@ router
 
 
 .post('/change-mode', async (req, res) => {
-    let token = req.body.token.split('=')[1]
-    if (token[token.length] == ';') token = token.substring(0, token.length-1)
+    const { token } = req.body
+    if (!token) {console.log("No llegó el token en change-mode"); return res.json({success:false})}
     const user = await functions.searchUserByToken(token)
     if (!user) return res.json({success:false})
     try {
@@ -101,15 +101,13 @@ router
 
 
 .post('/change-psw', async (req, res) => {
-    let token = req.body.token.split('=')[1]
-    if (token[token.length] == ';') token = token.substring(0, token.length-1)
-    const { psw, newPsw } = req.body
+    const { psw, newPsw, token } = req.body
+    if (!token) {console.log("No llegó el token en change-psw"); return res.json({success:false})}
     console.log("Cambiar psw de " + psw + " a " + newPsw);
     const user = await functions.searchUserByToken(token)
     const compare = await bcrypt.compare(psw, user.password)
     if (!user || !newPsw) return res.json({success:false})
     if (!compare) return res.json({success:false, compareProblem:true})
-
     try {
         console.log("ACA 1");
         const success = await functions.changePsw(user.email, newPsw)

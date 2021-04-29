@@ -13,6 +13,7 @@ type typeCambiar = {
         inner_id: string
         estado?: string
         noAbonado?: boolean
+        asignado?: boolean
     }
 }
 
@@ -47,6 +48,7 @@ type typeAvivienda = {
         estado?: string
         noAbonado?: boolean
         fechaUlt?: string
+        asignado?: boolean
     }
 }
 
@@ -97,8 +99,9 @@ module.exports = {
         const userAuth = await authGraph(input.token)
         if (!userAuth) return null
         console.log("Cambiando estado,", input.inner_id, input.estado, input.noAbonado)
+        let asignado = input.asignado==null ? false : input.asignado
         await client.db(dbMW).collection(collTerr).updateOne({inner_id: input.inner_id},
-            {$set: {estado:input.estado, noAbonado:input.noAbonado, fechaUlt:Date.now()}}
+            {$set: {estado:input.estado, noAbonado:input.noAbonado, asignado, fechaUlt:Date.now()}}
         )
         const viviendaNuevoEstado = await functions.searchBuildingByNumber(input.inner_id)
         pubsub.publish('cambiarEstado', {escucharCambioDeEstado: viviendaNuevoEstado})

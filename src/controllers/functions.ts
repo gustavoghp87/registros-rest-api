@@ -151,6 +151,10 @@ export const searchTerritoryByNumber = async (
             {territorio: {$in: [terr]}, manzana: {$in: [manzana]}}
         ).limit(traidos).toArray()
     }
+
+    console.log(viviendas[0])
+    console.log(viviendas[1])
+    console.log(viviendas[2])
     
     return viviendas
 }

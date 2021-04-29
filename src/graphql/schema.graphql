@@ -13,6 +13,7 @@ type typeVivienda {
     estado: String
     fechaUlt: String
     noAbonado: Boolean
+    asignado: Boolean
 }
 
 type typeUser {
@@ -45,6 +46,7 @@ input inputCambiarEstado {
     inner_id: String!
     estado: String!
     noAbonado: Boolean!
+    asignado: Boolean
 }
 
 input inputAsignar {

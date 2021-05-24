@@ -1,16 +1,8 @@
 import nodemailer from 'nodemailer'
-import { myEmail, yourEmail, emailPSW } from '../server'
+import { myEmail, yourEmail, emailPSW } from '../env-variables'
 
 
-let transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: myEmail,
-        pass: emailPSW
-    }
-})
-
-export const sendEmail = (territorios:string[]) => {
+export const sendEmail = (territorios: string[]) => {
 
   const mailOptions = {
     from: myEmail,
@@ -25,7 +17,13 @@ export const sendEmail = (territorios:string[]) => {
     `
   }
 
-  transporter.sendMail(mailOptions, (error, info) => {
+  nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: myEmail,
+        pass: emailPSW
+    }
+  }).sendMail(mailOptions, (error, info) => {
     if (error) console.log("No se mandó correo:", error)
     else console.log('Email sent: ' + info.response)
   })

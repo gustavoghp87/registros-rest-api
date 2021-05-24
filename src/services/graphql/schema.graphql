@@ -28,7 +28,7 @@ type typeUser {
     asign: [Int]
 }
 
-type typeGlobalStatistics {
+type typeStatistics {
     territorio: String
     count: Int!
     countContesto: Int!
@@ -103,12 +103,11 @@ type Query {
     getUsers(token:String!): [typeUser]
 
     "Devuelve las estadísticas globales"
-    getGlobalStatistics(token:String!): typeGlobalStatistics
+    getGlobalStatistics(token:String!): typeStatistics
 
     "Devuelve las estadísticas de un territorio"
-    getLocalStatistics(token:String!, territorio:String!): typeGlobalStatistics
+    getLocalStatistics(token:String!, territorio:String!): typeStatistics
 }
-
 
 type Mutation {
     "Modifica un estado de vivienda"

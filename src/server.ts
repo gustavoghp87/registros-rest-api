@@ -2,46 +2,38 @@ import express from 'express'
 import path from 'path'
 import morgan from 'morgan'
 import cors from 'cors'
-import cookieParser from 'cookie-parser'
+import { DbConnection } from './services/database-services/dbConnection'
+import { port } from './services/env-variables'
+import { createServer } from 'http'
+import { ApolloServer } from 'apollo-server-express'
+import { router, typeDefs, resolvers } from './controllers/territory-controller'
+import { router as userController } from './controllers/user-controller'
+import { router as statisticsController } from './controllers/statistics-controller'
+import { router as resetController } from './controllers/reset-controller'
+import { router as campaignController } from './controllers/campaign-controller'
 
-export const app = express()
-export const port = process.env.PORT || 4005
-export const NODE_ENV = process.env.NODE_ENV || "dev"
-export const emailPSW = process.env.EMAILPSW || ""
-export const myEmail = process.env.myEmail || ""
-export const yourEmail = process.env.yourEmail || ""
+export const dbClient = new DbConnection()
+const app = express()
 
-
-require('./controllers/database')
-
-// middlewares
 app.use(cors())
-app.use(cookieParser())
-app.use(express.urlencoded({extended:true}))
+app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(morgan('dev'))
 
-// routes
-// app.all('/', (req, res, next) => {
-//     res.header({"Access-Control-Allow-Origin":true})
-//     res.header("Access-Control-Allow-Headers", "X-Requested-With")
-//     next()
-// })
-app.use('/api/graphql', require('./graphql/gql.index'))
-app.use('/api/users', require('./routes/users'))
-app.use('/api/statistics', require('./routes/statistics'))
-app.use('/api/reset', require('./routes/reset'))
-app.use('/api/campaign', require('./routes/campaign'))
+const server = new ApolloServer({ typeDefs, resolvers })
+server.applyMiddleware({app})
+const httpServer = createServer(app)
+server.installSubscriptionHandlers(httpServer)
+httpServer.listen(port, () => {
+  console.log(`\n\nServer ready at http://localhost:${port}${server.graphqlPath}`)
+  console.log(`Subscriptions ready at ws://localhost:${port}${server.subscriptionsPath}`)
+})
 
-//static files
+app.use('/api/users', userController)
+app.use('/api/statistics', statisticsController)
+app.use('/api/reset', resetController)
+app.use('/api/campaign', campaignController)
+app.use('/api/graphql', router)
+
 app.use(express.static(path.join(__dirname, 'frontend-src')))
 app.use(express.static(path.join(__dirname, 'build')))
-
-
-// ;(() => {
-//     try {
-//         app.listen(port, () => {
-//             console.log(`\n\nServer listening on port ${port}`)
-//         });
-//     } catch (error) {console.log(error)}
-// })()

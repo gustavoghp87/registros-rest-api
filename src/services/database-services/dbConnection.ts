@@ -11,7 +11,6 @@ const collCampaign = "campanya"
 
 export class DbConnection {
 
-    // public User: typeUser|null = null
     private Client: MongoClient = new MongoClient(databaseUrl,
         {
             useNewUrlParser: true,
@@ -26,26 +25,22 @@ export class DbConnection {
         })()
     }
     
-    async ConnectToDB() {
-        //await this.Client.connect()
-    }
-    async CloseConnection() {
-        //this.Client.close()
-    }
     async SearchUserByEmail(email: string) {
-        await this.ConnectToDB()
+        try {
         const user = await this.Client.db(dbMW).collection(collUsers).findOne({ email })
-        console.log("Search by email 2,", user?.email)
-        this.CloseConnection()
+        if (!user) {console.log("User not found by email in db"); return null}
+        console.log("Search by email in db,", user?.email)
         return user
+        } catch (error) {
+            console.log("Db user by email", error)
+            return null
+        }
     }
     async SearchUserByToken(token: string) {
         try {
-            await this.ConnectToDB()
             const user = await this.Client.db(dbMW).collection(collUsers).findOne({ newtoken: token })
             if (!user) {console.log("User not found by token in db"); return null}
-            console.log("Search by email 2,", user.email)
-            this.CloseConnection()
+            console.log("Search by token db,", user.email)
             return user
         } catch (error) {
             console.log("Db user by token", error)
@@ -53,48 +48,36 @@ export class DbConnection {
         }
     }
     async SearchUserById(_id: string) {
-        await this.ConnectToDB()
         const user = await this.Client.db(dbMW).collection(collUsers).findOne({ _id: new ObjectId(_id) })
         console.log("Search by Id 2,", user.email)
-        this.CloseConnection()
         return user
     }
     async SearchAllUsers() {
-        await this.ConnectToDB()
         const users = await this.Client.db(dbMW).collection(collUsers).find().toArray()
         console.log("Search all users:", users.length)
-        this.CloseConnection()
         return users
     }
     async AddTokenToUser(email: string, token: string) {
-        await this.ConnectToDB()
         await this.Client.db(dbMW).collection(collUsers).updateOne({ email }, { $set: { newtoken: token } })
         const user = await this.SearchUserByToken(token)
-        this.CloseConnection()
         if (!user || user.email !== email) return false
         return true
     }
     async RegisterUser(newUser: typeUser) {
-        await this.ConnectToDB()
         await this.Client.db(dbMW).collection(collUsers).insertOne(newUser)
         const user = await this.SearchUserByEmail(newUser.email)
-        this.CloseConnection()
         if (!user) return false
         return true
     }
     async ChangeMode(email: string, darkMode: boolean) {
-        await this.ConnectToDB()
         await this.Client.db(dbMW).collection(collUsers).updateOne({ email }, {$set: { darkMode } })
         const user = await this.SearchUserByEmail(email)
-        this.CloseConnection()
         if (!user || user.darkMode !== darkMode) return false
         return true
     }
     async ChangePsw(email: string, passwordEncrypted: string) {
-        await this.ConnectToDB()
         await this.Client.db(dbMW).collection(collUsers).updateOne({email}, {$set: {password:passwordEncrypted}})
         const user = await this.SearchUserByEmail(email)
-        this.CloseConnection()
         if (!user || user.password !== passwordEncrypted) return false
         return true
     }
@@ -104,7 +87,6 @@ export class DbConnection {
     // households
 
     async GetBlocks(territory: string) {
-        await this.ConnectToDB()
         let blocks = []
         let i = 1
         while (i < 9) {
@@ -115,11 +97,9 @@ export class DbConnection {
             if (busq) blocks.push(i)
             i++
         }
-        this.CloseConnection()
         return blocks
     }
     async SearchTerritoryByNumber(terr: string, manzana: string, todo: boolean, traidos: number, traerTodos: boolean) {
-        await this.ConnectToDB()
         let households:typeVivienda[] = []
 
         if (!todo && !traerTodos)
@@ -155,17 +135,13 @@ export class DbConnection {
             }).limit(traidos).toArray()
         ;
 
-        this.CloseConnection()
         return households
     }
     async SearchHouseholdByNumber(numb: string) {
-        await this.ConnectToDB()
         const household = await this.Client.db(dbMW).collection(collTerr).findOne({ inner_id: numb })
-        this.CloseConnection()
         return household
     }
     async ResetTerritory(option: number, territorio: string) {
-        await this.ConnectToDB()
         const time = Date.now()                              // todo en milisegundos
         const sixMonths = 15778458000
         const timeSixMonths = time - sixMonths
@@ -218,7 +194,6 @@ export class DbConnection {
             })
         }
 
-        this.CloseConnection()
         return true
     }
     
@@ -228,19 +203,16 @@ export class DbConnection {
 
     async GetCampaign() {
         try {
-            await this.ConnectToDB()
             const pack = await this.Client.db(dbMW).collection(collCampaign).find().toArray()
             return pack
         } catch (error) {
             console.log("Get Campaign failed", error)
             return null
         } finally {
-            this.CloseConnection()
         }
     }
     async AsignCampaign(id:number, email:string) {
         try {
-            await this.ConnectToDB()
             if (email==='Nadie')
                 await this.Client.db(dbMW).collection(collCampaign).updateOne({id}, { $set: { asignado: 'No asignado' } })
             else
@@ -250,25 +222,21 @@ export class DbConnection {
             console.log("Asign Campaign failed", "Cannot asign", id, "to", email, error)
             return false
         } finally {
-            this.CloseConnection()
         }
     }
     async GetPack(id: number) {
         try {
-            await this.ConnectToDB()
             const pack = await this.Client.db(dbMW).collection(collCampaign).findOne({ id })
             return pack
         } catch (error) {
             console.log("Get Pack failed", error)
             return null
         } finally {
-            this.CloseConnection()
         }
 
     }
     async ClickBox(email: string, tel: number, id: number, checked: boolean) {
         try {
-            await this.ConnectToDB()
             const pack = await this.Client.db(dbMW).collection(collCampaign).findOne({id})
             if (!pack || pack.asignado !== email) return false
 
@@ -288,7 +256,6 @@ export class DbConnection {
             console.error("Click Box failed", error)
             return false
         } finally {
-            this.CloseConnection()
         }
     }
 
@@ -298,7 +265,6 @@ export class DbConnection {
 
     async GetEmailLastTime() {
         try {
-            await this.ConnectToDB()
             const lastEmailObj = await this.Client.db(dbMW).collection('emailAlert')
                 .findOne({ _id: new ObjectId('5fcbdce29382c6966fa4d583') })
             const lastEmailTime = lastEmailObj.lastEmail
@@ -307,12 +273,10 @@ export class DbConnection {
             console.log("Get Email Last Time failed", error)
             return null
         } finally {
-            this.CloseConnection()
         }
     }
     async CheckTerritoriesToEmail() {
         try {
-            await this.ConnectToDB()
             let alert: string[] = []
             let i: number = 1
             while (i < 57) {
@@ -353,12 +317,10 @@ export class DbConnection {
             console.log("Check Territories To Email failed:", error)
             return null
         } finally {
-            this.CloseConnection()
         }
     }
     async UpdateLastEmail() {
         try {
-            await this.ConnectToDB()
             const newDate = + new Date()
             await this.Client.db(dbMW).collection('emailAlert').updateOne(
                 {_id: new ObjectId('5fcbdce29382c6966fa4d583')},
@@ -372,7 +334,6 @@ export class DbConnection {
             console.log("Update Last Email failed", error)
             return false
         } finally {
-            this.CloseConnection()
         }
     }
 
@@ -382,7 +343,6 @@ export class DbConnection {
 
     async GetGlobalStatistics() {
         try {
-            await this.ConnectToDB()
             const count = await this.Client.db(dbMW).collection(collTerr).find().count()
             const countContesto = await this.Client.db(dbMW).collection(collTerr).find({estado:'Contestó'}).count()
             const countNoContesto = await this.Client.db(dbMW).collection(collTerr).find({estado:'No contestó'}).count()
@@ -398,12 +358,10 @@ export class DbConnection {
             console.log("Get Global Statistics failed", error)
             return null
         } finally {
-            this.CloseConnection()
         }
     }
     async GetLocalStatistics(territorio: string) {
         try {
-            await this.ConnectToDB()
             const count = await this.Client.db(dbMW).collection(collTerr)
                 .find({territorio}).count()
             const countContesto = await this.Client.db(dbMW).collection(collTerr).find({ $and: [{territorio}, {estado:'Contestó'}] }).count()
@@ -417,7 +375,6 @@ export class DbConnection {
             console.log("Get Global Statistics failed", error)
             return null
         } finally {
-            this.CloseConnection()
         }
     }
 
@@ -427,7 +384,6 @@ export class DbConnection {
 
     async UpdateUserState(input: any) {
         try {
-            await this.ConnectToDB()
             await this.Client.db(dbMW).collection(collUsers).updateOne(
                 {_id: new ObjectId(input.user_id)},
                 {$set: {estado:input.estado, role:input.role, group:input.group}}
@@ -439,12 +395,10 @@ export class DbConnection {
             console.log("Update User State GraphQL failed:", error)
             return null
         } finally {
-            this.CloseConnection()
         }
     }
     async AsignTerritory(input: any) {
         try {
-            await this.ConnectToDB()
 
             if (input.all) await this.Client.db(dbMW).collection(collUsers).updateOne(           // desasign all
                 {_id: new ObjectId(input.user_id)},
@@ -475,12 +429,10 @@ export class DbConnection {
             console.log("Asign Territory GraphQL failed:", error)
             return null
         } finally {
-            this.CloseConnection()
         }
     }
     async UpdateHouseholdState(input: any) {
         try {
-            await this.ConnectToDB()
             await this.Client.db(dbMW).collection(collTerr).updateOne({inner_id: input.inner_id},
                 {$set: {estado:input.estado, noAbonado:input.noAbonado, asignado:input.asignado, fechaUlt:Date.now()}}
             )
@@ -490,12 +442,10 @@ export class DbConnection {
             console.log("Update Household State GraphQL failed:", error)
             return null
         } finally {
-            this.CloseConnection()
         }
     }
     async MarkEverythingLikeCalled(packId: number) {
         try {
-            await this.ConnectToDB()
             await this.Client.db(dbMW).collection(collCampaign).updateMany({ id: packId }, {
                 $set: {asignado: 'No asignado', terminado: true}
             })
@@ -504,14 +454,8 @@ export class DbConnection {
             console.log("Update Household State GraphQL failed:", error)
             return false
         } finally {
-            this.CloseConnection()
         }
     }
 
     // TODO: AddHousehold() {}
 }
-
-// ;(async () => {
-//     await client.connect()
-//     console.log("DB connected")
-// })()

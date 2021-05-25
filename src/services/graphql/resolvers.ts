@@ -1,7 +1,9 @@
 import { PubSub } from 'apollo-server-express'
+
+
 export const pubsub = new PubSub()
 
-module.exports = {
+export const resolvers = {
 
     Mutation: require('./mutations'),
 

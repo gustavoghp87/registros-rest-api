@@ -1,3 +1,4 @@
+import { statistic, localStatistic } from '../models/statistic'
 import { dbClient } from '../server'
 import * as userServices from './user-services'
 
@@ -43,14 +44,15 @@ export const resetTerritory = async (token: string, option: number, territorio: 
 
 export const getLocalStatistics = async (token: string, territorio: string) => {
     if (!userServices.checkAdminByToken(token)) return null
-    const localStatistics = await dbClient.GetLocalStatistics(territorio)
-    if (!localStatistics) return null
+    const localStat: statistic|null = await dbClient.GetLocalStatistics(territorio)
+    if (!localStat) return null
+    const localStatistics: localStatistic = {...localStat, territorio}
     return localStatistics
 }
 
 export const getGlobalStatistics = async (token: string) => {
     if (!userServices.checkAdminByToken(token)) return null
-    const globalStatistics = await dbClient.GetGlobalStatistics()
+    const globalStatistics: statistic|null = await dbClient.GetGlobalStatistics()
     if (!globalStatistics) return null
     return globalStatistics
 }

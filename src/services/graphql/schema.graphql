@@ -29,7 +29,6 @@ type typeUser {
 }
 
 type typeStatistics {
-    territorio: String
     count: Int!
     countContesto: Int!
     countNoContesto: Int!
@@ -39,6 +38,16 @@ type typeStatistics {
     libres: Int!
 }
 
+type localStatistics {
+    territorio: String
+    count: Int!
+    countContesto: Int!
+    countNoContesto: Int!
+    countDejarCarta: Int!
+    countNoLlamar: Int!
+    countNoAbonado: Int!
+    libres: Int!
+}
 
 
 input inputCambiarEstado {
@@ -106,7 +115,7 @@ type Query {
     getGlobalStatistics(token:String!): typeStatistics
 
     "Devuelve las estadísticas de un territorio"
-    getLocalStatistics(token:String!, territorio:String!): typeStatistics
+    getLocalStatistics(token:String!, territorio:String!): localStatistics
 }
 
 type Mutation {

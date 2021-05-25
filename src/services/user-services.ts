@@ -64,7 +64,8 @@ export const searchUserById = async (_id: string) => {
 export const searchUserByToken = async (token: string) => {
     console.log("Searching user by token", token.length)
     const user = await dbClient.SearchUserByToken(token)
-    console.log("User found by token:", user?.email)
+    if (!user) return null
+    console.log("User found by token:", user.email)
     return user
 }
 

@@ -40,11 +40,17 @@ export class DbConnection {
         return user
     }
     async SearchUserByToken(token: string) {
-        await this.ConnectToDB()
-        const user = await this.Client.db(dbMW).collection(collUsers).findOne({ newtoken: token })
-        console.log("Search by email 2,", user.email)
-        this.CloseConnection()
-        return user
+        try {
+            await this.ConnectToDB()
+            const user = await this.Client.db(dbMW).collection(collUsers).findOne({ newtoken: token })
+            if (!user) {console.log("User not found by token in db"); return null}
+            console.log("Search by email 2,", user.email)
+            this.CloseConnection()
+            return user
+        } catch (error) {
+            console.log("Db user by token", error)
+            return null
+        }
     }
     async SearchUserById(_id: string) {
         await this.ConnectToDB()

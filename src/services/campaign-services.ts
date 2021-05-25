@@ -5,8 +5,6 @@ import { typePack } from '../models/pack'
 
 export const getCampaign = async (token: string) => {
     if (!userServices.checkAuthByToken(token)) return null
-    console.log(dbClient)
-    if (!dbClient) return null
     const pack = await dbClient.GetCampaign()
     if (!pack) return null
     console.log("Pasó auth ############ mandando campanya 2021")

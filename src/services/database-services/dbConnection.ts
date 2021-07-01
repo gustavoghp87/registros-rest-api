@@ -208,7 +208,6 @@ export class DbConnection {
         } catch (error) {
             console.log("Get Campaign failed", error)
             return null
-        } finally {
         }
     }
     async AsignCampaign(id:number, email:string) {
@@ -221,7 +220,6 @@ export class DbConnection {
         } catch (error) {
             console.log("Asign Campaign failed", "Cannot asign", id, "to", email, error)
             return false
-        } finally {
         }
     }
     async GetPack(id: number) {
@@ -231,9 +229,7 @@ export class DbConnection {
         } catch (error) {
             console.log("Get Pack failed", error)
             return null
-        } finally {
         }
-
     }
     async ClickBox(email: string, tel: number, id: number, checked: boolean) {
         try {
@@ -255,7 +251,6 @@ export class DbConnection {
         } catch (error) {
             console.error("Click Box failed", error)
             return false
-        } finally {
         }
     }
 
@@ -272,7 +267,6 @@ export class DbConnection {
         } catch (error) {
             console.log("Get Email Last Time failed", error)
             return null
-        } finally {
         }
     }
     async CheckTerritoriesToEmail() {
@@ -316,7 +310,6 @@ export class DbConnection {
         } catch (error) {
             console.log("Check Territories To Email failed:", error)
             return null
-        } finally {
         }
     }
     async UpdateLastEmail() {
@@ -333,7 +326,6 @@ export class DbConnection {
         } catch (error) {
             console.log("Update Last Email failed", error)
             return false
-        } finally {
         }
     }
 
@@ -357,7 +349,6 @@ export class DbConnection {
         } catch (error) {
             console.log("Get Global Statistics failed", error)
             return null
-        } finally {
         }
     }
     async GetLocalStatistics(territorio: string) {
@@ -374,7 +365,6 @@ export class DbConnection {
         } catch (error) {
             console.log("Get Global Statistics failed", error)
             return null
-        } finally {
         }
     }
 
@@ -394,7 +384,6 @@ export class DbConnection {
         } catch (error) {
             console.log("Update User State GraphQL failed:", error)
             return null
-        } finally {
         }
     }
     async AsignTerritory(input: any) {
@@ -428,7 +417,6 @@ export class DbConnection {
         } catch (error) {
             console.log("Asign Territory GraphQL failed:", error)
             return null
-        } finally {
         }
     }
     async UpdateHouseholdState(input: any) {
@@ -441,7 +429,6 @@ export class DbConnection {
         } catch (error) {
             console.log("Update Household State GraphQL failed:", error)
             return null
-        } finally {
         }
     }
     async MarkEverythingLikeCalled(packId: number) {
@@ -453,7 +440,6 @@ export class DbConnection {
         } catch (error) {
             console.log("Update Household State GraphQL failed:", error)
             return false
-        } finally {
         }
     }
 

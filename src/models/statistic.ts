@@ -6,7 +6,6 @@ export interface statistic {
     countNoLlamar: number
     countNoAbonado: number
     libres: number
-
 }
 
 export interface localStatistic extends statistic {

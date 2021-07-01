@@ -10,7 +10,7 @@ import { router as territoryController } from './controllers/territory-controlle
 import { router as userController } from './controllers/user-controller'
 import { router as statisticsController } from './controllers/statistics-controller'
 import { router as resetController } from './controllers/reset-controller'
-import { router as campaignController } from './controllers/campaign-controller'
+// import { router as campaignController } from './controllers/campaign-controller'
 import { typeDefs } from './services/graphql/typeDefs'
 import { resolvers } from './services/graphql/resolvers'
 
@@ -34,7 +34,7 @@ httpServer.listen(port, () => {
 app.use('/api/users', userController)
 app.use('/api/statistics', statisticsController)
 app.use('/api/reset', resetController)
-app.use('/api/campaign', campaignController)
+// app.use('/api/campaign', campaignController)
 app.use('/api/graphql', territoryController)
 
 app.use(express.static(path.join(__dirname, 'frontend-src')))

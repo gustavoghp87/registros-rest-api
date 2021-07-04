@@ -1,11 +1,10 @@
 import { statistic, localStatistic } from '../models/statistic'
-import { dbClient } from '../server'
+import { HouseholdDb } from './database-services/householdDbConnection'
 import * as userServices from './user-services'
-
 
 export const getBlocks = async (terr: string) => {
     //if (!userServices.checkAuthByToken(token)) return null
-    const blocks = await dbClient.GetBlocks(terr)
+    const blocks = await new HouseholdDb().GetBlocks(terr)
     console.log("Blocks array:", blocks)
     return blocks
 }
@@ -15,13 +14,13 @@ export const searchTerritoryByNumber = async (
 ) => {
     console.log("Searching households in", terr, ", block", manzana)
     //if (!userServices.checkAuthByToken(token)) return null
-    const households = await dbClient.SearchTerritoryByNumber(terr, manzana, todo, traidos, traerTodos)
+    const households = await new HouseholdDb().SearchTerritoryByNumber(terr, manzana, todo, traidos, traerTodos)
     return households
 }
 
 export const searchBuildingByNumber = async (num: string) => {
     //if (!userServices.checkAuthByToken(token)) return null
-    const household = await dbClient.SearchHouseholdByNumber(num)
+    const household = await new HouseholdDb().SearchHouseholdByNumber(num)
     console.log("Searching household by inner_id", num)
     if (!household) {
         console.log("Household did not found or something failed");
@@ -33,7 +32,7 @@ export const searchBuildingByNumber = async (num: string) => {
 
 export const resetTerritory = async (token: string, option: number, territorio: string) => {
     if (!userServices.checkAdminByToken(token)) return false
-    const response = await dbClient.ResetTerritory(option, territorio)
+    const response = await new HouseholdDb().ResetTerritory(option, territorio)
     if (!response) {
         console.log("Something failed in reset territory", territorio)
         return false
@@ -44,7 +43,7 @@ export const resetTerritory = async (token: string, option: number, territorio: 
 
 export const getLocalStatistics = async (token: string, territorio: string) => {
     if (!userServices.checkAdminByToken(token)) return null
-    const localStat: statistic|null = await dbClient.GetLocalStatistics(territorio)
+    const localStat: statistic|null = await new HouseholdDb().GetLocalStatistics(territorio)
     if (!localStat) return null
     const localStatistics: localStatistic = {...localStat, territorio}
     return localStatistics
@@ -52,14 +51,14 @@ export const getLocalStatistics = async (token: string, territorio: string) => {
 
 export const getGlobalStatistics = async (token: string) => {
     if (!userServices.checkAdminByToken(token)) return null
-    const globalStatistics: statistic|null = await dbClient.GetGlobalStatistics()
+    const globalStatistics: statistic|null = await new HouseholdDb().GetGlobalStatistics()
     if (!globalStatistics) return null
     return globalStatistics
 }
 
 export const updateHouseholdState = async (input: any) => {
     if (!userServices.checkAuthByToken(input.token)) return null
-    const household = await dbClient.UpdateHouseholdState(input)
+    const household = await new HouseholdDb().UpdateHouseholdState(input)
     if (!household) return null
     return household
 }

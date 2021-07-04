@@ -1,15 +1,19 @@
 import express from 'express'
-import { graphqlHTTP } from 'express-graphql'
-import { schema } from "../services/graphql/schema"
-import { resolvers } from '../services/graphql/resolvers'
-import { NODE_ENV } from '../services/env-variables'
-
+import { ChangeStateOfTerritory, SearchStateOfTerritory } from '../services/state-territory-services'
 
 export const router = express.Router()
 
-router.use('/', graphqlHTTP({
-    schema: schema,
-    rootValue: resolvers,
-    graphiql: NODE_ENV === 'dev' ? true : false
+router
+  .get('/:territorio', async (req, res) => {
+    const { territorio } = req.params
+    const obj = await SearchStateOfTerritory(territorio)
+    res.json({ obj })
   })
-)
+
+  .patch('/', async (req, res) => {
+    const {territorio, estado, token} = req.body
+    if (!territorio || estado === null || estado === undefined) return res.json({ success: false })
+    const success = await ChangeStateOfTerritory(territorio, estado, token)
+    res.json({ success })
+  })
+;

@@ -21,7 +21,6 @@ type typeUser {
     role: Int
     estado: Boolean
     email: String
-    password: String
     group: Int
     isAuth: Boolean
     isAdmin: Boolean

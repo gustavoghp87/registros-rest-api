@@ -59,7 +59,7 @@ module.exports = {
         return user
     },
     asignar: async (root:any, { input }:typeAsignar) => {
-        const user = await userServices.asignTerritory(input)
+        const user = await userServices.assignTerritory(input)
         if (!user) return null
         pubsub.publish('cambiarUsuario', {escucharCambioDeUsuario: user})
         return user

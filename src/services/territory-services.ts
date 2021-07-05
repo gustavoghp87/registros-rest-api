@@ -1,5 +1,6 @@
 import { statistic, localStatistic } from '../models/statistic'
 import { HouseholdDb } from './database-services/householdDbConnection'
+import { changeStateOfTerritory } from './state-territory-services'
 import * as userServices from './user-services'
 
 export const getBlocks = async (terr: string) => {
@@ -37,6 +38,7 @@ export const resetTerritory = async (token: string, option: number, territorio: 
         console.log("Something failed in reset territory", territorio)
         return false
     }
+    await changeStateOfTerritory(territorio, false, token)
     console.log("Territory reseted")
     return true
 }

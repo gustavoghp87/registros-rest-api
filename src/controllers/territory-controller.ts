@@ -1,17 +1,24 @@
 import express from 'express'
-import { ChangeStateOfTerritory, SearchStateOfTerritory } from '../services/state-territory-services'
+import { ChangeStateOfTerritory, SearchStateOfTerritories, SearchStateOfTerritory } from '../services/state-territory-services'
 
 export const router = express.Router()
 
 router
   .get('/:territorio', async (req, res) => {
+    const token = req.header('authorization') || "abcde0123456987"
     const { territorio } = req.params
-    const obj = await SearchStateOfTerritory(territorio)
+    const obj = await SearchStateOfTerritory(territorio, token)
+    res.json({ obj })
+  })
+
+  .get('/', async (req, res) => {
+    const token = req.header('authorization') || "abcde0123456987"
+    const obj = await SearchStateOfTerritories(token)
     res.json({ obj })
   })
 
   .patch('/', async (req, res) => {
-    const {territorio, estado, token} = req.body
+    const { territorio, estado, token } = req.body
     if (!territorio || estado === null || estado === undefined) return res.json({ success: false })
     const success = await ChangeStateOfTerritory(territorio, estado, token)
     res.json({ success })

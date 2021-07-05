@@ -3,9 +3,18 @@ import { collTerr, dbMW } from './_dbConnection'
 
 export class TerritoryDb {
 
-    async SearchStatesOfTerritories(territorio:string) {
+    async SearchStateOfTerritory(territorio:string) {
         try {
             const obj = await dbClient.Client.db(dbMW).collection(collTerr).findOne({ territorio })
+            return obj
+        } catch (error) {
+            console.log("Territory Db SearchStateOfTerritory ", error)
+            return null
+        }
+    }
+    async SearchStateOfTerritories() {
+        try {
+            let obj = await dbClient.Client.db(dbMW).collection(collTerr).find().toArray()
             return obj
         } catch (error) {
             console.log("Territory Db SearchStatesOfTerritories ", error)

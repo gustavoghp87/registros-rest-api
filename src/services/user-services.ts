@@ -3,7 +3,6 @@ import { typeUser } from '../models/user'
 import bcrypt from 'bcrypt'
 import { privateKey } from "./env-variables"
 import { UserDb } from './database-services/userDbConnection'
-import { ObjectId } from 'mongodb'
 
 export const checkAdminByToken = async (token: string) => {
     const user = await searchUserByToken(token)
@@ -33,7 +32,7 @@ export const userAuthForGraphQL = async (token: string) => {
     console.log("PASSING BY /AUTH GraphQL....", token?.length)    
     if (!token) return null
     const user = await searchUserByToken(token)
-    if (!user || !checkAuthByToken(token)) return null
+    if (!user || !await checkAuthByToken(token)) return null
     console.log("User auth for GraphQL,", user.email)
     return user
 }
@@ -42,7 +41,7 @@ export const userAdminForGraphQL = async (token: string) => {
     console.log("PASSING BY /AUTH GraphQL....", token?.length)
     if (!token) return null
     const user = await searchUserByToken(token)
-    if (!user || !checkAdminByToken(token)) return null
+    if (!user || !await checkAdminByToken(token)) return null
     console.log("User admin for GraphQL,", user.email)
     return user
 }
@@ -126,14 +125,14 @@ export const changePsw = async (email:string, newPsw:string) => {
 }
 
 export const updateUserState = async (input: any) => {
-    if (!checkAdminByToken(input.token)) return null
+    if (!await checkAdminByToken(input.token)) return null
     const user = await new UserDb().UpdateUserState(input)
     if (!user) return null
     return user
 }
 
 export const assignTerritory = async (input: any) => {
-    if (!checkAdminByToken(input.token)) return null
+    if (!await checkAdminByToken(input.token)) return null
     const user = await new UserDb().AssignTerritory(input)
     if (!user) return null
     return user
@@ -141,7 +140,7 @@ export const assignTerritory = async (input: any) => {
 
 export const deallocateMyTerritory = async (territorio: string, token: string) => {
     console.log("deallocate my territory ", territorio)
-    if (!checkAuthByToken(token)) return false
+    if (!await checkAuthByToken(token)) return false
     const user:typeUser = await searchUserByToken(token)
     console.log(user.email)
     if (!user || !user._id) return false

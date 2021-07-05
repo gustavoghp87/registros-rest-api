@@ -3,7 +3,7 @@ import { typePack } from '../models/pack'
 import { CampaignDb } from './database-services/campaignDbConnection'
 
 export const getCampaign = async (token: string) => {
-    if (!userServices.checkAuthByToken(token)) return null
+    if (!await userServices.checkAuthByToken(token)) return null
     const pack = await new CampaignDb().GetCampaign()
     if (!pack) return null
     console.log("Pasó auth ############ mandando campanya 2021")
@@ -11,7 +11,7 @@ export const getCampaign = async (token: string) => {
 }
 
 export const asignCampaign = async (token: string, id: number, email: string) => {
-    if (!userServices.checkAdminByToken(token)) return false
+    if (!await userServices.checkAdminByToken(token)) return false
     console.log("Pasó auth ############ asignando usuario a campanya 2021")
     const response = await new CampaignDb().AsignCampaign(id, email)
     if (!response) return false
@@ -25,7 +25,7 @@ export const getPack = async (id: number) => {                // falta el auth
 }
 
 export const clickBox = async (token: string, tel: number, id: number, checked: boolean) => {
-    if (!userServices.checkAuthByToken(token)) return false
+    if (!await userServices.checkAuthByToken(token)) return false
     const user = await userServices.searchUserByToken(token)
     if (!user) return false
     const response = await new CampaignDb().ClickBox(user.email, tel, id, checked)
@@ -34,7 +34,7 @@ export const clickBox = async (token: string, tel: number, id: number, checked: 
 }
 
 export const markEverythingLikeCalled = async (token: string, packId: number) => {
-    if (!userServices.checkAdminByToken(token)) return null
+    if (!await userServices.checkAdminByToken(token)) return null
     const response = await new CampaignDb().MarkEverythingLikeCalled(packId)
     if (!response) return false
     return true

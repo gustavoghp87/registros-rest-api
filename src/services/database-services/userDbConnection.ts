@@ -50,13 +50,13 @@ export class UserDb {
         return true
     }
     async ChangeMode(email: string, darkMode: boolean) {
-        await dbClient.Client.db(dbMW).collection(collUsers).updateOne({ email }, {$set: { darkMode } })
+        await dbClient.Client.db(dbMW).collection(collUsers).updateOne({ email }, { $set: { darkMode } })
         const user = await this.SearchUserByEmail(email)
         if (!user || user.darkMode !== darkMode) return false
         return true
     }
     async ChangePsw(email: string, passwordEncrypted: string) {
-        await dbClient.Client.db(dbMW).collection(collUsers).updateOne({email}, {$set: {password:passwordEncrypted}})
+        await dbClient.Client.db(dbMW).collection(collUsers).updateOne({ email }, { $set: { password: passwordEncrypted } })
         const user = await this.SearchUserByEmail(email)
         if (!user || user.password !== passwordEncrypted) return false
         return true
@@ -64,8 +64,8 @@ export class UserDb {
     async UpdateUserState(input: any) {
         try {
             await dbClient.Client.db(dbMW).collection(collUsers).updateOne(
-                {_id: new ObjectId(input.user_id)},
-                {$set: {estado:input.estado, role:input.role, group:input.group}}
+                { _id: new ObjectId(input.user_id) },
+                { $set: { estado:input.estado, role:input.role, group:input.group } }
             )
             const user = await dbClient.Client.db(dbMW).collection(collUsers).findOne({ _id: new ObjectId(input.user_id) })
             if (!user || user.estado !== input.estado || user.role !== input.role || user.group !== input.group) return null
@@ -77,12 +77,10 @@ export class UserDb {
     }
     async AssignTerritory(input: any) {
         try {
-
             if (input.all) await dbClient.Client.db(dbMW).collection(collUsers).updateOne(           // desasign all
                 {_id: new ObjectId(input.user_id)},
                 {$set: {asign: []}}
             )
-    
             if (input.asignar) {
                 const userToMod = await dbClient.Client.db(dbMW).collection(collUsers).findOne({ _id: new ObjectId(input.user_id) })
                 if (!userToMod) return null
@@ -90,16 +88,14 @@ export class UserDb {
                 arrayV.indexOf(input.asignar)===-1 ? arrayV.push(input.asignar) : console.log("Ya estaba")
                 arrayV.sort((a:number, b:number) => a - b)
                 await dbClient.Client.db(dbMW).collection(collUsers).updateOne(
-                    {_id: new ObjectId(input.user_id)},
-                    {$set: {asign: arrayV}}
+                    { _id: new ObjectId(input.user_id) },
+                    { $set: { asign: arrayV } }
                 )
             }
-    
             if (input.desasignar) await dbClient.Client.db(dbMW).collection(collUsers).updateOne(
-                {_id: new ObjectId(input.user_id)},
-                {$pullAll: {asign: [input.desasignar]}
-            })
-
+                { _id: new ObjectId(input.user_id) },
+                { $pullAll: { asign: [input.desasignar] } }
+            )
             const user = await dbClient.Client.db(dbMW).collection(collUsers).findOne({ _id: new ObjectId(input.user_id) })
             if (!user) return null
             return user

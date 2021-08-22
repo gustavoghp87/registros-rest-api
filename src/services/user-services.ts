@@ -28,7 +28,7 @@ export const checkRecaptchaToken = async (token: string) => {
     return success
 }
 
-export const userAuthForGraphQL = async (token: string) => {
+export const userAuthForGraphQL = async (token: string): Promise<typeUser|null> => {
     console.log("PASSING BY /AUTH GraphQL....", token?.length)    
     if (!token) return null
     const user = await searchUserByToken(token)
@@ -37,7 +37,7 @@ export const userAuthForGraphQL = async (token: string) => {
     return user
 }
 
-export const userAdminForGraphQL = async (token: string) => {
+export const userAdminForGraphQL = async (token: string): Promise<typeUser|null> => {
     console.log("PASSING BY /AUTH GraphQL....", token?.length)
     if (!token) return null
     const user = await searchUserByToken(token)
@@ -46,21 +46,22 @@ export const userAdminForGraphQL = async (token: string) => {
     return user
 }
 
-export const searchUserByEmail = async (email: string) => {
+export const searchUserByEmail = async (email: string): Promise<typeUser|null> => {
     console.log("Searching user by email,", email);
     const user = await new UserDb().SearchUserByEmail(email)
+    if (!user) return null
     console.log("User found by Email:", user?.email)
     return user
 }
 
-export const searchUserById = async (_id: string) => {
+export const searchUserById = async (_id: string): Promise<typeUser|null> => {
     console.log("Searching user by id,", _id);
     const user = await new UserDb().SearchUserById(_id)
     console.log("User found by Id:", user?.email)
     return user
 }
 
-export const searchUserByToken = async (token: string) => {
+export const searchUserByToken = async (token: string): Promise<typeUser|null> => {
     console.log("Searching user by token", token.length)
     const user = await new UserDb().SearchUserByToken(token)
     if (!user) return null
@@ -68,14 +69,14 @@ export const searchUserByToken = async (token: string) => {
     return user
 }
 
-export const searchAllUsers = async () => {
+export const searchAllUsers = async (): Promise<typeUser[]> => {
     console.log("Searching all users")
-    let users = await new UserDb().SearchAllUsers()
+    let users: typeUser[] = await new UserDb().SearchAllUsers()
     users = users.reverse()
     return users
 }
 
-export const addTokenToUser = async (email:string, token:string) => {
+export const addTokenToUser = async (email:string, token:string): Promise<boolean> => {
     const result = await new UserDb().AddTokenToUser(email, token)
     if (!result) {
         console.log("Error trying to add token in db...")
@@ -85,7 +86,7 @@ export const addTokenToUser = async (email:string, token:string) => {
     return true
 }
 
-export const registerUser = async (email: string, password: string, group: number) => {
+export const registerUser = async (email: string, password: string, group: number): Promise<boolean> => {
     const passwordEncrypted = await bcrypt.hash(password, 12)
     const newUser:typeUser = {
         role: 0,
@@ -103,7 +104,7 @@ export const registerUser = async (email: string, password: string, group: numbe
     return true
 }
 
-export const changeMode = async (email:string, darkMode:boolean) => {
+export const changeMode = async (email:string, darkMode:boolean): Promise<boolean> => {
     const response = await new UserDb().ChangeMode(email, darkMode)
     if (!response) {
         console.log("Error trying to change Dark Mode")
@@ -113,7 +114,7 @@ export const changeMode = async (email:string, darkMode:boolean) => {
     return true
 }
 
-export const changePsw = async (email:string, newPsw:string) => {
+export const changePsw = async (email:string, newPsw:string): Promise<boolean> => {
     const passwordEncrypted = await bcrypt.hash(newPsw, 12)
     const response = await new UserDb().ChangePsw(email, passwordEncrypted)
     if (!response) {
@@ -124,30 +125,35 @@ export const changePsw = async (email:string, newPsw:string) => {
     return true
 }
 
-export const updateUserState = async (input: any) => {
+export const updateUserState = async (input: any): Promise<typeUser|null> => {
     if (!await checkAdminByToken(input.token)) return null
     const user = await new UserDb().UpdateUserState(input)
     if (!user) return null
     return user
 }
 
-export const assignTerritory = async (input: any) => {
+export const assignTerritory = async (input: any): Promise<typeUser|null> => {
     if (!await checkAdminByToken(input.token)) return null
     const user = await new UserDb().AssignTerritory(input)
     if (!user) return null
     return user
 }
 
-export const deallocateMyTerritory = async (territorio: string, token: string) => {
+export const deallocateMyTerritory = async (territorio: string, token: string): Promise<boolean> => {
     console.log("deallocate my territory ", territorio)
     if (!await checkAuthByToken(token)) return false
-    const user:typeUser = await searchUserByToken(token)
-    console.log(user.email)
+    const user:typeUser|null = await searchUserByToken(token)
     if (!user || !user._id) return false
+    console.log(user.email)
     let input:any = {}
     input.user_id = user._id
     input.desasignar = parseInt(territorio)
     const user1 = await new UserDb().AssignTerritory(input)
     if (!user1) return false
     return true
+}
+
+export const checkTerritoryAssigned = (user: typeUser, territory: string): boolean => {
+    if (user.asign?.find(assignedTerritory => assignedTerritory.toString() === territory)) return true
+    return false
 }

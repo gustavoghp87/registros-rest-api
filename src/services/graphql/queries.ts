@@ -48,6 +48,7 @@ module.exports = {
     getApartmentsByTerritory: async (root:any, args:typeArgs1) => {
         const user = await userServices.userAuthForGraphQL(args.token)
         if (!user) return null
+        if (!userServices.checkTerritoryAssigned(user, args.terr)) return null
         console.log("Searching households by terr number", args.terr, args.manzana, args.todo, args.traidos, args.traerTodos)
         const viviendas = await territoryServices.searchTerritoryByNumber(
             args.terr, args.manzana, args.todo, args.traidos, args.traerTodos
@@ -61,20 +62,14 @@ module.exports = {
         return vivienda
     },
     getUsers: async (root:any, args:typeArgs3) => {
-        try {
-            console.log("Searching users")
-            const user = await userServices.userAdminForGraphQL(args.token)
-            if (!user) return null
-            const users = await userServices.searchAllUsers()
-            return users
-        } catch (error) {
-            console.log(error, `${Date.now().toLocaleString()}`)
-            return `Error searching users`
-        }
+        console.log(`${Date.now().toLocaleString()}`)
+        console.log("Searching users")
+        const user = await userServices.userAdminForGraphQL(args.token)
+        if (!user) return null
+        const users = await userServices.searchAllUsers()
+        return users
     },
     getGlobalStatistics: async (root:any, args:typeGlobalStatistics) => {
-        const userAuth = await userServices.userAdminForGraphQL(args.token)
-        if (!userAuth) return null
         const statistics = await territoryServices.getGlobalStatistics(args.token)
         const count = statistics?.count
         const countContesto = statistics?.countContesto

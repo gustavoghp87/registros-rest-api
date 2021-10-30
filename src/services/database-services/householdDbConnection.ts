@@ -73,7 +73,7 @@ export class HouseholdDb {
                     {fechaUlt: {$lt: timeSixMonths}}
                 ]
             }, {
-                $set: {estado: "No predicado"}
+                $set: {estado: "No predicado", asignado: false}
             })
         }
         
@@ -85,7 +85,7 @@ export class HouseholdDb {
                     {$or: [{noAbonado: false}, {noAbonado: null}]}
                 ]
             }, {
-                $set: {estado: "No predicado"}
+                $set: {estado: "No predicado", asignado: false}
             })
         }
         
@@ -97,7 +97,7 @@ export class HouseholdDb {
                     {fechaUlt: {$lt: timeSixMonths}}
                 ]
             }, {
-                $set: {estado: "No predicado", noAbonado:false}
+                $set: {estado: "No predicado", asignado: false, noAbonado:false}
             })
         }
         
@@ -108,7 +108,7 @@ export class HouseholdDb {
                     {territorio}
                 ]
             }, {
-                $set: {estado: "No predicado", noAbonado:false}
+                $set: {estado: "No predicado", asignado: false, noAbonado:false}
             })
         }
 

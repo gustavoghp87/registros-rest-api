@@ -29,11 +29,12 @@ export class UserDb {
     }
     async SearchUserById(_id: string) {
         const user = await dbClient.Client.db(dbMW).collection(collUsers).findOne({ _id: new ObjectId(_id) })
-        console.log("Search by Id 2,", user.email)
+        if (user) console.log("Search user by Id 2,", user.email)
+        else console.log("Search user by Id 2: Not found")
         return user
     }
     async SearchAllUsers() {
-        const users = await dbClient.Client.db(dbMW).collection(collUsers).find().toArray()
+        const users = await dbClient.Client.db(dbMW).collection(collUsers).find().toArray() as typeUser[] || null
         console.log("Search all users:", users.length)
         return users
     }
@@ -43,7 +44,7 @@ export class UserDb {
         if (!user || user.email !== email) return false
         return true
     }
-    async RegisterUser(newUser: typeUser) {
+    async RegisterUser(newUser: any) {
         await dbClient.Client.db(dbMW).collection(collUsers).insertOne(newUser)
         const user = await this.SearchUserByEmail(newUser.email)
         if (!user) return false

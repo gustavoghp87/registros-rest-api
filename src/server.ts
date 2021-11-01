@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { RequestHandler } from 'express'
 import path from 'path'
 import morgan from 'morgan'
 import cors from 'cors'
@@ -19,9 +19,9 @@ export const dbClient = new DbConnection()
 const app = express()
 
 app.use(cors())
-app.use(express.urlencoded({ extended: true }))
-app.use(express.json())
-app.use(morgan('dev'))
+app.use(express.urlencoded({ extended: true }) as RequestHandler)
+app.use(express.json() as RequestHandler)
+app.use(morgan('dev') as RequestHandler)
 
 const server = new ApolloServer({ typeDefs, resolvers })
 server.applyMiddleware({app})

@@ -21,12 +21,12 @@ export const router = express.Router()
                 isAdmin: req.user.role == 1 ? true : false,
                 darkMode: req.user.darkMode
             }
-            res.status(200).json(userData)
+            res.json(userData)
         } catch {
             let userData = {
                 isAuth: false
             }
-            res.status(200).json({ userData })
+            res.json({ userData })
         }
     })
 
@@ -37,45 +37,45 @@ export const router = express.Router()
         console.log("Entra en login", email, recaptchaToken.length);
 
         const checkRecaptch: boolean = await userServices.checkRecaptchaToken(recaptchaToken)
-        if (!checkRecaptch) return res.status(200).json({ success: false, recaptchaFails: true })
+        if (!checkRecaptch) return res.json({ success: false, recaptchaFails: true })
 
         const user: typeUser|null = await userServices.getUserByEmail(email)
-        if (!user || !user.password) return res.status(200).json({ success: false })
-        else if (!user.estado) return res.status(200).json({ success: false, disable: true })
+        if (!user || !user.password) return res.json({ success: false })
+        else if (!user.estado) return res.json({ success: false, disable: true })
 
         const compare = await bcrypt.compare(password, user.password)
-        if (!compare) return res.status(200).json({ success: false })
+        if (!compare) return res.json({ success: false })
 
         const jwt_string: string = string_jwt
         const newtoken = await jwt.sign({ userId: user._id }, jwt_string, { expiresIn:'2160h' })
         const success = await userServices.addTokenToUser(user.email, newtoken)
-        if (!success) res.status(200).json({ success })
+        if (!success) res.json({ success })
         res.json({ success, newtoken })
     })
 
     .post('/logout', async (req: any, res: any) => {
         const { token } = req.body
         const user: typeUser|null = await userServices.getUserByToken(token)
-        if (!user || !user.email) return res.status(200).json({ success: false })
+        if (!user || !user.email) return res.json({ success: false })
         const success: boolean = await userServices.addTokenToUser(user.email, "")
-        if (!success) res.status(200).json({ success, response: "Failed /logout" })
-        res.status(200).json({ success })
+        if (!success) res.json({ success, response: "Failed /logout" })
+        res.json({ success })
     })
 
     .post('/register', async (req: any, res: any) => {
         const { email, password, group, recaptchaToken } = req.body
-        if (!email || !password || !group || !recaptchaToken) return res.status(200).json({ success: false })
+        if (!email || !password || !group || !recaptchaToken) return res.json({ success: false })
 
         const checkRecaptch = await userServices.checkRecaptchaToken(recaptchaToken)
-        if (!checkRecaptch) return res.status(200).json({ success: false, recaptchaFails: true })
+        if (!checkRecaptch) return res.json({ success: false, recaptchaFails: true })
 
         const user: typeUser|null = await userServices.getUserByEmail(email)
-        if (user) return res.status(200).json({ success: false, userExists: true })
+        if (user) return res.json({ success: false, userExists: true })
 
         const register = await userServices.registerUser(email, password, group)
         if (!register) return res.json({ success: false })
 
-        res.status(200).json({ success: true })
+        res.json({ success: true })
     })
 
     .post('/change-mode', async (req: any, res: any) => {
@@ -106,12 +106,12 @@ export const router = express.Router()
             if (!user || !user.password) return res.json({ success: false })
 
             compare = await bcrypt.compare(newPsw, user.password)
-            if (!compare) return res.status(200).json({ success: false })
+            if (!compare) return res.json({ success: false })
 
             const jwt_string: string = string_jwt
             const newToken = await jwt.sign({ userId: user._id }, jwt_string, {expiresIn: '2160h' })
             const addToken = await userServices.addTokenToUser(user.email, newToken)
-            if (!addToken) res.status(200).json({ success: false })
+            if (!addToken) res.json({ success: false })
             res.json({ success: true, newToken })
         } catch (e) { console.log(e); res.json({ success: false }) }
     })
@@ -157,9 +157,9 @@ export const router = express.Router()
     .post ('/controlar-usuario', async (req: any, res: any) => {
         const { token, user_id, estado, role, group } = req.body
         if (!token || !user_id || typeof estado !== 'boolean' || typeof role !== 'number' || typeof group !== 'number')
-            return res.state(200).json({ success: false })
+            return res.json({ success: false })
         const user: typeUser|null = await userServices.modifyUser(token, user_id, estado, role, group)
-        if (!user) return res.state(200).json({ success: false })
+        if (!user) return res.json({ success: false })
         user.password = ""
         res.json({ success: true, user })
     })

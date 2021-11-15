@@ -16,7 +16,7 @@ export const auth = async(req: Request, res: Response, next: NextFunction) => {
     const user = await userServices.checkAuthByTokenReturnUser(token)
     if (!user) {
         console.log("Check auth by token failed")
-        return res.status(200).json({ userData: { isAuth: false, isAdmin: false } })
+        return res.json({ userData: { isAuth: false, isAdmin: false } })
     }
     console.log("Auth by token", user.email)
     req.token = token
@@ -29,7 +29,7 @@ export const admin = async(req: Request, res: Response, next: NextFunction) => {
     const user: typeUser|null = await userServices.checkAdminByTokenReturnUser(token)
     if (!user) {
         console.log("Check admin by token failed")
-        return res.status(200).json({ userData: { isAuth: false, isAdmin: false } })
+        return res.json({ userData: { isAuth: false, isAdmin: false } })
     }
     console.log("Admin by token", user.email)
     req.token = token

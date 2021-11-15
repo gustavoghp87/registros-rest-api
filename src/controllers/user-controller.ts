@@ -53,7 +53,7 @@ export const router = express.Router()
         res.json({ success, newtoken })
     })
 
-    .post('/logout', auth, async (req: any, res: any) => {
+    .post('/logout', async (req: any, res: any) => {
         const { token } = req.body
         const user: typeUser|null = await userServices.getUserByToken(token)
         if (!user || !user.email) return res.status(200).json({ success: false })

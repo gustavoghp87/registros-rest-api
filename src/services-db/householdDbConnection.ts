@@ -40,7 +40,7 @@ export class HouseholdDb {
                         { estado: this.NoPredicado },
                         { $or: [{ noAbonado: false }, { noAbonado: null }] }
                     ]
-                }).limit(traidos).toArray()   // removed limit
+                }).limit(traidos).toArray()
 
             else if (!todo && traerTodos)
                 households = await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({
@@ -52,22 +52,17 @@ export class HouseholdDb {
                     ]
                 }).toArray()
 
-            else if (todo && traerTodos) {
-                console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+            else if (todo && traerTodos)
                 households = await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({
                     territorio: { $in: [terr] },
                     manzana: { $in: [manzana] }
                 }).sort({ fechaUlt: 1 }).toArray()
-            }
 
-            else if (todo && !traerTodos) {
-                console.log("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+            else if (todo && !traerTodos)
                 households = await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({
                     territorio: { $in: [terr] },
                     manzana: { $in: [manzana] }
                 }).limit(traidos).toArray()
-                
-            }
             ;
 
             return households

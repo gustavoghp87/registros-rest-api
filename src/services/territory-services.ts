@@ -1,66 +1,109 @@
 import { statistic, localStatistic } from '../models/statistic'
-import { HouseholdDb } from './database-services/householdDbConnection'
+import { HouseholdDb } from '../services-db/householdDbConnection'
 import { changeStateOfTerritory } from './state-territory-services'
-import * as userServices from './user-services'
+import { checkAlert } from './email-services'
+import { checkAuthByToken, checkAdminByToken, checkAuthByTokenReturnUser } from './user-services'
+import { maintenanceMode } from '../server'
+import { typeVivienda } from '../models/vivienda'
+import { typeUser } from '../models/user'
 
-export const getBlocks = async (terr: string) => {
-    //if (!userServices.checkAuthByToken(token)) return null
-    const blocks = await new HouseholdDb().GetBlocks(terr)
-    console.log("Blocks array:", blocks)
+export const resetTerritory = async (token: string, option: number, territory: string): Promise<boolean> => {
+    if (!await checkAdminByToken(token)) return false
+    let response: boolean = await new HouseholdDb().ResetTerritory(option, territory)
+    if (!response) { console.log("Something failed in reset territory", territory); return false }
+    response = await changeStateOfTerritory(token, territory, false)
+    return response
+}
+
+export const getLocalStatistics = async (token: string, territorio: string, all: boolean): Promise<localStatistic|null> => {
+    if (!all && !await checkAdminByToken(token)) return null
+    const localStatistics: localStatistic|null = await new HouseholdDb().GetLocalStatistics(territorio)
+    if (!localStatistics) return null
+    const count: number = localStatistics.count || 0
+    const countContesto: number = localStatistics.countContesto || 0
+    const countNoContesto: number = localStatistics.countNoContesto || 0
+    const countDejarCarta: number = localStatistics.countDejarCarta || 0
+    const countNoLlamar: number = localStatistics.countNoLlamar || 0
+    const countNoAbonado: number = localStatistics.countNoAbonado || 0
+    const libres: number = localStatistics.libres || 0
+    console.log(count, countContesto, countNoContesto, countDejarCarta, countNoLlamar, libres, "------------ local statistics---------")
+    return {
+        territorio,
+        count,
+        countContesto,
+        countNoContesto,
+        countDejarCarta,
+        countNoLlamar,
+        countNoAbonado,
+        libres
+    }
+}
+
+export const getAllLocalStatistics = async (token: string): Promise<any[]|null|undefined> => {
+    if (!await checkAdminByToken(token)) return null
+    let promisesArray = []
+    let i = 1
+    while (i < 57) {
+        promisesArray.push(Promise.resolve(getLocalStatistics(token, i.toString(), true)))
+        i++
+    }
+    let localStatisticsArray = await Promise.all(promisesArray)
+    return localStatisticsArray
+}
+
+export const getGlobalStatistics = async (token: string): Promise<statistic|null> => {
+    if (!await checkAdminByToken(token)) return null
+    const statistics: statistic|null = await new HouseholdDb().GetGlobalStatistics()
+    if (!statistics) return null
+    const count: number = statistics.count || 0
+    const countContesto: number = statistics.countContesto || 0
+    const countNoContesto: number = statistics.countNoContesto || 0
+    const countDejarCarta: number = statistics.countDejarCarta || 0
+    const countNoLlamar: number = statistics.countNoLlamar || 0
+    const countNoAbonado: number = statistics.countNoAbonado || 0
+    const libres: number = statistics.libres || 0
+    console.log(count, countContesto, countNoContesto, countDejarCarta, countNoLlamar, libres, "------------ global statistics---------");
+    const response: statistic = {
+        count,
+        countContesto,
+        countNoContesto,
+        countDejarCarta,
+        countNoLlamar,
+        countNoAbonado,
+        libres
+    }
+    return response
+}
+
+export const getBlocks = async (token: string, territory: string): Promise<string[]|null> => {
+    console.log("Searching blocks array")
+    if (!checkAuthByToken(token)) return null
+    const blocks: string[]|null = await new HouseholdDb().GetBlocks(territory)
     return blocks
 }
 
-export const searchTerritoryByNumber = async (
-    terr: string, manzana: string, todo: boolean, traidos: number, traerTodos: boolean
-) => {
-    console.log("Searching households in", terr, ", block", manzana)
-    //if (!userServices.checkAuthByToken(token)) return null
-    const households = await new HouseholdDb().SearchTerritoryByNumber(terr, manzana, todo, traidos, traerTodos)
+export const getHouseholdsByTerritory = async (token: string, territory: string,
+     manzana: string, todo: boolean, traidos: number, traerTodos: boolean): Promise<typeVivienda[]|null> => {
+    const user: typeUser|null = await checkAuthByTokenReturnUser(token)
+    if (!user) return null;
+    if (!checkTerritoryAssigned(user, territory)) return null
+    console.log("Searching households by terr number", territory, manzana, todo, traidos, traerTodos)
+    const households: typeVivienda[]|null =
+        await new HouseholdDb().SearchTerritoryByNumber(territory, manzana, todo, traidos, traerTodos)
     return households
 }
 
-export const searchBuildingByNumber = async (num: string) => {
-    //if (!userServices.checkAuthByToken(token)) return null
-    const household = await new HouseholdDb().SearchHouseholdByNumber(num)
-    console.log("Searching household by inner_id", num)
-    if (!household) {
-        console.log("Household did not found or something failed");
-        return null
-    }
-    console.log("Household found:", household)
-    return household
+const checkTerritoryAssigned = (user: typeUser, territory: string): boolean => {
+    if (user.asign?.find(assignedTerritory => assignedTerritory.toString() === territory)) return true
+    return false
 }
 
-export const resetTerritory = async (token: string, option: number, territorio: string) => {
-    if (!await userServices.checkAdminByToken(token)) return false
-    const response = await new HouseholdDb().ResetTerritory(option, territorio)
-    if (!response) {
-        console.log("Something failed in reset territory", territorio)
-        return false
-    }
-    await changeStateOfTerritory(territorio, false, token)
-    console.log("Territory reseted")
-    return true
-}
-
-export const getLocalStatistics = async (token: string, territorio: string) => {
-    if (!await userServices.checkAdminByToken(token)) return null
-    const localStat: statistic|null = await new HouseholdDb().GetLocalStatistics(territorio)
-    if (!localStat) return null
-    const localStatistics: localStatistic = {...localStat, territorio}
-    return localStatistics
-}
-
-export const getGlobalStatistics = async (token: string) => {
-    if (!await userServices.checkAdminByToken(token)) return null
-    const globalStatistics: statistic|null = await new HouseholdDb().GetGlobalStatistics()
-    if (!globalStatistics) return null
-    return globalStatistics
-}
-
-export const updateHouseholdState = async (input: any) => {
-    if (!await userServices.checkAuthByToken(input.token)) return null
-    const household = await new HouseholdDb().UpdateHouseholdState(input)
+export const modifyHousehold = async (token: string,
+     inner_id: string, estado: string, noAbonado: boolean, asignado: boolean): Promise<typeVivienda|null> => {
+    if (!await checkAuthByToken(token)) return null
+    console.log("Modifying household:", inner_id, estado, noAbonado, asignado)
+    const household: typeVivienda|null = await new HouseholdDb().UpdateHouseholdState(inner_id, estado, noAbonado, asignado)
     if (!household) return null
+    if (!maintenanceMode) checkAlert()
     return household
 }

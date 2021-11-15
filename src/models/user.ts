@@ -3,7 +3,7 @@ export type typeUser = {
     role: number
     estado: boolean
     email: string
-    password: string
+    password?: string
     __v?: number
     group: number
     isAuth?: boolean

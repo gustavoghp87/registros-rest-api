@@ -2,26 +2,23 @@ import express from 'express'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import * as userServices from '../services/user-services'
-import { auth } from './auth-controller'
+import { auth } from './user-controller-auth'
+import { string_jwt } from '../env-variables';
 import { typeUser } from '../models/user'
-import { string_jwt } from '../services/env-variables';
-
 
 export const router = express.Router()
-
-router
-    .post('/auth', auth, (req:any, res:any) => {
+    .post('/auth', auth, (req: any, res: any) => {
         try {
-            let userData:typeUser = {
+            let userData: typeUser = {
                 _id: req.user._id,
                 role: req.user.role,
                 email: req.user.email,
-                password: req.user.password,
+                //password: req.user.password,
                 estado: req.user.estado,
                 group: req.user.group,
                 asign: req.user.asign,
                 isAuth: true,
-                isAdmin: req.user.role==1 ? true : false,
+                isAdmin: req.user.role == 1 ? true : false,
                 darkMode: req.user.darkMode
             }
             res.status(200).json(userData)
@@ -29,98 +26,141 @@ router
             let userData = {
                 isAuth: false
             }
-            res.status(200).json({userData})
+            res.status(200).json({ userData })
         }
     })
 
-    .post('/login', async (req:any, res:any) => {
+    .post('/login', async (req: any, res: any) => {                 // TODO: change login, don't save token in db
         const email = req.body.email || ""
         const password = req.body.password || ""
         const recaptchaToken = req.body.recaptchaToken || ""
-        console.log("Entra en login", email, recaptchaToken);
+        console.log("Entra en login", email, recaptchaToken.length);
 
-        const checkRecaptch = await userServices.checkRecaptchaToken(recaptchaToken)
-        if (!checkRecaptch) return res.status(200).json({loginSuccess:false, recaptchaFails:true})
+        const checkRecaptch: boolean = await userServices.checkRecaptchaToken(recaptchaToken)
+        if (!checkRecaptch) return res.status(200).json({ success: false, recaptchaFails: true })
 
-        const user = await userServices.searchUserByEmail(email)
-        if (!user) return res.status(200).json({loginSuccess:false})
-        if (!user.estado) return res.status(200).json({loginSuccess:false, disable:true})
+        const user: typeUser|null = await userServices.getUserByEmail(email)
+        if (!user || !user.password) return res.status(200).json({ success: false })
+        else if (!user.estado) return res.status(200).json({ success: false, disable: true })
 
         const compare = await bcrypt.compare(password, user.password)
+        if (!compare) return res.status(200).json({ success: false })
 
-        if (compare) {
-            const jwt_string:string = string_jwt
-            const newtoken = await jwt.sign({userId:user._id}, jwt_string, {expiresIn:'2160h'})
-            const addToken = await userServices.addTokenToUser(user.email, newtoken)
-            if (!addToken) res.status(200).json({loginSuccess:false})
-            res.json({loginSuccess:true, newtoken})
-        } else res.status(200).json({loginSuccess:false})
+        const jwt_string: string = string_jwt
+        const newtoken = await jwt.sign({ userId: user._id }, jwt_string, { expiresIn:'2160h' })
+        const success = await userServices.addTokenToUser(user.email, newtoken)
+        if (!success) res.status(200).json({ success })
+        res.json({ success, newtoken })
     })
 
-    .post('/logout', auth, async (req:any, res:any) => {
-        try {
-            const done = await userServices.addTokenToUser(req.user.email, "")
-            if (done) res.status(200).json({response:"ok"})
-            else res.status(200).json({response:"Falló cerrar sesión"})
-        } catch {res.status(200).json({response:"Falló cerrar sesión"})}
+    .post('/logout', auth, async (req: any, res: any) => {
+        const { token } = req.body
+        const user: typeUser|null = await userServices.getUserByToken(token)
+        if (!user || !user.email) return res.status(200).json({ success: false })
+        const success: boolean = await userServices.addTokenToUser(user.email, "")
+        if (!success) res.status(200).json({ success, response: "Failed /logout" })
+        res.status(200).json({ success })
     })
 
-    .post('/register', async (req:any, res:any) => {
-        const email = req.body.email || ""
-        const password = req.body.password || ""
-        const group = req.body.group || 0
-        const recaptchaToken = req.body.recaptchaToken || ""
-        if (!email || !password || !group || !recaptchaToken) return res.status(200).json({regSuccess:false})
+    .post('/register', async (req: any, res: any) => {
+        const { email, password, group, recaptchaToken } = req.body
+        if (!email || !password || !group || !recaptchaToken) return res.status(200).json({ success: false })
 
         const checkRecaptch = await userServices.checkRecaptchaToken(recaptchaToken)
-        if (!checkRecaptch) return res.status(200).json({regSuccess:false, recaptchaFails:true})
+        if (!checkRecaptch) return res.status(200).json({ success: false, recaptchaFails: true })
 
-        const busq = await userServices.searchUserByEmail(email)
-        if (busq) return res.status(200).json({regSuccess:false, userExists:true})
+        const user: typeUser|null = await userServices.getUserByEmail(email)
+        if (user) return res.status(200).json({ success: false, userExists: true })
 
         const register = await userServices.registerUser(email, password, group)
-        if (!register) return res.json({regSuccess:false})
+        if (!register) return res.json({ success: false })
 
-        res.status(200).json({regSuccess:true})
+        res.status(200).json({ success: true })
     })
 
-    .post('/change-mode', async (req, res) => {
+    .post('/change-mode', async (req: any, res: any) => {
         const { token } = req.body
-        if (!token) {console.log("No llegó el token en change-mode"); return res.json({success:false})}
-        const user = await userServices.searchUserByToken(token)
-        if (!user) return res.json({success:false})
-        try {
-            userServices.changeMode(user.email, req.body.darkMode)
-            res.json({success:true, darkMode:req.body.darkMode})
-        } catch (e) {console.log(e); res.json({success:false})}
+        if (!token) { console.log("No token on change-mode"); return res.json({ success: false }) }
+        const user: typeUser|null = await userServices.getUserByToken(token)
+        if (!user) return res.json({ success: false })
+        const success: boolean = await userServices.changeMode(user.email, req.body.darkMode)
+        if (!success) return res.json({ success })
+        res.json({ success, darkMode: user.darkMode })
     })
 
-    .post('/change-psw', async (req, res) => {
-        const { psw, newPsw, token } = req.body
-        if (!token) {console.log("No llegó el token en change-psw"); return res.json({success:false})}
-        console.log("Cambiar psw de " + psw + " a " + newPsw);
-        const user = await userServices.searchUserByToken(token)
-        if (!user || !newPsw) return res.json({success:false})
-        const compare = await bcrypt.compare(psw, user.password)
-        if (!compare) return res.json({success:false, compareProblem:true})
+    .post('/change-psw', async (req: any, res: any) => {
+        const { token, psw, newPsw } = req.body
+        if (!token || !psw || !newPsw || psw !== newPsw) {
+            console.log("No token or psw error on /change-psw")
+            return res.json({ success: false })
+        }
+        let user: typeUser|null = await userServices.getUserByToken(token)
+        if (!user || !user.password) return res.json({ success: false })
+        let compare: boolean = await bcrypt.compare(psw, user.password)
+        if (!compare) return res.json({ success: false, compareProblem: true })
         try {
-            console.log("ACA 1");
-            const success = await userServices.changePsw(user.email, newPsw)
-            if (!success) return res.json({success:false})
-            console.log("ACA 2");
-            const user2:typeUser|null = await userServices.searchUserByToken(token)
-            if (!user2) return res.json({success:false})
-            const compare2 = await bcrypt.compare(newPsw, user2.password)
-            console.log(compare2)
-            if (compare2) {
-                console.log("ACA 3");
-                const jwt_string:string = string_jwt
-                const newToken = await jwt.sign({userId:user2._id}, jwt_string, {expiresIn:'2160h'})
-                const addToken = await userServices.addTokenToUser(user2.email, newToken)
-                console.log("ACA 4");
-                if (!addToken) res.status(200).json({success:false})
-                res.json({success:true, newToken})
-            } else res.status(200).json({success:false})
-        } catch (e) {console.log(e); res.json({success:false})}
+            const success: boolean = await userServices.changePsw(user.email, newPsw)
+            if (!success) return res.json({ success: false })
+
+            user = await userServices.getUserByToken(token)
+            if (!user || !user.password) return res.json({ success: false })
+
+            compare = await bcrypt.compare(newPsw, user.password)
+            if (!compare) return res.status(200).json({ success: false })
+
+            const jwt_string: string = string_jwt
+            const newToken = await jwt.sign({ userId: user._id }, jwt_string, {expiresIn: '2160h' })
+            const addToken = await userServices.addTokenToUser(user.email, newToken)
+            if (!addToken) res.status(200).json({ success: false })
+            res.json({ success: true, newToken })
+        } catch (e) { console.log(e); res.json({ success: false }) }
+    })
+
+    .post('/change-psw-other-user', async (req: any, res: any) => {
+        const { token, email } = req.body
+        if (!token || !email || typeof token !== "string" || typeof email !== "string") {
+            console.log("No token or email error on /change-psw-other-user")
+            return res.json({ success: false })
+        }
+        const success: boolean = await userServices.changePswOtherUser(token, email)
+        res.json({ success })
+    })
+
+    .post('/get-all', async (req: any, res: any) => {
+        const { token } = req.body
+        if (!token) { console.log("No llegó el token en users/get-all"); return res.json({ success: false }) }
+        const users: typeUser[]|null = await userServices.getUsers(token)
+        if (!users) return res.json({ success: false })
+        users.forEach((user: typeUser) => user.password = "")
+        res.json({ success: true, users })
+    })
+
+    .post('/asignar', async (req: any, res: any) => {
+        const token = req.body.token || ""
+        if (!token) { console.log("No token in /asignar"); return res.json({ success: false }) }
+        const user_id = req.body.user_id || ""
+        const all = req.body.all || false
+        let asignar = req.body.asignar || 0
+        let desasignar = req.body.desasignar || 0
+        if (typeof asignar !== "number")
+            try { asignar = parseInt(asignar) }
+            catch (error) { console.log(error); return res.json({ success: false }) }
+        if (typeof desasignar !== "number")
+            try { asignar = parseInt(asignar) }
+            catch (error) { console.log(error); return res.json({ success: false }) }
+        const user: typeUser|null = await userServices.assignTerritory(token, user_id, asignar, desasignar, all)
+        if (!user) return res.json({ success: false })
+        user.password = ""
+        res.json({ success: true, user })
+    })
+
+    .post ('/controlar-usuario', async (req: any, res: any) => {
+        const { token, user_id, estado, role, group } = req.body
+        if (!token || !user_id || typeof estado !== 'boolean' || typeof role !== 'number' || typeof group !== 'number')
+            return res.state(200).json({ success: false })
+        const user: typeUser|null = await userServices.modifyUser(token, user_id, estado, role, group)
+        if (!user) return res.state(200).json({ success: false })
+        user.password = ""
+        res.json({ success: true, user })
     })
 ;

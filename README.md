@@ -1,12 +1,10 @@
 # registros-rest-api
 
-RESTFUL API (Node + Express + TypeScript + GraphQL)
+RESTFUL API (NodeJS + Express + TypeScript + MongoDB)
 
 Corriendo en Heroku en https://registros-rest-api.herokuapp.com/
 
 Sirve a la aplicación cliente [registros-client]
-
-GraphQL con queries, mutations y subscriptions conectados por único puerto mediante GraphQL Express y Apollo Server Express
 
 Base de datos en Atlas MongoDB
 

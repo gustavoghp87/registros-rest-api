@@ -7,12 +7,8 @@ export class DbConnection {
     public collUnit: string = "viviendas"
     public collEmails: string = "emailAlert"
     public collTerr: string = "territorios"
-    public Client: MongoClient = new MongoClient(databaseUrl,
-        {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        }
-    )
+    public Client: MongoClient = new MongoClient(databaseUrl)
+    
     constructor (testingDb: boolean) {
         if (testingDb) this.dbMW = "Misericordia-Web-Testing"
         ;(async () => {

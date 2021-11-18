@@ -18,7 +18,7 @@ export class HouseholdDb {
                     await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).findOne({
                         territorio: { $in: [territory] },
                         manzana: { $in: [i.toString()] }
-                    })
+                    }) as typeVivienda|null
                 if (busq) blocks.push(i.toString())
             } catch (error) {
                 console.log(error)
@@ -40,7 +40,7 @@ export class HouseholdDb {
                         { estado: this.NoPredicado },
                         { $or: [{ noAbonado: false }, { noAbonado: null }] }
                     ]
-                }).limit(traidos).toArray()
+                }).limit(traidos).toArray() as typeVivienda[]
 
             else if (!todo && traerTodos)
                 households = await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({
@@ -50,19 +50,20 @@ export class HouseholdDb {
                         { estado: this.NoPredicado },
                         { $or: [{ noAbonado: false }, { noAbonado: null }]}
                     ]
-                }).toArray()
+                }).toArray() as typeVivienda[]
 
             else if (todo && traerTodos)
                 households = await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({
                     territorio: { $in: [terr] },
                     manzana: { $in: [manzana] }
-                }).sort({ fechaUlt: 1 }).toArray()
+                }).sort({ fechaUlt: 1 }).toArray() as typeVivienda[]
 
             else if (todo && !traerTodos)
                 households = await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({
                     territorio: { $in: [terr] },
                     manzana: { $in: [manzana] }
-                }).limit(traidos).toArray()
+                }).limit(traidos).toArray() as typeVivienda[]
+
             ;
 
             return households
@@ -73,7 +74,7 @@ export class HouseholdDb {
     }
     async ResetTerritory(option: number, territorio: string): Promise<boolean> {
         if (maintenanceMode) return true
-        const time = Date.now()                              // milliseconds
+        const time = Date.now()        // milliseconds
         const sixMonths = 15778458000
         const timeSixMonths = time - sixMonths
 
@@ -138,7 +139,7 @@ export class HouseholdDb {
                 { $set: { estado, noAbonado, asignado, fechaUlt: Date.now() } }
             )
             const householdUpdated: typeVivienda|null =
-                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).findOne({ inner_id })
+                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).findOne({ inner_id }) as typeVivienda
             if (!householdUpdated) return null
             return householdUpdated
         } catch (error) {

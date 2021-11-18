@@ -22,7 +22,7 @@ export class EmailDb {
             let alert: string[] = []
             let i: number = 1
             while (i < 57) {
-                const libres = await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({
+                const libres: number = await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({
                     $and: [
                         { territorio: i.toString() },
                         //{ $or: [{ estado: 'No predicado' }, { estado: 'No contestó' }] },
@@ -33,13 +33,13 @@ export class EmailDb {
                 console.log(`Territorio ${i}, libres: ${libres}`)
 
                 if (libres < 50) {
-                    let users = await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUsers).find({
+                    let users: typeUser[]|null = await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUsers).find({
                         asign: { $in: [i] }
-                    }).toArray()
+                    }).toArray() as typeUser[]
                                 
                     let text: string = `Territorio ${i.toString()}`
                     
-                    if (users.length) {
+                    if (users && users.length) {
                         text += `, asignado a `
                         users.forEach((user: typeUser) => {
                             if (user.email !== 'ghp.2120@gmail.com' && user.email !== 'ghp.21@hotmail.com')

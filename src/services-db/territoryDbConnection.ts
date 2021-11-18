@@ -5,7 +5,8 @@ export class TerritoryDb {
 
     async SearchStateOfTerritory(territorio: string): Promise<stateOfTerritory|null> {
         try {
-            const obj: stateOfTerritory = await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collTerr).findOne({ territorio })
+            const obj: stateOfTerritory =
+                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collTerr).findOne({ territorio }) as stateOfTerritory
             return obj
         } catch (error) {
             console.log("Territory Db SearchStateOfTerritory", error)
@@ -14,7 +15,8 @@ export class TerritoryDb {
     }
     async SearchStateOfTerritories(): Promise<stateOfTerritory[]|null> {
         try {
-            const obj: stateOfTerritory[]|null = await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collTerr).find().toArray()
+            const obj: stateOfTerritory[]|null =
+                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collTerr).find().toArray() as stateOfTerritory[]
             return obj
         } catch (error) {
             console.log("Territory Db SearchStatesOfTerritories", error)

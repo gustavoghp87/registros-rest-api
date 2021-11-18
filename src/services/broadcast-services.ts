@@ -22,6 +22,8 @@ export const socketConnection = (): void => {
             socket.emit('household: change', households)
         })
         socket.on('user: change', (updatedUser: typeUser): void => {
+            console.log(updatedUser);
+            
             socket.emit('user: change', updatedUser)
         })
     })

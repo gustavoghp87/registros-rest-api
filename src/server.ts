@@ -12,6 +12,7 @@ import { socketConnection } from './services/broadcast-services'
 
 export let testingDb: boolean = true
 export let maintenanceMode: boolean = false
+export const accessTokensExpiresIn = '2160h'  // 90 days
 
 export const domain: string = "https://www.misericordiaweb.com"
 export const testingDomain: string = "http://localhost:3000"

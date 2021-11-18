@@ -11,3 +11,9 @@ export type typeUser = {
     asign?: number[]
     darkMode?: boolean
 }
+
+export type decodedObject = {
+    userId: string
+    iat: number
+    exp: number
+}

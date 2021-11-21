@@ -189,7 +189,6 @@ export const modifyUser = async (token: string,
 }
 
 export const changeMode = async (token: string, darkMode: boolean): Promise<boolean> => {
-    darkMode = darkMode == true ? true : false
     const user: typeUser|null = await getActivatedUserByAccessToken(token)
     if (!user) return false
     const response: boolean = await new UserDb().ChangeMode(user.email, darkMode)

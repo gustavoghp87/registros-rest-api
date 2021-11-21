@@ -10,8 +10,9 @@ import { router as stateTerritoryController } from './controllers/state-territor
 import { router as statisticsController } from './controllers/statistics-controller'
 import { DbConnection } from './services-db/_dbConnection'
 import { socketConnection } from './services/broadcast-services'
+import { TerritoryDb } from './services-db/territoryDbConnection'
 
-export let testingDb: boolean = true
+export let testingDb: boolean = false
 export let maintenanceMode: boolean = false
 export const accessTokensExpiresIn = '2160h'  // 90 days
 
@@ -37,4 +38,7 @@ app.use('/api/statistic', statisticsController)
 export const server = app.listen(port, () => {
     console.log(`\n\n\nListening on port ${port}`)
     socketConnection()
+    // setTimeout(async () => {
+    //     await new TerritoryDb().ChangeStateForIsFinished()
+    // }, 2000);
 })

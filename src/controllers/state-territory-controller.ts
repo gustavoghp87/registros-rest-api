@@ -7,23 +7,23 @@ export const router = express.Router()
         const token: string = req.header('authorization') || ""
         const { territory } = req.params
         if (!territory) return res.json({ success: false })
-        const obj: stateOfTerritory|null = await stateTerritoryServices.searchStateOfTerritory(token, territory)
+        const obj: stateOfTerritory|null = await stateTerritoryServices.getStateOfTerritory(token, territory)
         if (!obj) return res.json({ success: false })
         res.json({ success: true, obj })
     })
 
     .get('/', async (req, res) => {
         const token: string = req.header('authorization') || ""
-        const obj: stateOfTerritory[]|null = await stateTerritoryServices.searchStateOfTerritories(token)
+        const obj: stateOfTerritory[]|null = await stateTerritoryServices.getStateOfTerritories(token)
         if (!obj) return res.json({ success: false })
         res.json({ success: true, obj })
     })
 
     .patch('/', async (req, res) => {
         const token: string = req.header('authorization') || ""
-        const { territory, estado } = req.body
-        if (!territory || estado === null || estado === undefined) return res.json({ success: false })
-        const success: boolean = await stateTerritoryServices.changeStateOfTerritory(token, territory, estado)
+        const { territory, isFinished } = req.body
+        if (!territory || isFinished === null || isFinished === undefined) return res.json({ success: false })
+        const success: boolean = await stateTerritoryServices.changeStateOfTerritory(token, territory, isFinished)
         res.json({ success })
     })
 ;

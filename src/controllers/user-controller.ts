@@ -54,8 +54,8 @@ export const router = express.Router()
         const token: string = req.header('authorization') || ""
         const user_id: string = req.body.user_id
         let { darkMode, estado, role, group, all, asignar, desasignar } = req.body
-        console.log("\n\nDATA\n", user_id, estado, role, group)
-        console.log(darkMode)
+        console.log("\n\nDATA\n", darkMode)
+        console.log(user_id, estado, role, group)
         console.log(all, asignar, desasignar)
         
         if (!token) {
@@ -66,7 +66,7 @@ export const router = express.Router()
             const success: boolean = await userServices.changeMode(token, darkMode)
             res.json({ success })
         } else if (user_id && estado !== undefined && role !== undefined && group !== undefined) {
-            estado = estado == 'true' ? true : false
+            estado = (estado == 'true' || estado == true) ? true : false
             if (typeof role !== 'number')
                 try { role = parseInt(role) } catch { return res.json({ success: false }) }
             if (typeof group !== 'number')

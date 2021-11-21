@@ -2,7 +2,6 @@ import { dbClient, maintenanceMode } from '../server'
 import { stateOfTerritory } from '../models/territorio'
 
 export class TerritoryDb {
-
     async SearchStateOfTerritory(territorio: string): Promise<stateOfTerritory|null> {
         try {
             const obj: stateOfTerritory =

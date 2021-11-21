@@ -10,10 +10,12 @@ export type typeUser = {
     isAdmin?: boolean
     asign?: number[]
     darkMode?: boolean
+    tokenId?: number
 }
 
 export type decodedObject = {
     userId: string
+    tokenId?: number
     iat: number
     exp: number
 }

@@ -1,15 +1,15 @@
 import { statistic, localStatistic } from '../models/statistic'
 import { HouseholdDb } from '../services-db/householdDbConnection'
 import { changeStateOfTerritory } from './state-territory-services'
-import { checkAlert } from './email-services'
 import { getActivatedUserByAccessToken, verifyActivatedAdminByAccessToken, verifyActivatedUserByAccessToken } from './user-services'
+import { checkAlert } from './email-services'
 import { maintenanceMode } from '../server'
 import { typeVivienda } from '../models/vivienda'
 import { typeUser } from '../models/user'
 
-export const resetTerritory = async (token: string, option: number, territory: string): Promise<boolean> => {
+export const resetTerritory = async (token: string, territory: string, option: number): Promise<boolean> => {
     if (!await verifyActivatedAdminByAccessToken(token)) return false
-    let response: boolean = await new HouseholdDb().ResetTerritory(option, territory)
+    let response: boolean = await new HouseholdDb().ResetTerritory(territory, option)
     if (!response) { console.log("Something failed in reset territory", territory); return false }
     response = await changeStateOfTerritory(token, territory, false)
     return response
@@ -76,7 +76,6 @@ export const getGlobalStatistics = async (token: string): Promise<statistic|null
 }
 
 export const getBlocks = async (token: string, territory: string): Promise<string[]|null> => {
-    console.log("Searching blocks array")
     if (!verifyActivatedUserByAccessToken(token)) return null
     const blocks: string[]|null = await new HouseholdDb().GetBlocks(territory)
     return blocks

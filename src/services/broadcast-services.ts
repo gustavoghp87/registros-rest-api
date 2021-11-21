@@ -8,23 +8,27 @@ export const socketConnection = (): void => {
         cors: {
             origin: [`${domain}`, `${testingDomain}`],
             methods: ["GET", "POST"],
-            //allowedHeaders: ["my-custom-header"],
             credentials: true
         }
     }).on('connection', (socket: any): void => {
-        console.log("NEW SOCKET CONNECTION", socket.id)
+        console.log("NEW SOCKET CONNECTION ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------", socket.id)
+        socket.emit('connection', null);
         socket.on('household: change', (objPackage: any): void => {
             let households: typeVivienda[] = objPackage.households
             const updatedHousehold: typeVivienda = objPackage.updatedHousehold
             const indexOfHousehold: number = objPackage.indexOfHousehold
-            if (!households || !updatedHousehold || !indexOfHousehold) { console.log("Error in socket household: change"); return }
+            console.log(households.length, updatedHousehold, indexOfHousehold);
+            if (!households || !updatedHousehold || indexOfHousehold === null) {
+                console.log("\n\nError in socket household: change\n\n");
+                return
+            }
             households[indexOfHousehold] = updatedHousehold
             socket.emit('household: change', households)
+            socket.broadcast.emit('household: change', households)
         })
         socket.on('user: change', (updatedUser: typeUser): void => {
-            console.log(updatedUser);
-            
             socket.emit('user: change', updatedUser)
+            socket.broadcast.emit('user: change', updatedUser)
         })
     })
 }

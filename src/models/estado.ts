@@ -1,1 +1,0 @@
-export type typeEstado = "No predicado" | "No contestó" | "Contestó" | "No llamar" | "A dejar carta"

@@ -1,4 +1,5 @@
-import { typeEstado } from "./estado";
+
+type typeEstado = "No predicado" | "No contestó" | "Contestó" | "No llamar" | "A dejar carta"
 
 export type typeVivienda = {
     _id: Object

@@ -8,7 +8,7 @@ export class UserDb {
             const user: typeUser|null =
                 await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUsers).findOne({ email }) as typeUser
             if (!user) {console.log("User not found by email in db"); return null}
-            console.log("Search by email in db,", user?.email)
+            if (!user.tokenId) user.tokenId = 1
             return user
         } catch (error) {
             console.log("Db user by email", error)
@@ -20,6 +20,7 @@ export class UserDb {
             const user: typeUser|null =
                 await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUsers).findOne({ _id: new ObjectId(_id) }) as typeUser
             if (!user) { console.log(`Search user by Id ${_id}: Not found`); return null }
+            if (!user.tokenId) user.tokenId = 1
             return user
         } catch (error) {
             console.log(error)
@@ -30,7 +31,7 @@ export class UserDb {
         try {
             const users: typeUser[]|null =
                 await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUsers).find().toArray() as typeUser[]
-            console.log("Get all users:", users.length)
+            users.forEach((user: typeUser) => { if (!user.tokenId) user.tokenId === 1; user.password === "" })
             return users
         } catch (error) {
             console.log(error)
@@ -47,11 +48,13 @@ export class UserDb {
             return false
         }
     }
-    async DeleteUser(_id: string): Promise<boolean> {
+    async UpdateTokenId(_id: string, tokenId: number): Promise<boolean> {
         try {
-            await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUsers).deleteOne({ _id: new ObjectId(_id) })
+            await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUsers).updateOne({ _id: new ObjectId(_id) }, {
+                $set: { tokenId }
+            })
             const user: typeUser|null = await this.GetUserById(_id)
-            return !user ? true : false
+            return user && user.tokenId === tokenId ? true : false
         } catch (error) {
             console.log(error)
             return false
@@ -59,10 +62,11 @@ export class UserDb {
     }
     async ChangeMode(email: string, darkMode: boolean): Promise<boolean> {
         try {
-            await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUsers).updateOne({ email }, { $set: { darkMode } })
+            await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUsers).updateOne({ email }, {
+                $set: { darkMode }
+            })
             const user: typeUser|null = await this.GetUserByEmail(email)
-            if (!user || user.darkMode !== darkMode) return false
-            return true
+            return user && user.darkMode === darkMode ? true : false
         } catch (error) {
             console.log(error)
             return false
@@ -70,10 +74,11 @@ export class UserDb {
     }
     async ChangePsw(email: string, passwordEncrypted: string): Promise<boolean> {
         try {
-            await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUsers).updateOne({ email }, { $set: { password: passwordEncrypted } })
+            await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUsers).updateOne({ email }, {
+                $set: { password: passwordEncrypted }
+            })
             const user: typeUser|null = await this.GetUserByEmail(email)
-            if (!user || user.password !== passwordEncrypted) return false
-            return true
+            return user && user.password === passwordEncrypted ? true : false
         } catch (error) {
             console.log(error)
             return false
@@ -81,13 +86,11 @@ export class UserDb {
     }
     async UpdateUserState(user_id: string, estado: boolean, role: number, group: number): Promise<typeUser|null> {
         try {
-            await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUsers).updateOne(
-                { _id: new ObjectId(user_id) },
-                { $set: { estado, role, group } }
-            )
+            await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUsers).updateOne({ _id: new ObjectId(user_id) }, {
+                $set: { estado, role, group }
+            })
             const user: typeUser|null = await this.GetUserById(user_id)
-            if (!user || user.estado !== estado || user.role !== role || user.group !== group) return null
-            return user
+            return user && user.estado === estado && user.role === role && user.group === group ? user : null
         } catch (error) {
             console.log("Update User State failed:", error)
             return null
@@ -95,25 +98,24 @@ export class UserDb {
     }
     async AssignTerritory(user_id: string, asignar: number, desasignar: number, all: boolean): Promise<typeUser|null> {
         try {
-            if (all) await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUsers).updateOne(
-                { _id: new ObjectId(user_id) },
-                { $set: { asign: [] } }
-            )
-            else if (asignar !== 0) {
+            if (all)
+                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUsers).updateOne({ _id: new ObjectId(user_id) }, {
+                    $set: { asign: [] }
+                })
+            else if (asignar && asignar !== 0) {
                 const userToMod: typeUser|null = await this.GetUserById(user_id)
                 if (!userToMod) return null
                 let arrayV: number[] = userToMod.asign || []
                 arrayV.indexOf(asignar) === -1 ? arrayV.push(asignar) : console.log("Assigned yet")
                 arrayV.sort((a: number, b: number) => a - b)
-                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUsers).updateOne(
-                    { _id: new ObjectId(user_id) },
-                    { $set: { asign: arrayV } }
-                )
+                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUsers).updateOne( { _id: new ObjectId(user_id) }, {
+                    $set: { asign: arrayV }
+                })
             }
-            else if (desasignar !== 0) await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUsers).updateOne(
-                { _id: new ObjectId(user_id) },
-                { $pullAll: { asign: [desasignar] } }
-            )
+            else if (desasignar && desasignar !== 0)
+                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUsers).updateOne({ _id: new ObjectId(user_id) }, {
+                    $pullAll: { asign: [desasignar] }
+                })
             const user: typeUser|null = await this.GetUserById(user_id)
             return user ? user : null
         } catch (error) {

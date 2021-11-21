@@ -2,23 +2,21 @@ import Axios from 'axios'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { UserDb } from '../services-db/userDbConnection'
-import { bcryptSalt, privateKey, string_jwt } from "../env-variables"
+import { bcryptSalt, privateKey, string_jwt } from '../env-variables'
 import { accessTokensExpiresIn } from '../server'
-import { sendEmailNewPsw } from './email-services'
 import { decodedObject, typeUser } from '../models/user'
-import { ObjectId } from 'mongodb'
 
 export const getUserByEmail = async (email: string): Promise<typeUser|null> => {
     const user = await new UserDb().GetUserByEmail(email)
     if (!user) return null
-    console.log(`\n${(new Date()).toLocaleString("es-AR")} - User found by email: ${email}\n`)
+    console.log(`\n${(new Date()).toLocaleString("es-AR")} -        User found by email: ${email}\n`)
     return user
 }
 
 const getUserById = async (_id: string): Promise<typeUser|null> => {
     const user: typeUser|null = await new UserDb().GetUserById(_id)
     if (!user) return null
-    console.log(`\n${(new Date()).toLocaleString("es-AR")} - User found by id: ${_id}\n`)
+    console.log(`\n${(new Date()).toLocaleString("es-AR")} -        User found by id: ${_id}\n`)
     return user
 }
 
@@ -27,6 +25,10 @@ export const getUsers = async (token: string): Promise<typeUser[]|null> => {
     let users: typeUser[]|null = await new UserDb().GetAllUsers()
     if (!users) { console.log("Users cannot be retrieved"); return null }
     users = users.reverse()
+    users.forEach(user => {
+        user.password = ""
+        user.tokenId = 0
+    })
     return users
 }
 
@@ -47,7 +49,8 @@ export const registerUser = async (email: string, password: string, group: numbe
         estado: false,
         email,
         password: encryptedPassword,
-        group
+        group,
+        tokenId: 1
     }
     const result: boolean = await new UserDb().RegisterUser(newUser)
     if (!result) { console.error("Error signing up user..."); return false }
@@ -55,18 +58,49 @@ export const registerUser = async (email: string, password: string, group: numbe
     return true
 }
 
-export const generateAccessToken = (userId: Object|null): string|null => {
+export const generateAccessToken = (userId: Object|null, tokenId: number): string|null => {
     if (!userId) return null
-    return jwt.sign({ userId }, string_jwt, { expiresIn: accessTokensExpiresIn })
+    if (!tokenId) tokenId = 1
+    try { if (typeof tokenId !== 'number') tokenId = parseInt(tokenId) } catch { return null }
+    return jwt.sign({ userId, tokenId }, string_jwt, { expiresIn: accessTokensExpiresIn })
 }
 
-export const getUserByAccessToken = async (token: string): Promise<typeUser|null> => {         // único que va a DB
+const getUserByAccessToken = async (token: string): Promise<typeUser|null> => {
     const userId: string|null = retrieveUserIdByAccessToken(token)
     if (!userId) return null
+    const tokenId: number|null = retrieveTokenIdByAccessToken(token)
+    if (!tokenId) return null
     const user: typeUser|null = await getUserById(userId)
     if (!user) return null
+    user.tokenId = user.tokenId ?? 1
+    if (tokenId < user.tokenId) return null
     console.log("User found by access token:", user.email)
     return user
+}
+
+const retrieveUserIdByAccessToken = (token: string): string|null => {
+    if (!token || typeof token !== 'string') return null 
+    const timeNow: number = Date.now() / 1000
+    let decoded: decodedObject|null;
+    try {
+        decoded = jwt.verify(token, string_jwt) as decodedObject
+        if (decoded && decoded.iat && decoded.exp && decoded.iat < timeNow && decoded.exp > timeNow) return decoded.userId
+        else return null
+    } catch {
+        return null
+    }
+}
+
+const retrieveTokenIdByAccessToken = (token: string): number|null => {
+    if (!token || typeof token !== 'string') return null 
+    let decoded: decodedObject|null;
+    try {
+        decoded = jwt.verify(token, string_jwt) as decodedObject
+        if (decoded && decoded.tokenId) return decoded.tokenId
+        else return 1
+    } catch {
+        return null
+    }
 }
 
 export const getActivatedUserByAccessToken = async (token: string): Promise<typeUser|null> => {
@@ -77,7 +111,7 @@ export const getActivatedUserByAccessToken = async (token: string): Promise<type
     return activated ? user : null
 }
 
-export const getActivatedAdminByAccessToken = async (token: string): Promise<typeUser|null> => {
+const getActivatedAdminByAccessToken = async (token: string): Promise<typeUser|null> => {
     if (!token) return null
     const user: typeUser|null = await getUserByAccessToken(token)
     if (!user) return null
@@ -103,19 +137,6 @@ export const verifyActivatedAdminByAccessToken = async (token: string): Promise<
     return user ? true : false
 }
 
-export const retrieveUserIdByAccessToken = (token: string): string|null => {
-    if (!token || typeof token !== 'string') return null 
-    const timeNow: number = Date.now() / 1000
-    let decoded: decodedObject|null;
-    try {
-        decoded = jwt.verify(token, string_jwt) as decodedObject
-        if (decoded && decoded.iat && decoded.exp && decoded.iat < timeNow && decoded.exp > timeNow) return decoded.userId
-        else return null
-    } catch {
-        return null
-    }
-}
-
 const generatePasswordHash = async (password: string): Promise<string> => {
     return await bcrypt.hash(password, parseInt(bcryptSalt))
 }
@@ -126,17 +147,11 @@ export const comparePasswords = async (password0: string, password1: string): Pr
 
 export const logoutAll = async (token: string): Promise<string|null> => {
     const user: typeUser|null = await getActivatedUserByAccessToken(token)
-    if (!user) return null
-
-    user._id = new ObjectId()
-
-    const success: boolean = await new UserDb().RegisterUser(user)
+    if (!user || !user._id) return null
+    const tokenId = user.tokenId || 1
+    const success: boolean = await new UserDb().UpdateTokenId(user._id.toString(), tokenId + 1)
     if (!success) return null
-
-    const removedUser: boolean = await new UserDb().DeleteUser(user._id.toString())
-    if (!removedUser) return null
-
-    const newToken: string|null = generateAccessToken(user._id)
+    const newToken: string|null = generateAccessToken(user._id, tokenId + 1 || 2)
     return newToken
 }
 
@@ -150,7 +165,7 @@ export const changePsw = async (token: string, psw: string, newPsw: string): Pro
     const response: boolean = await new UserDb().ChangePsw(user.email, encryptedPassword)
     if (!response) { console.log("Fail trying to change password for", user.email); return null }
     console.log("Password changed successfully for", user.email)
-    const newToken: string|null = generateAccessToken(user._id)
+    const newToken: string|null = generateAccessToken(user._id, user.tokenId || 1)
     return newToken
 }
 
@@ -163,24 +178,22 @@ export const changePswOtherUser = async (token: string, email: string): Promise<
     const encryptedPassword: string = await generatePasswordHash(newPsw)
     let success: boolean = await new UserDb().ChangePsw(email, encryptedPassword)
     if (!success) return null
-    const emailSuccess: boolean = await sendEmailNewPsw(user.email, newPsw)
-    if (!emailSuccess) return "email failed"
-    return "ok"
+    return newPsw
 }
 
 export const modifyUser = async (token: string,
      user_id: string, estado: boolean, role: number, group: number): Promise<typeUser|null> => {
-    console.log("Updating", user_id)
     if (!verifyActivatedAdminByAccessToken(token)) return null
     const user: typeUser|null = await new UserDb().UpdateUserState(user_id, estado, role, group)
     return user ? user : null
 }
 
 export const changeMode = async (token: string, darkMode: boolean): Promise<boolean> => {
+    darkMode = darkMode == true ? true : false
     const user: typeUser|null = await getActivatedUserByAccessToken(token)
     if (!user) return false
     const response: boolean = await new UserDb().ChangeMode(user.email, darkMode)
-    if (!response) { console.log("Error trying to change Dark Mode"); return false }
+    if (!response) return false
     console.log("Dark Mode changed from", !darkMode, "to", darkMode, "(" + user.email + ")")
     return true
 }

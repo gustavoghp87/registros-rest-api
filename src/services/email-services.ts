@@ -44,7 +44,6 @@ const checkTerritories = async () => {
     const alert: string[]|null = await new EmailDb().CheckTerritoriesToEmail()
     if (alert === null) { console.log("Cannot generate alert text"); return }
     if (!alert) { console.log("There are not almost finished territories"); return }
-    console.log(`Alert: ${alert}`)
     sendEmail(alert)
 }
 

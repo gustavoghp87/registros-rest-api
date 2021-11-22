@@ -46,6 +46,11 @@ export const router = express.Router()
         if (!token) return res.json({ success: false })
         const users: typeUser[]|null = await userServices.getUsers(token)
         if (!users) return res.json({ success: false })
+        users.forEach(user => {
+            user.password = ""
+            user.tokenId = 0
+            user.recoveryOptions = undefined
+        })
         res.json({ success: true, users })
     })
 
@@ -74,6 +79,8 @@ export const router = express.Router()
             const user: typeUser|null = await userServices.modifyUser(token, user_id, estado, role, group)
             if (!user) return res.json({ success: false })
             user.password = ""
+            user.tokenId = 0
+            user.recoveryOptions = undefined
             res.json({ success: true, user })
         } else if (user_id && (asignar !== undefined || desasignar !== undefined || all !== undefined)) {
             if (asignar !== null && typeof asignar !== 'number')
@@ -85,9 +92,32 @@ export const router = express.Router()
             const user: typeUser|null = await userServices.assignTerritory(token, user_id, asignar, desasignar, all)
             if (!user) return res.json({ success: false })
             user.password = ""
+            user.tokenId = 0
+            user.recoveryOptions = undefined
             res.json({ success: true, user })
         } else {
             res.json({ success: false })
         }
+    })
+    
+    // get email from email link id
+    .get('/recovery/:id', async (req: any, res: any) => {
+        const id: string = req.params.id || ""
+        if (!id) return res.json({ success: false })
+        const user: typeUser|null = await userServices.getUserByEmailLink(id)
+        if (!user) return res.json({ success: false })
+        // user.password = ""
+        // user.tokenId = 0
+        // user.recoveryOptions = undefined
+        res.json({ success: true, email: user.email })
+    })
+
+    // recover account by a link in email box
+    .patch('/', async (req: any, res: any) => {
+        const email: string = req.body.email || ""
+        const success: string = await userServices.recoverAccount(email)
+        if (success === "no user") res.json({ success: false, noUser: true })
+        else if (success === "not sent") res.json({ success: false, notSent: true })
+        else res.json({ success: true })
     })
 ;

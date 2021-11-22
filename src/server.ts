@@ -12,7 +12,7 @@ import { DbConnection } from './services-db/_dbConnection'
 import { socketConnection } from './services/broadcast-services'
 import { TerritoryDb } from './services-db/territoryDbConnection'
 
-export let testingDb: boolean = false
+export let testingDb: boolean = true
 export let maintenanceMode: boolean = false
 export const accessTokensExpiresIn = '2160h'  // 90 days
 

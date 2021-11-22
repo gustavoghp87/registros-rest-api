@@ -1,6 +1,31 @@
 import nodemailer from 'nodemailer'
 import { EmailDb } from '../services-db/emailDbConnection'
 import { myEmail, yourEmail, emailPSW } from '../env-variables'
+import { domain } from '../server'
+
+export const sendEmailRecoverAccount = async (email: string, id: string): Promise<boolean> => {
+    const url: string = `${domain}/recovery/${id}`
+    const mailOptions = emailOptions(myEmail, email, "Misericordia Web: Recupero de cuenta",
+    `<h1>Misericordia Web</h1><p>Para recuperar la cuenta de Misericordia Web hay que ingresar a<br/><br/>&nbsp;&nbsp;${url}<br/><br/>
+    y elegir una nueva clave.</p>`)
+
+    try {
+        const sent = await nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: myEmail,
+                pass: emailPSW
+            }
+        }).sendMail(mailOptions)
+        const response = sent.response
+        const error = sent.rejected
+        if (error.length) { console.log("Email recovery account could not be send:", response, error); return false }
+        console.log('Email recovery account was sent: ' + response)
+        return true
+    } catch (error) {
+        return false
+    }
+}
 
 export const sendEmailNewPsw = async (email: string, newPsw: string): Promise<boolean> => {
 
@@ -19,10 +44,10 @@ export const sendEmailNewPsw = async (email: string, newPsw: string): Promise<bo
         const response = sent.response
         const error = sent.rejected
         if (error.length) { console.log("Email new psw could not send:", response, error); return false }
-        console.log('Email new psw sent: ' + response)
+        console.log("Email new psw was sent:", response)
         return true
     } catch (error) {
-        console.log("Email new psw could not send (2):", error)
+        console.log("Email new psw could not be sent (2):", error)
         return false
     }
 }

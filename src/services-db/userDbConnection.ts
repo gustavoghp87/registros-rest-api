@@ -1,6 +1,6 @@
 import { dbClient } from '../server';
 import { ObjectId } from 'mongodb'
-import { typeUser } from '../models/user'
+import { recoveryOption, typeUser } from '../models/user'
 
 export class UserDb {
     async GetUserByEmail(email: string): Promise<typeUser|null> {
@@ -26,6 +26,17 @@ export class UserDb {
             console.log(error)
             return null
         }
+    }
+    async GetUserByEmailLink(id: string): Promise<typeUser|null> {
+        const users: typeUser[]|null = await this.GetAllUsers()
+        if (!users) return null
+        let user0: typeUser|null = null
+        users.forEach((user: typeUser) => {
+            if (user && user.recoveryOptions) user.recoveryOptions.forEach((recoveryOption: recoveryOption) => {
+                if (recoveryOption.id === id) user0 = user 
+            })
+        })
+        return user0
     }
     async GetAllUsers(): Promise<typeUser[]|null> {
         try {
@@ -121,6 +132,42 @@ export class UserDb {
         } catch (error) {
             console.log("Asign Territory failed:", error)
             return null
+        }
+    }
+    async AddRecoveryOption(email: string, id: string): Promise<boolean> {
+        try {
+            const user: typeUser|null = await this.GetUserByEmail(email)
+            if (!user) return false
+            const newRecoveryOption: recoveryOption = {
+                id,
+                expiration: (+ new Date() + 24*60*60*1000)/1000,
+                used: false
+            }
+            let recoveryOptions: recoveryOption[]|undefined = user.recoveryOptions
+            if (!recoveryOptions) recoveryOptions = []
+            recoveryOptions.push(newRecoveryOption)
+            await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUsers).updateOne({ email }, {
+                $set: { recoveryOptions }
+            })
+            return true
+        } catch (error) {
+            console.log("Add recovery option failed:", error)
+            return false
+        }
+    }
+    async SetRecoveryOptionAsUsed(user: typeUser, id: string): Promise<boolean> {
+        try {
+            if (!id || !user || !user.recoveryOptions || !user.email) return false
+            user.recoveryOptions?.forEach((recoveryOption: recoveryOption) => {
+                if (recoveryOption.id === id) recoveryOption.used = true
+            })
+            await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUsers).updateOne({ email: user.email }, {
+                $set: { recoveryOptions: user.recoveryOptions }
+            })
+            return true
+        } catch (error) {
+            console.log("Set recovery option as used failed:", error)
+            return false
         }
     }
 }

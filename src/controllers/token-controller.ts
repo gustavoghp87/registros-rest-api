@@ -33,11 +33,21 @@ export const router = express.Router()
     .put('/', async (req: any, res: any) => {
         const token: string = req.header('authorization') || ""
         if (!token) return res.json({ success: false })
-        const { psw, newPsw } = req.body
-        const newToken: string|null = await userServices.changePsw(token, psw, newPsw)
-        if (newToken === "wrongPassword") return res.json({ success: false, wrongPassword: true })
-        else if (!newToken) return res.json({ success: false })
-        res.json({ success: true, newToken })
+        const { psw, newPsw, id } = req.body
+        if (psw && newPsw) {
+            const newToken: string|null = await userServices.changePsw(token, psw, newPsw)
+            if (newToken === "wrongPassword") return res.json({ success: false, wrongPassword: true })
+            else if (!newToken) return res.json({ success: false })
+            res.json({ success: true, newToken })
+        } else if (id && newPsw) {
+            const newToken: string|null = await userServices.changePswByEmailLink(id, newPsw)
+            if (!newToken) return res.json({ success: false })
+            if (newToken === "expired") return res.json({ success: false, newToken: null, expired: true })
+            if (newToken === "used") return res.json({ success: false, newToken: null, used: true })
+            res.json({ success: true, newToken })
+        } else {
+            res.json({ success: false })
+        }
     })
 
     // change the password of other user

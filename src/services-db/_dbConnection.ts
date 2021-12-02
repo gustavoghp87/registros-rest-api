@@ -11,9 +11,6 @@ export class DbConnection {
     
     constructor (testingDb: boolean) {
         if (testingDb) this.dbMW = "Misericordia-Web-Testing"
-        ;(async () => {
-            await this.Client.connect()
-            console.log("DB connected -", this.dbMW, "\n\n")
-        })()
+        this.Client.connect().then(() => console.log("DB connected -", this.dbMW, "\n\n"))
     }
 }

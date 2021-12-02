@@ -3,11 +3,11 @@ import { typeVivienda } from '../models/vivienda'
 import { localStatistic, statistic } from '../models/statistic'
 
 export class HouseholdDb {
-    private NoPredicado: string = "No predicado"
-    private Contesto: string = "Contestó"
-    private NoContesto: string = "No contestó"
-    private ADejarCarta: string = "A dejar carta"
-    private NoLlamar: string = "No llamar"
+    public NoPredicado: string = "No predicado"
+    public Contesto: string = "Contestó"
+    public NoContesto: string = "No contestó"
+    public ADejarCarta: string = "A dejar carta"
+    public NoLlamar: string = "No llamar"
 
     async GetBlocks(territory: string): Promise<string[]> {
         let blocks: string[] = []
@@ -27,7 +27,7 @@ export class HouseholdDb {
         }
         return blocks
     }
-    async SearchTerritoryByNumber(terr: string,
+    async GetTerritoryByNumber(terr: string,
          manzana: string, todo: boolean, traidos: number, traerTodos: boolean): Promise<typeVivienda[]|null> {
         let households: typeVivienda[] = []
         
@@ -71,6 +71,12 @@ export class HouseholdDb {
             console.log(error)
             return null
         }
+    }
+    async GetAllHouseholds(): Promise<typeVivienda[]|null> {
+        const territories: typeVivienda[]|null =
+            await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find().toArray() as typeVivienda[]
+        if (!territories) return null
+        return territories
     }
     async ResetTerritory(territorio: string, option: number): Promise<boolean> {
         if (maintenanceMode) return true
@@ -149,19 +155,19 @@ export class HouseholdDb {
     }
     async GetGlobalStatistics(): Promise<statistic|null> {
         try {
-            const count =
+            const count: number =
                 await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find().count()
-            const countContesto =
+            const countContesto: number =
                 await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ estado: this.Contesto }).count()
-            const countNoContesto =
+            const countNoContesto: number =
                 await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ estado: this.NoContesto }).count()
-            const countDejarCarta =
+            const countDejarCarta: number =
                 await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ estado: this.ADejarCarta }).count()
-            const countNoLlamar =
+            const countNoLlamar: number =
                 await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ estado: this.NoLlamar }).count()
-            const countNoAbonado =
+            const countNoAbonado: number =
                 await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ noAbonado: true }).count()
-            const libres =
+            const libres: number =
                 await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ $and: [
                     { estado: this.NoPredicado },
                     { $or: [{ noAbonado: false }, { noAbonado: null }] }
@@ -212,42 +218,42 @@ export class HouseholdDb {
             return null
         }
     }
-    async GetAllLocalStatistics(): Promise<localStatistic[]|null> {
-        let localStatisticsArray: localStatistic[] = []
-        let i: number = 1
-        try {
-            while (i < 57) {
-                const territorio = i.toString()
-                const count: number =
-                    await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({territorio}).count()
-                const countContesto: number =
-                    await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ $and: [{ territorio}, { estado: this.Contesto }] }).count()
-                const countNoContesto: number =
-                    await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ $and: [{ territorio}, { estado: this.NoContesto }] }).count()
-                const countDejarCarta: number =
-                    await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ $and: [{ territorio}, { estado: this.ADejarCarta }] }).count()
-                const countNoLlamar: number =
-                    await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ $and: [{ territorio}, { estado: this.NoLlamar }] }).count()
-                const countNoAbonado: number =
-                    await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ $and: [{ territorio}, { noAbonado: true }] }).count()
-                const libres: number =
-                    await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ $and: [{ territorio }, { $or: [{ estado: this.NoPredicado }]}, { $or: [{ noAbonado: false }, { noAbonado: null }] }] }).count()
-                localStatisticsArray.push({
-                    count,
-                    countContesto,
-                    countNoContesto,
-                    countDejarCarta,
-                    countNoLlamar,
-                    countNoAbonado,
-                    libres,
-                    territorio
-                })
-                i++
-            }
-            return localStatisticsArray
-        } catch (error) {
-            console.log("Get Global Statistics failed", error)
-            return null
-        }
-    }
+    // async GetAllLocalStatistics(): Promise<localStatistic[]|null> {
+    //     let localStatisticsArray: localStatistic[] = []
+    //     let i: number = 1
+    //     try {
+    //         while (i < 57) {
+    //             const territorio = i.toString()
+    //             const count: number =
+    //                 await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({territorio}).count()
+    //             const countContesto: number =
+    //                 await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ $and: [{ territorio}, { estado: this.Contesto }] }).count()
+    //             const countNoContesto: number =
+    //                 await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ $and: [{ territorio}, { estado: this.NoContesto }] }).count()
+    //             const countDejarCarta: number =
+    //                 await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ $and: [{ territorio}, { estado: this.ADejarCarta }] }).count()
+    //             const countNoLlamar: number =
+    //                 await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ $and: [{ territorio}, { estado: this.NoLlamar }] }).count()
+    //             const countNoAbonado: number =
+    //                 await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ $and: [{ territorio}, { noAbonado: true }] }).count()
+    //             const libres: number =
+    //                 await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ $and: [{ territorio }, { $or: [{ estado: this.NoPredicado }]}, { $or: [{ noAbonado: false }, { noAbonado: null }] }] }).count()
+    //             localStatisticsArray.push({
+    //                 count,
+    //                 countContesto,
+    //                 countNoContesto,
+    //                 countDejarCarta,
+    //                 countNoLlamar,
+    //                 countNoAbonado,
+    //                 libres,
+    //                 territorio
+    //             })
+    //             i++
+    //         }
+    //         return localStatisticsArray
+    //     } catch (error) {
+    //         console.log("Get Global Statistics failed", error)
+    //         return null
+    //     }
+    // }
 }

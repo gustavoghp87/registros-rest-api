@@ -34,27 +34,38 @@ export class TerritoryDb {
             return false
         }
     }
-    async ChangeStateForIsFinished(): Promise<boolean> {
-        let states: stateOfTerritory[]|null = await this.GetStateOfTerritories()
-        if (!states) return false
-        states = states?.sort((a: any, b: any) => parseInt(a.territorio) - parseInt(b.territorio))
-        if (states && states.length === 56) {
-            let i = 0
-            while (i < 56) {
-                i++
-                try {
-                    console.log(states[i-1].territorio);
+    // async ChangeStateForIsFinished(): Promise<boolean> {
+    //     let states: stateOfTerritory[]|null = await this.GetStateOfTerritories()
+    //     if (!states) return false
+    //     states = states?.sort((a: any, b: any) => parseInt(a.territorio) - parseInt(b.territorio))
+    //     if (states && states.length === 56) {
+    //         let i = 0
+    //         while (i < 56) {
+    //             i++
+    //             try {
+    //                 console.log(states[i-1].territorio);
                     
-                    await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collTerr).updateOne({ territorio: states[i-1].territorio }, {
-                        $unset: { estado: "" }
-                    })
-                } catch (error) {
-                    console.log("Territory Db ChangeStateOfTerritory", error)
-                    return false
-                }
-            }
+    //                 await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collTerr).updateOne({ territorio: states[i-1].territorio }, {
+    //                     $unset: { estado: "" }
+    //                 })
+    //             } catch (error) {
+    //                 console.log("Territory Db ChangeStateOfTerritory", error)
+    //                 return false
+    //             }
+    //         }
+    //         return true
+    //     }
+    //     return false
+    // }
+    async SetResetDate(territorio: string, option: number): Promise<boolean> {
+        try {
+            await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collTerr).updateOne({ territorio }, {
+                $push: { resetDate: { date: + new Date(), option } }
+            })
             return true
+        } catch (error) {
+            console.log(error);
+            return false
         }
-        return false
     }
 }

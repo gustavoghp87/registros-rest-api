@@ -11,19 +11,12 @@ export const router = express.Router()
         const user: typeUser|null = await userServices.getActivatedUserByAccessToken(token)
         if (!user) { return res.json({ success: false, user: { isAuth: false, isAdmin: false } }) }
         console.log("Auth by token *********************************************************************", user.email)
-        let userData: typeUser = {
-            _id: user._id,
-            role: user.role,
-            email: user.email,
-            //password:user.password,
-            estado: user.estado,
-            group: user.group,
-            asign: user.asign,
-            isAuth: true,
-            isAdmin: user.role == 1 ? true : false,
-            darkMode: user.darkMode
-        }
-        res.json({ success: true, user: userData })
+        user.isAuth = true
+        user.isAdmin = user.role == 1 ? true : false
+        user.password = ""
+        user.tokenId = undefined
+        user.recoveryOptions = undefined
+        res.json({ success: true, user })
     })
     
     // sign up user
@@ -48,7 +41,7 @@ export const router = express.Router()
         if (!users) return res.json({ success: false })
         users.forEach(user => {
             user.password = ""
-            user.tokenId = 0
+            user.tokenId = undefined
             user.recoveryOptions = undefined
         })
         res.json({ success: true, users })
@@ -106,9 +99,6 @@ export const router = express.Router()
         if (!id) return res.json({ success: false })
         const user: typeUser|null = await userServices.getUserByEmailLink(id)
         if (!user) return res.json({ success: false })
-        // user.password = ""
-        // user.tokenId = 0
-        // user.recoveryOptions = undefined
         res.json({ success: true, email: user.email })
     })
 

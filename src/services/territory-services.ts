@@ -1,6 +1,6 @@
 import { statistic, localStatistic } from '../models/statistic'
 import { HouseholdDb } from '../services-db/householdDbConnection'
-import { changeStateOfTerritory } from './state-territory-services'
+import { changeStateOfTerritory, setResetDate } from './state-territory-services'
 import { getActivatedUserByAccessToken, verifyActivatedAdminByAccessToken, verifyActivatedUserByAccessToken } from './user-services'
 import { checkAlert } from './email-services'
 import { maintenanceMode } from '../server'
@@ -12,6 +12,8 @@ export const resetTerritory = async (token: string, territory: string, option: n
     let response: boolean = await new HouseholdDb().ResetTerritory(territory, option)
     if (!response) { console.log("Something failed in reset territory", territory); return false }
     response = await changeStateOfTerritory(token, territory, false)
+    const response1 = await setResetDate(territory, option);
+    console.log("Set reset date:", response1);
     return response
 }
 
@@ -39,15 +41,56 @@ export const getLocalStatistics = async (token: string, territorio: string, all:
     }
 }
 
-export const getAllLocalStatistics = async (token: string): Promise<any[]|null|undefined> => {
+// export const getAllLocalStatistics = async (token: string): Promise<any[]|null|undefined> => {
+//     if (!await verifyActivatedAdminByAccessToken(token)) return null
+//     let promisesArray = []
+//     let i = 1
+//     while (i < 57) {
+//         promisesArray.push(Promise.resolve(getLocalStatistics(token, i.toString(), true)))
+//         i++
+//     }
+//     let localStatisticsArray = await Promise.all(promisesArray)
+//     return localStatisticsArray
+// }
+
+export const getAllLocalStatistics = async (token: string): Promise<localStatistic[]|null> => {
     if (!await verifyActivatedAdminByAccessToken(token)) return null
-    let promisesArray = []
-    let i = 1
-    while (i < 57) {
-        promisesArray.push(Promise.resolve(getLocalStatistics(token, i.toString(), true)))
-        i++
+
+    const dbConnection = new HouseholdDb()
+
+    const households: typeVivienda[]|null = await dbConnection.GetAllHouseholds()
+    if (!households) return null
+
+    let localStatisticsArray: localStatistic[] = []
+
+    let h = 0
+    while (h < 56) {
+        h++
+        let localStatistic: localStatistic = {
+            count: 0,
+            countContesto: 0,
+            countDejarCarta: 0,
+            countNoAbonado: 0,
+            countNoContesto: 0,
+            countNoLlamar: 0,
+            libres: 0,
+            territorio: h.toString()
+        }
+        localStatisticsArray.push(localStatistic)
     }
-    let localStatisticsArray = await Promise.all(promisesArray)
+    
+    for (let i = 0; i < households.length; i++) {
+        const actualObject = localStatisticsArray[parseInt(households[i].territorio)-1]
+        actualObject.count += 1
+        if (households[i].estado === dbConnection.Contesto) actualObject.countContesto += 1
+        else if (households[i].estado === dbConnection.NoContesto) actualObject.countNoContesto += 1
+        else if (households[i].estado === dbConnection.ADejarCarta) actualObject.countDejarCarta += 1
+        else if (households[i].estado === dbConnection.NoLlamar) actualObject.countNoLlamar += 1
+        else if (households[i].noAbonado === true) actualObject.countNoAbonado += 1
+        else if (households[i].estado === dbConnection.NoPredicado && !households[i].noAbonado) actualObject.libres += 1
+        else console.log("Error, ningún tipo //////////////////////////////////////////// *****************************");
+    }
+
     return localStatisticsArray
 }
 
@@ -88,7 +131,7 @@ export const getHouseholdsByTerritory = async (token: string, territory: string,
     if (!checkTerritoryAssigned(user, territory)) return null
     console.log("Searching households by terr number", territory, manzana, todo, traidos, traerTodos)
     const households: typeVivienda[]|null =
-        await new HouseholdDb().SearchTerritoryByNumber(territory, manzana, todo, traidos, traerTodos)
+        await new HouseholdDb().GetTerritoryByNumber(territory, manzana, todo, traidos, traerTodos)
     return households
 }
 

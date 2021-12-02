@@ -140,7 +140,7 @@ export class UserDb {
             if (!user) return false
             const newRecoveryOption: recoveryOption = {
                 id,
-                expiration: (+ new Date() + 24*60*60*1000)/1000,
+                expiration: + new Date() + 24*60*60*1000,       // 24 hs
                 used: false
             }
             let recoveryOptions: recoveryOption[]|undefined = user.recoveryOptions

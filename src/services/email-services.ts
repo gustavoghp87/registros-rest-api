@@ -6,8 +6,18 @@ import { domain } from '../server'
 export const sendEmailRecoverAccount = async (email: string, id: string): Promise<boolean> => {
     const url: string = `${domain}/recovery/${id}`
     const mailOptions = emailOptions(myEmail, email, "Misericordia Web: Recupero de cuenta",
-    `<h1>Misericordia Web</h1><p>Para recuperar la cuenta de Misericordia Web hay que ingresar a<br/><br/>&nbsp;&nbsp;${url}<br/><br/>
-    y elegir una nueva clave.</p>`)
+    `<h1>Misericordia Web</h1>
+    <p>Para recuperar la cuenta de Misericordia Web hay que ingresar a
+        <br/>
+        <br/>
+        &nbsp;&nbsp;${url}
+        <br/>
+        <br/>
+        &nbsp;&nbsp; <a href="${url}">${url}</a>
+        <br/>
+        <br/>
+        y elegir una nueva clave.
+    </p>`)
 
     try {
         const sent = await nodemailer.createTransport({

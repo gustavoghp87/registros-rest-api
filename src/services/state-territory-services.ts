@@ -22,3 +22,7 @@ export const changeStateOfTerritory = async (token: string, territory: string, t
         success = await deallocateMyTerritory(token, territory) // if I am not an Admin
     return success
 }
+
+export const setResetDate = async (territory: string, option: number): Promise<boolean> => {
+    return await new TerritoryDb().SetResetDate(territory, option);
+}

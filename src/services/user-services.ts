@@ -201,7 +201,7 @@ export const changePswByEmailLink = async (id: string, newPsw: string): Promise<
         if (user.recoveryOptions[i].id === id) recoveryOption = user.recoveryOptions[i]
     }
     if (!recoveryOption) return null
-    if (recoveryOption.expiration >= + new Date()) return "expired"
+    if (recoveryOption.expiration < + new Date()) return "expired"
     if (recoveryOption.used) return "used"
     const encryptedPassword: string|null = await generatePasswordHash(newPsw)
     if (!encryptedPassword) return null

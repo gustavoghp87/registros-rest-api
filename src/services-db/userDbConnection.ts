@@ -1,4 +1,4 @@
-import { dbClient } from '../server';
+import { dbClient } from '../server'
 import { ObjectId } from 'mongodb'
 import { recoveryOption, typeUser } from '../models/user'
 

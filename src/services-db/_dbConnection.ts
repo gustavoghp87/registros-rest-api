@@ -7,6 +7,7 @@ export class DbConnection {
     public collUnit: string = "viviendas"
     public collEmails: string = "emailAlert"
     public collTerr: string = "territorios"
+    public collCasa: string = "casaEnCasa"
     public Client: MongoClient = new MongoClient(databaseUrl)
     
     constructor (testingDb: boolean) {

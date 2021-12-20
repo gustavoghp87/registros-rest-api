@@ -1,10 +1,10 @@
-import { statistic, localStatistic } from '../models/statistic'
 import { HouseholdDb } from '../services-db/householdDbConnection'
 import { changeStateOfTerritory, setResetDate } from './state-territory-services'
 import { getActivatedUserByAccessToken, verifyActivatedAdminByAccessToken, verifyActivatedUserByAccessToken } from './user-services'
 import { checkAlert } from './email-services'
 import { maintenanceMode } from '../server'
 import { typeVivienda } from '../models/vivienda'
+import { statistic, localStatistic } from '../models/statistic'
 import { typeUser } from '../models/user'
 
 export const resetTerritory = async (token: string, territory: string, option: number): Promise<boolean> => {
@@ -148,4 +148,51 @@ export const modifyHousehold = async (token: string,
     if (!household) return null
     if (!maintenanceMode) checkAlert()
     return household
+}
+
+export const getTerritoryStreets = async (territory: string): Promise<string[]|null> => {
+    const households: typeVivienda[]|null = await new HouseholdDb().GetTerritory(territory)
+    const payload: string[] = []
+    if (!households || !households.length) return null
+    households.forEach((household: typeVivienda) => {
+        if (!payload.includes(household.direccion)) payload.push(household.direccion)
+    })
+    if (!payload.length) return null
+
+    for (let i = 0; i < payload.length; i++) {
+        const streetArray: string[] = payload[i].split(' ')
+
+        const number1: number = parseInt(streetArray[1])
+        if (number1 > 0) payload[i] = streetArray[0]
+        else {
+            const number2: number = parseInt(streetArray[2])
+            if (number2 > 0) payload[i] = streetArray[0] + " " + streetArray[1]
+            else {
+                const number3: number = parseInt(streetArray[3])
+                if (number3 > 0) payload[i] = streetArray[0] + " " + streetArray[1] + " " + streetArray[2]
+                else {
+                    const number4: number = parseInt(streetArray[4])
+                    if (number4 > 0) payload[i] = streetArray[0] + " " + streetArray[1] + " " + streetArray[2] + " " + streetArray[3]
+                    else {
+                        const number5: number = parseInt(streetArray[5])
+                        if (number5 > 0) payload[i] = streetArray[0] + " " + streetArray[1] + " " + streetArray[2] + " " + streetArray[3] + " " + streetArray[4]
+                        else {
+                            const number6: number = parseInt(streetArray[6])
+                            if (number6 > 0) payload[i] = streetArray[0] + " " + streetArray[1] + " " + streetArray[2] + " " + streetArray[3] + " " + streetArray[4] + " " + streetArray[5]
+                            else {
+                                console.log("Nothing")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    const streets: string[] = []
+    payload.forEach((street: string) => {
+        if (!streets.includes(street)) streets.push(street)
+    })
+
+    return streets
 }

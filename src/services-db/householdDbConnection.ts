@@ -27,6 +27,12 @@ export class HouseholdDb {
         }
         return blocks
     }
+    async GetTerritory(territory: string): Promise<typeVivienda[]|null> {
+        const territories: typeVivienda[]|null =
+            await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ territorio: territory }).toArray() as typeVivienda[]
+        if (!territories) return null
+        return territories
+    }
     async GetTerritoryByNumber(terr: string,
          manzana: string, todo: boolean, traidos: number, traerTodos: boolean): Promise<typeVivienda[]|null> {
         let households: typeVivienda[] = []

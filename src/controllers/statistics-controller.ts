@@ -3,7 +3,7 @@ import * as territoryServices from '../services/territory-services'
 import { localStatistic, statistic } from '../models/statistic'
 
 export const router = express.Router()
-    .get('/:territory', async (req, res) => {
+    .get('/:territory', async (req: any, res: any) => {
         const token: string = req.header('authorization') || ""
         const { territory } = req.params
         if (!token || !territory) return res.json({ success: false })
@@ -13,7 +13,7 @@ export const router = express.Router()
         res.json({ success: true, data })
     })
 
-    .get('/', async (req, res) => {
+    .get('/', async (req: any, res: any) => {
         const token: string = req.header('authorization') || ""
         if (!token) return res.json({ success: false })
         console.log("Sending ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,, all local statics")
@@ -22,7 +22,7 @@ export const router = express.Router()
         res.json({ success: true, data })
     })
 
-    .post('/', async (req, res) => {
+    .post('/', async (req: any, res: any) => {
         const token: string = req.header('authorization') || ""
         if (!token) return res.json({ success: false })
         console.log("Sending ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,, global statics")

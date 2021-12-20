@@ -1,6 +1,6 @@
-import { dbClient } from '../server';
+import { dbClient } from '../server'
 import { ObjectId } from 'mongodb'
-import { typeUser } from "../models/user"
+import { typeUser } from '../models/user'
 
 export class EmailDb {
 

@@ -2,11 +2,12 @@ import { Server } from 'socket.io'
 import { domain, server, testingDomain } from '../server'
 import { typeUser } from '../models/user'
 import { typeVivienda } from '../models/vivienda'
+import { typeHTHBuilding, typeHTHHousehold } from '../models/houseToHouse'
 
-export const socketConnection = (): void => {
+export const socketConnection = (production: boolean): void => {
     new Server(server, {
         cors: {
-            origin: [`${domain}`, `${testingDomain}`],
+            origin: production ? [domain] : [domain, testingDomain],
             methods: ["GET", "POST"],
             credentials: true
         }
@@ -29,6 +30,10 @@ export const socketConnection = (): void => {
         socket.on('user: change', (updatedUser: typeUser): void => {
             socket.emit('user: change', updatedUser)
             socket.broadcast.emit('user: change', updatedUser)
+        })
+        socket.on('hth: change', (updatedBuildings: typeHTHBuilding[]) => {
+            socket.emit('hth: change', updatedBuildings)
+            socket.broadcast.emit('hth: change', updatedBuildings)
         })
     })
 }

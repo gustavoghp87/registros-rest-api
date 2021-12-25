@@ -71,7 +71,6 @@ export class HouseholdDb {
                 }).limit(traidos).toArray() as typeVivienda[]
 
             ;
-
             return households
         } catch (error) {
             console.log(error)

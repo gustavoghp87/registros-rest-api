@@ -12,21 +12,20 @@ import { router as houseToHouseController } from './controllers/house-to-house-c
 import { DbConnection } from './services-db/_dbConnection'
 import { socketConnection } from './services/broadcast-services'
 
+const isProduction: boolean = NODE_ENV !== "dev"
 export let testingDb: boolean = true
 export let maintenanceMode: boolean = false
 export const accessTokensExpiresIn = '2160h'  // 90 days
 export const domain: string = "https://www.misericordiaweb.com"
 export const testingDomain: string = "http://localhost:3000"
-
-if (NODE_ENV !== "dev") { testingDb = false; maintenanceMode = false }
+if (isProduction) { testingDb = false; maintenanceMode = false }
 export const dbClient = new DbConnection(testingDb)
-
 const app = express()
 
-if (NODE_ENV === "dev")
-    app.use(cors({ origin: [`${domain}`, `${testingDomain}`] }))
-else
+if (isProduction)
     app.use(cors({ origin: [`${domain}`] }))
+else
+    app.use(cors({ origin: [`${domain}`, `${testingDomain}`] }))
 
 app.use(express.json() as RequestHandler)
 app.use(express.urlencoded({ extended: false }) as RequestHandler)
@@ -43,5 +42,5 @@ app.use('/api/house-to-house', houseToHouseController)
 
 export const server = app.listen(port, () => {
     console.log(`\n\n\nListening on port ${port}`)
-    socketConnection()
+    socketConnection(isProduction)
 })

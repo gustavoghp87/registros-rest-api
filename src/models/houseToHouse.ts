@@ -5,11 +5,16 @@ type typeEstado = "No predicado" | "No contestó" | "Contestó" | "No tocar" | "
 
 export type typeHTHBuilding = {
     _id?: ObjectId
-    territory: string
+    households: typeHTHHousehold[]
     manzana?: typeBlock           // ?
     street: string
     streetNumber: number
-    households: typeHTHHousehold[]
+    territory: string
+    pisosX: number
+    deptosX: number
+    conLetras: boolean
+    numCorrido: boolean
+    sinPB: boolean
 }
 
 export type typeHTHHousehold = {

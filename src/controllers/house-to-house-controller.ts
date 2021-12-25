@@ -14,17 +14,25 @@ export const router = express.Router()
     .post('/', async (req: any, res: any) => {
         const token: string = req.header('authorization') || ""
         if (!token) return res.json({ success: false })
-        const body = req.body
-        const buildings: typeHTHBuilding[]|null = await hTHServices.addBuildingService(token, body)
+        const building: typeHTHBuilding = req.body.building
+        const buildings: typeHTHBuilding[]|null|any = await hTHServices.addBuildingService(token, building)
         if (!buildings) return res.json({ success: false })
+        if (buildings.exists) return res.json({ success: false, exists: true })
         res.json({ success: true, hthTerritory: buildings })
     })
-    .put('/', async (req: any, res: any) => {
+    .patch('/', async (req: any, res: any) => {
         const token: string = req.header('authorization') || ""
         if (!token) return res.json({ success: false })
         const household: typeHTHHousehold = req.body.household
         const buildingId: string = req.body.buildingId
         const success: boolean = await hTHServices.modifyHTHHouseholdState(token, household, buildingId)
+        res.json({ success })
+    })
+    .put('/', async (req: any, res: any) => {
+        const token: string = req.header('authorization') || ""
+        if (!token) return res.json({ success: false })
+        const building: typeHTHBuilding = req.body.building
+        const success: boolean = await hTHServices.modifyHTHBuilding(token, building)
         res.json({ success })
     })
     .get('/streets/:territory', async (req: any, res: any) => {

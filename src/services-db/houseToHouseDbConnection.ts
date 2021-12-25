@@ -1,6 +1,7 @@
 import { dbClient } from '../server'
 import { ObjectId } from 'mongodb'
 import { typeHTHBuilding, typeHTHHousehold } from '../models/houseToHouse'
+import { ObjectID } from 'bson'
 
 export class HouseToHouseDb {
     async GetBuildingsByTerritory(territory: string): Promise<typeHTHBuilding[]|null> {
@@ -15,13 +16,42 @@ export class HouseToHouseDb {
     }
     async AddBuilding(newHousehold: typeHTHBuilding): Promise<boolean> {
         try {
-            const building: typeHTHBuilding = await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collCasa).findOne({
-                territory: newHousehold.territory,
-                street: newHousehold.street,
-                streetNumber: newHousehold.streetNumber
-            }) as typeHTHBuilding
-            if (building) return false
             await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collCasa).insertOne(newHousehold as Object)
+            return true
+        } catch (error) {
+            console.log(error)
+            return false
+        }
+    }
+    async GetBuilding(territory: string, street: string, streetNumber: number): Promise<typeHTHBuilding|null> {
+        try {
+            const building: typeHTHBuilding = await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collCasa).findOne({
+                territory,
+                street,
+                streetNumber
+            }) as typeHTHBuilding
+            return building
+        } catch (error) {
+            console.log(error)
+            return null
+        }
+    }
+    async ModifyHTHBuilding(building: typeHTHBuilding): Promise<boolean> {
+        console.log(building)
+        
+        try {
+            await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collCasa).updateOne({ _id: new ObjectID(building._id) }, {
+                $set: {
+                    street: building.street,
+                    streetNumber: building.streetNumber,
+                    households: building.households,
+                    pisosX: building.pisosX,
+                    deptosX: building.deptosX,
+                    conLetras: building.conLetras,
+                    numCorrido: building.numCorrido,
+                    sinPB: building.sinPB
+                }
+            })
             return true
         } catch (error) {
             console.log(error)

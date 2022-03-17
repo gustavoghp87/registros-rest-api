@@ -213,7 +213,7 @@ export const modifyUserService = async (token: string, user_id: string, estado: 
     estado = !estado ? false : true
     try { role = parseInt(role.toString()) } catch { return null }
     try { group = parseInt(group.toString()) } catch { return null }
-    if (!user || !user_id || typeof role !== 'number' || typeof group !== 'boolean') return null
+    if (!user || !user_id || typeof role !== 'number' || typeof group !== 'number') return null
     const updatedUser: typeUser|null = await new UserDb().UpdateUserState(user_id, estado, role, group)
     logger.Add(`Admin ${user.email} modificó al usuario ${updatedUser?.email}: activado ${updatedUser?.estado}, rol ${updatedUser?.role}, grupo ${updatedUser?.group}`, "userChanges")
     return updatedUser
@@ -228,14 +228,17 @@ export const changeModeService = async (token: string, darkMode: boolean): Promi
 }
 
 export const assignTerritoryService = async (token: string, user_id: string, asignar: number, desasignar: number, all: boolean): Promise<typeUser|null> => {
-    try {
-        asignar = parseInt(asignar.toString())
-    } catch {
-        try { desasignar = parseInt(desasignar.toString()) } catch { return null }
-    }
     all = !all ? false : true
+    if (!all)
+        try {
+            asignar = parseInt(asignar.toString())
+        } catch {
+            try {
+                desasignar = parseInt(desasignar.toString())
+            } catch { return null }
+        }
     const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
-    if (!user || !user_id || (!asignar && !desasignar)) return null
+    if (!user || !user_id || (!asignar && !desasignar && !all)) return null
     const updatedUser: typeUser|null = await new UserDb().AssignTerritory(user_id, asignar, desasignar, all)
     logger.Add(`Admin ${user.email} modificó las asignaciones de ${updatedUser?.email}: asignados antes ${user.asign}, ahora ${updatedUser?.asign}`, "userChanges")
     return updatedUser

@@ -68,10 +68,7 @@ export class HouseToHouseDb {
     
     async ModifyHTHHousehold(household: typeHTHHousehold, buildingId: string): Promise<boolean> {
         try {
-            console.log(household)
-
-            household.lastTime = +new Date()
-            
+            household.lastTime = + new Date()
             const building: typeHTHBuilding|null = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollCasa)
                 .findOne({ _id: new ObjectId(buildingId) }) as typeHTHBuilding
             if (!building) return false

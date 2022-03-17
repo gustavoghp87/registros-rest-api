@@ -38,7 +38,7 @@ export const router = express.Router()
         res.json({ success: true, users })
     })
 
-    // change my feature mode
+    // change features for other users
     .put('/', async (req: any, res: any) => {
         const token: string = req.header('authorization') || ""
         const user_id: string = req.body.user_id
@@ -51,7 +51,7 @@ export const router = express.Router()
         res.json({ success: true, user })
     })
 
-    // change my features
+    // change my dark mode
     .put('/mode', async (req: any, res: any) => {    // suspended
         const token: string = req.header('authorization') || ""
         const darkMode: boolean = req.body.darkMode

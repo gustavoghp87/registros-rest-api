@@ -1,180 +1,207 @@
-import { dbClient, maintenanceMode } from '../server'
-import { typeVivienda } from '../models/vivienda'
+import { dbClient, logger } from '../server'
+import * as types from '../models/household'
 import { localStatistic, statistic } from '../models/statistic'
 
 export class HouseholdDb {
-    public NoPredicado: string = "No predicado"
-    public Contesto: string = "Contestó"
-    public NoContesto: string = "No contestó"
-    public ADejarCarta: string = "A dejar carta"
-    public NoLlamar: string = "No llamar"
 
-    async GetBlocks(territory: string): Promise<string[]> {
-        let blocks: string[] = []
-        let i = 1
-        while (i < 9) {
-            try {
-                let busq: typeVivienda|null =
-                    await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).findOne({
-                        territorio: { $in: [territory] },
-                        manzana: { $in: [i.toString()] }
-                    }) as typeVivienda|null
-                if (busq) blocks.push(i.toString())
-            } catch (error) {
-                console.log(error)
+    async GetBlocks(territory: string): Promise<string[]|null> {
+        try {
+            let blocks: string[] = []
+            let i = 1
+            while (i < 9) {
+                try {
+                    let busq: types.typeHousehold|null =
+                        await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).findOne({
+                            territorio: { $in: [territory] },
+                            manzana: { $in: [i.toString()] }
+                        }) as types.typeHousehold|null
+                    if (busq) blocks.push(i.toString())
+                } catch (error) {
+                    console.log(error)
+                    logger.Add(`Falló GetBlocks() territorio ${territory} manzana ${i}: ${error}`, "error")
+                }
+                i++
             }
-            i++
+            return blocks
+        } catch (error) {
+            console.log(error)
+            logger.Add(`Falló GetBlocks() territorio ${territory}: ${error}`, "error")
+            return null
         }
-        return blocks
     }
-    async GetTerritory(territory: string): Promise<typeVivienda[]|null> {
-        const territories: typeVivienda[]|null =
-            await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ territorio: territory }).toArray() as typeVivienda[]
-        if (!territories) return null
-        return territories
+
+    async GetTerritory(territory: string): Promise<types.typeHousehold[]|null> {
+        try {
+            const territories: types.typeHousehold[]|null =
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({ territorio: territory }).toArray() as types.typeHousehold[]
+            if (!territories) return null
+            return territories
+        } catch (error) {
+            console.log(error)
+            logger.Add(`Falló GetTerritory() territorio ${territory}: ${error}`, "error")
+            return null
+        }
     }
+
     async GetTerritoryByNumber(terr: string,
-         manzana: string, todo: boolean, traidos: number, traerTodos: boolean): Promise<typeVivienda[]|null> {
-        let households: typeVivienda[] = []
-        
+         manzana: string, todo: boolean, traidos: number, traerTodos: boolean): Promise<types.typeHousehold[]|null> {
+        let households: types.typeHousehold[] = []
         try {
             if (!todo && !traerTodos)
-                households = await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({
+                households = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({
                     $and: [
                         { territorio: { $in: [terr] } },
                         { manzana: { $in: [manzana] } },
-                        { estado: this.NoPredicado },
+                        { estado: types.noPredicado },
                         { $or: [{ noAbonado: false }, { noAbonado: null }] }
                     ]
-                }).limit(traidos).toArray() as typeVivienda[]
+                }).limit(traidos).toArray() as types.typeHousehold[]
 
             else if (!todo && traerTodos)
-                households = await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({
+                households = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({
                     $and: [
                         { territorio: { $in: [terr] } },
                         { manzana: { $in: [manzana] } },
-                        { estado: this.NoPredicado },
+                        { estado: types.noPredicado },
                         { $or: [{ noAbonado: false }, { noAbonado: null }]}
                     ]
-                }).toArray() as typeVivienda[]
+                }).toArray() as types.typeHousehold[]
 
             else if (todo && traerTodos)
-                households = await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({
+                households = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({
                     territorio: { $in: [terr] },
                     manzana: { $in: [manzana] }
-                }).sort({ fechaUlt: 1 }).toArray() as typeVivienda[]
+                }).sort({ fechaUlt: 1 }).toArray() as types.typeHousehold[]
 
             else if (todo && !traerTodos)
-                households = await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({
+                households = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({
                     territorio: { $in: [terr] },
                     manzana: { $in: [manzana] }
-                }).limit(traidos).toArray() as typeVivienda[]
+                }).limit(traidos).toArray() as types.typeHousehold[]
 
             ;
             return households
         } catch (error) {
             console.log(error)
+            logger.Add(`Falló GetTerritoryByNumber() ${terr} ${manzana} ${todo} ${traidos} ${traerTodos}: ${error}`, "error")
             return null
         }
     }
-    async GetAllHouseholds(): Promise<typeVivienda[]|null> {
-        const territories: typeVivienda[]|null =
-            await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find().toArray() as typeVivienda[]
-        if (!territories) return null
-        return territories
+
+    async GetHouseholdById(inner_id: string): Promise<types.typeHousehold|null> {
+        try {
+            const household: types.typeHousehold = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).findOne({ inner_id }) as types.typeHousehold
+            return household
+        } catch (error) {
+            logger.Add(`Falló GetHouseholdById(): ${error}`, "error")
+            return null
+        }
     }
+
+    async GetAllHouseholds(): Promise<types.typeHousehold[]|null> {
+        try {
+            const territories: types.typeHousehold[]|null =
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find().toArray() as types.typeHousehold[]
+            if (!territories) return null
+            return territories
+        } catch (error) {
+            console.log(error)
+            logger.Add(`Falló GetAllHouseholds(): ${error}`, "error")
+            return null
+        }
+    }
+
     async ResetTerritory(territorio: string, option: number): Promise<boolean> {
-        if (maintenanceMode) return true
         const time = Date.now()        // milliseconds
         const sixMonths = 15778458000
         const timeSixMonths = time - sixMonths
-
         try {
             if (option === 1) {
                 console.log("Option 1 // clean more than 6 months")
-                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).updateMany({
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).updateMany({
                     $and: [
                         { territorio },
                         { $or: [{ noAbonado: false }, { noAbonado: null }] },
                         { fechaUlt: { $lt: timeSixMonths }}
                     ]
                 }, {
-                    $set: { estado: this.NoPredicado, asignado: false }
+                    $set: { estado: types.noPredicado, asignado: false }
                 })
             }
             
             if (option === 2) {
                 console.log("Option 2  // clean all")
-                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).updateMany({
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).updateMany({
                     $and: [
                         { territorio },
                         { $or: [{ noAbonado: false }, { noAbonado: null }]}
                     ]
                 }, {
-                    $set: { estado: this.NoPredicado, asignado: false }
+                    $set: { estado: types.noPredicado, asignado: false }
                 })
             }
             
             if (option === 3) {
                 console.log("Option 3  // clean more than 6 months even 'noAbonado'")
-                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).updateMany({
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).updateMany({
                     $and: [
                         { territorio },
                         { fechaUlt: { $lt: timeSixMonths }}
                     ]
                 }, {
-                    $set: { estado: this.NoPredicado, asignado: false, noAbonado: false }
+                    $set: { estado: types.noPredicado, asignado: false, noAbonado: false }
                 })
             }
             
             if (option === 4) {
                 console.log("Option 4  // clean all even 'noAbonado'")
-                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).updateMany({
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).updateMany({
                     $and: [
                         { territorio }
                     ]
                 }, {
-                    $set: { estado: this.NoPredicado, asignado: false, noAbonado: false }
+                    $set: { estado: types.noPredicado, asignado: false, noAbonado: false }
                 })
             }
 
             return true
         } catch (error) {
             console.log(error)
+            logger.Add(`Falló ResetTerritory() territorio ${territorio} opción ${option}: ${error}`, "error")
             return false
         }
     }
-    async UpdateHouseholdState(inner_id: string, estado?: string, noAbonado?: boolean, asignado?: boolean): Promise<typeVivienda|null> {
+
+    async UpdateHouseholdState(inner_id: string, estado?: string, noAbonado?: boolean, asignado?: boolean): Promise<boolean> {
         try {
-            await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).updateOne({ inner_id },
+            await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).updateOne({ inner_id },
                 { $set: { estado, noAbonado, asignado, fechaUlt: Date.now() } }
             )
-            const householdUpdated: typeVivienda|null =
-                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).findOne({ inner_id }) as typeVivienda
-            if (!householdUpdated) return null
-            return householdUpdated
+            return true
         } catch (error) {
-            console.log("Update Household State failed:", error)
-            return null
+            console.log(error)
+            logger.Add(`Falló UpdateHouseholdState() pasando ${inner_id} ${estado} ${noAbonado} ${asignado}: ${error}`, "error")
+            return false
         }
     }
+
     async GetGlobalStatistics(): Promise<statistic|null> {
         try {
             const count: number =
-                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find().count()
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find().count()
             const countContesto: number =
-                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ estado: this.Contesto }).count()
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({ estado: types.contesto }).count()
             const countNoContesto: number =
-                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ estado: this.NoContesto }).count()
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({ estado: types.noContesto }).count()
             const countDejarCarta: number =
-                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ estado: this.ADejarCarta }).count()
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({ estado: types.aDejarCarta }).count()
             const countNoLlamar: number =
-                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ estado: this.NoLlamar }).count()
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({ estado: types.noLlamar }).count()
             const countNoAbonado: number =
-                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ noAbonado: true }).count()
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({ noAbonado: true }).count()
             const libres: number =
-                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ $and: [
-                    { estado: this.NoPredicado },
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({ $and: [
+                    { estado: types.noPredicado },
                     { $or: [{ noAbonado: false }, { noAbonado: null }] }
                 ]}).count()
             
@@ -188,26 +215,28 @@ export class HouseholdDb {
                 libres
             }
         } catch (error) {
-            console.log("Get Global Statistics failed", error)
+            console.log(error)
+            logger.Add(`Falló GetGlobalStatistics(): ${error}`, "error")
             return null
         }
     }
+
     async GetLocalStatistics(territorio: string): Promise<localStatistic|null> {
         try {
             const count: number =
-                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({territorio}).count()
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({territorio}).count()
             const countContesto: number =
-                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ $and: [{ territorio}, { estado: this.Contesto }] }).count()
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({ $and: [{ territorio}, { estado: types.contesto }] }).count()
             const countNoContesto: number =
-                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ $and: [{ territorio}, { estado: this.NoContesto }] }).count()
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({ $and: [{ territorio}, { estado: types.noContesto }] }).count()
             const countDejarCarta: number =
-                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ $and: [{ territorio}, { estado: this.ADejarCarta }] }).count()
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({ $and: [{ territorio}, { estado: types.aDejarCarta }] }).count()
             const countNoLlamar: number =
-                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ $and: [{ territorio}, { estado: this.NoLlamar }] }).count()
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({ $and: [{ territorio}, { estado: types.noLlamar }] }).count()
             const countNoAbonado: number =
-                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ $and: [{ territorio}, { noAbonado: true }] }).count()
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({ $and: [{ territorio}, { noAbonado: true }] }).count()
             const libres: number =
-                await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ $and: [{ territorio }, { $or: [{ estado: this.NoPredicado }]}, { $or: [{ noAbonado: false }, { noAbonado: null }] }] }).count()
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({ $and: [{ territorio }, { $or: [{ estado: types.noPredicado }]}, { $or: [{ noAbonado: false }, { noAbonado: null }] }] }).count()
             return {
                 count,
                 countContesto,
@@ -219,46 +248,9 @@ export class HouseholdDb {
                 territorio
             }
         } catch (error) {
-            console.log("Get Global Statistics failed", error)
+            console.log(error)
+            logger.Add(`Falló GetLocalStatistics() pasando ${territorio}: ${error}`, "error")
             return null
         }
     }
-    // async GetAllLocalStatistics(): Promise<localStatistic[]|null> {
-    //     let localStatisticsArray: localStatistic[] = []
-    //     let i: number = 1
-    //     try {
-    //         while (i < 57) {
-    //             const territorio = i.toString()
-    //             const count: number =
-    //                 await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({territorio}).count()
-    //             const countContesto: number =
-    //                 await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ $and: [{ territorio}, { estado: this.Contesto }] }).count()
-    //             const countNoContesto: number =
-    //                 await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ $and: [{ territorio}, { estado: this.NoContesto }] }).count()
-    //             const countDejarCarta: number =
-    //                 await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ $and: [{ territorio}, { estado: this.ADejarCarta }] }).count()
-    //             const countNoLlamar: number =
-    //                 await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ $and: [{ territorio}, { estado: this.NoLlamar }] }).count()
-    //             const countNoAbonado: number =
-    //                 await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ $and: [{ territorio}, { noAbonado: true }] }).count()
-    //             const libres: number =
-    //                 await dbClient.Client.db(dbClient.dbMW).collection(dbClient.collUnit).find({ $and: [{ territorio }, { $or: [{ estado: this.NoPredicado }]}, { $or: [{ noAbonado: false }, { noAbonado: null }] }] }).count()
-    //             localStatisticsArray.push({
-    //                 count,
-    //                 countContesto,
-    //                 countNoContesto,
-    //                 countDejarCarta,
-    //                 countNoLlamar,
-    //                 countNoAbonado,
-    //                 libres,
-    //                 territorio
-    //             })
-    //             i++
-    //         }
-    //         return localStatisticsArray
-    //     } catch (error) {
-    //         console.log("Get Global Statistics failed", error)
-    //         return null
-    //     }
-    // }
 }

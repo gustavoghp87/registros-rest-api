@@ -1,7 +1,9 @@
-import { typeBlock } from "./vivienda"
+import { typeBlock } from "./household"
 import { ObjectId } from 'mongodb'
 
-type typeEstado = "No predicado" | "No contestó" | "Contestó" | "No tocar" | "Carta dejada"
+type typeEstadoHTH = "No predicado" | "No contestó" | "Contestó" | "No tocar" | "Carta dejada"
+
+export const noPredicadoHTH: typeEstadoHTH = "No predicado"
 
 export type typeHTHBuilding = {
     _id?: ObjectId
@@ -22,6 +24,6 @@ export type typeHTHHousehold = {
     piso: string
     depto: string
     idNumber: number
-    estado: typeEstado
+    estado: typeEstadoHTH
     lastTime: number
 }

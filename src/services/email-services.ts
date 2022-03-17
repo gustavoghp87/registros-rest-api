@@ -1,7 +1,11 @@
 import nodemailer from 'nodemailer'
-import { EmailDb } from '../services-db/emailDbConnection'
+import { domain, isProduction, logger } from '../server'
 import { myEmail, yourEmail, emailPSW } from '../env-variables'
-import { domain } from '../server'
+import { getUsersNotAuthService } from './user-services'
+import { getAllHouseholdsService } from './territory-services'
+import { EmailDb } from '../services-db/emailDbConnection'
+import { noPredicado, typeHousehold } from '../models/household'
+import { typeUser } from '../models/user'
 
 export const sendEmailRecoverAccount = async (email: string, id: string): Promise<boolean> => {
     const url: string = `${domain}/recovery/${id}`
@@ -33,6 +37,7 @@ export const sendEmailRecoverAccount = async (email: string, id: string): Promis
         console.log('Email recovery account was sent: ' + response)
         return true
     } catch (error) {
+        logger.Add(`Falló sendEmailRecoverAccount() ${email}: ${error}`, "error")
         return false
     }
 }
@@ -53,11 +58,16 @@ export const sendEmailNewPsw = async (email: string, newPsw: string): Promise<bo
         }).sendMail(mailOptions)
         const response = sent.response
         const error = sent.rejected
-        if (error.length) { console.log("Email new psw could not send:", response, error); return false }
-        console.log("Email new psw was sent:", response)
+        if (error.length) {
+            console.log("Email new psw could not send:", response, error)
+            logger.Add(`Falló sendEmailRecoverAccount() 1 ${email}: ${error}`, "error")
+            return false
+        }
+        console.log(response)
         return true
     } catch (error) {
-        console.log("Email new psw could not be sent (2):", error)
+        console.log(error)
+        logger.Add(`Falló sendEmailRecoverAccount() 2 ${email}: ${error}`, "error")
         return false
     }
 }
@@ -75,10 +85,33 @@ export const checkAlert = async (): Promise<void> => {
 
 // get finished and almost finished territories and order email send
 const checkTerritories = async () => {
-    console.log("Executing checkTerritories")
-    const alert: string[]|null = await new EmailDb().CheckTerritoriesToEmail()
-    if (alert === null) { console.log("Cannot generate alert text"); return }
-    if (!alert) { console.log("There are not almost finished territories"); return }
+    const territories: typeHousehold[]|null = await getAllHouseholdsService()
+    if (!territories) return
+    const users: typeUser[]|null = await getUsersNotAuthService()
+    if (!users) return
+    let alert: string[] = []
+    let i: number = 1
+    while (i < 57) {
+        const freeNumbers: number = territories.filter((territory: typeHousehold) =>
+            territory.territorio === i.toString() && territory.estado === noPredicado && (territory.noAbonado === false || territory.noAbonado === null))
+        .length
+        // console.log(`Territorio ${i}, libres: ${freeNumbers}`)
+        if (freeNumbers < 50) {
+            let text: string = `Territorio ${i.toString()}`
+            let users0: typeUser[]|null = users.filter((user0) => user0.asign?.includes(i))
+            if (users0 && users0.length) {
+                text += `, asignado a `
+                users0.forEach((user: typeUser) => {
+                    if (user.email !== 'ghp.2120@gmail.com' && user.email !== 'ghp.21@hotmail.com')
+                        text += `${user.email} `
+                })
+                if (!text.includes('@')) text = `Territorio ${i.toString()}`
+            }
+            alert.push(text)
+        }
+        i++
+    }
+    if (!alert || !alert.length) { console.log("There are not almost finished territories"); return }
     sendEmail(alert)
 }
 
@@ -89,8 +122,8 @@ const emailOptions = (myEmail: string, yourEmail: string, subject: string, html:
     html
 }}
 
-const sendEmail = (territorios: string[]): void => {
-
+const sendEmail = (territories: string[]): void => {
+    if (!isProduction) return
     const mailOptions = emailOptions(
         myEmail,
         yourEmail,
@@ -99,7 +132,7 @@ const sendEmail = (territorios: string[]): void => {
         <p>Este correo automático advierte que los siguientes territorios
          tienen menos de 50 viviendas libres para predicar:</p>
         <br/>
-        ${territorios.map((territorio: string) => `<p>${territorio}</p>`)}
+        ${territories.map((territory: string) => `<p>${territory}</p>`)}
         `
     )
   
@@ -110,7 +143,11 @@ const sendEmail = (territorios: string[]): void => {
             pass: emailPSW
         }
     }).sendMail(mailOptions, async (error, info) => {
-        if (error) { console.log("Email could not send:", error); return }
+        if (error) {
+            console.log("Email could not send:", error)
+            logger.Add(`Falló sendEmail(): ${error}`, "error")
+            return
+        }
         console.log('Email sent: ' + info.response)
         await updateLastEmail()
     })
@@ -118,6 +155,5 @@ const sendEmail = (territorios: string[]): void => {
 
 const updateLastEmail = async (): Promise<void> => {
     const response: boolean = await new EmailDb().UpdateLastEmail()
-    if (!response) console.log("Update Last Email failed...")
-    else console.log("Updated Last Email successfully")
+    if (!response) return console.log("Update Last Email failed...")
 }

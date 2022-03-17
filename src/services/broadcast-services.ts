@@ -1,8 +1,15 @@
-import { Server } from 'socket.io'
-import { domain, server, testingDomain } from '../server'
+import { Server, Socket } from 'socket.io'
+import { domain, logger, server, testingDomain } from '../server'
 import { typeUser } from '../models/user'
-import { typeVivienda } from '../models/vivienda'
+import { typeHousehold } from '../models/household'
 import { typeHTHBuilding } from '../models/houseToHouse'
+
+type householdChangeObjectPackage = {
+    households: typeHousehold[]
+    updatedHousehold: typeHousehold
+    indexOfHousehold: number
+    userEmail: string
+}
 
 export const socketConnection = (production: boolean): void => {
     new Server(server, {
@@ -11,17 +18,18 @@ export const socketConnection = (production: boolean): void => {
             methods: ["GET", "POST"],
             credentials: true
         }
-    }).on('connection', (socket: any): void => {
-        console.log("NEW SOCKET CONNECTION -------------------------------------------------------------------------", socket.id)
+    }).on('connection', (socket: Socket): void => {
+        console.log("NEW SOCKET CONNECTION -", socket.id)
         socket.emit('connection', null);
-        socket.on('household: change', (objPackage: any): void => {
+        socket.on('household: change', (objPackage: householdChangeObjectPackage): void => {
             if (!objPackage) return
-            let households: typeVivienda[] = objPackage.households
-            const updatedHousehold: typeVivienda = objPackage.updatedHousehold
+            let households: typeHousehold[] = objPackage.households
+            const updatedHousehold: typeHousehold = objPackage.updatedHousehold
             const indexOfHousehold: number = objPackage.indexOfHousehold
             const userEmail: string = objPackage.userEmail
             if (!households || !updatedHousehold || indexOfHousehold === null) {
                 console.log("\n\nError in socket household: change\n\n");
+                logger.Add(`Error en socket household change: ${userEmail} ${households?.length} ${indexOfHousehold} ${JSON.stringify(updatedHousehold)}`, 'socketError')
                 return
             }
             households[indexOfHousehold] = updatedHousehold

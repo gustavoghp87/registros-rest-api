@@ -21,6 +21,7 @@ export class DbConnection {
     public CollErrorLogs: string = "ErrorLogs"
     public CollSocketErrorLogs: string = "SocketErrorLogs"
     public CollUserChangesLogs: string = "UserChangesLogs"
+    public CollAppLogs: string = "AppLogs"
 
     public Client: MongoClient = new MongoClient(databaseUrl)
     

@@ -1,18 +1,19 @@
 import { dbClient, isProduction } from '../server'
 import { LogDb } from '../services-db/logDbConnection'
 import { getActivatedAdminByAccessTokenService } from './user-services'
-import { typeLog, typeLogsObj } from '../models/log'
+import { typeLogObj, typeLogsObj } from '../models/log'
 import { typeUser } from '../models/user'
 
-type typeLogType = "login" | "territoryChange" | "stateOfTerritoryChange" | "campaignAssignment" | "campaignFinishing" | "error" | "socketError" | "userChanges"
-const login: typeLogType = "login"
-const territoryChange: typeLogType = "territoryChange"
-const stateOfTerritoryChange: typeLogType = "stateOfTerritoryChange"
-const campaignAssignment: typeLogType = "campaignAssignment"
-const campaignFinishing: typeLogType = "campaignFinishing"
-const error: typeLogType = "error"
-const socketError: typeLogType = "socketError"
-const userChanges: typeLogType = "userChanges"
+type typeLog = "login" | "territoryChange" | "stateOfTerritoryChange" | "campaignAssignment" | "campaignFinishing" | "error" | "socketError" | "userChanges" | "app"
+const login: typeLog = "login"
+const territoryChange: typeLog = "territoryChange"
+const stateOfTerritoryChange: typeLog = "stateOfTerritoryChange"
+const campaignAssignment: typeLog = "campaignAssignment"
+const campaignFinishing: typeLog = "campaignFinishing"
+const error: typeLog = "error"
+const socketError: typeLog = "socketError"
+const userChanges: typeLog = "userChanges"
+const app: typeLog = "app"
 
 export class Logger {
 
@@ -22,7 +23,7 @@ export class Logger {
         this.LogDbConnection = new LogDb()
     }
 
-    public async Add(logText: string, type: typeLogType): Promise<boolean> {
+    public async Add(logText: string, type: typeLog): Promise<boolean> {
         const collection: string = this.GetCollection(type)
         if (!collection || !logText) return false
         const newDateTs = isProduction ? new Date().getTime() - 3*60*60*1000 : new Date().getTime()
@@ -32,7 +33,7 @@ export class Logger {
             console.log(logText)
             return true
         }
-        const log: typeLog = {
+        const log: typeLogObj = {
             timestamp: + new Date(),
             logText
         }
@@ -40,12 +41,12 @@ export class Logger {
         return success
     }
 
-    public async Get(type: typeLogType, token: string): Promise<typeLog[]|null> {
+    public async Get(type: typeLog, token: string): Promise<typeLogObj[]|null> {
         const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
         if (!user) return null
         const collection: string = this.GetCollection(type)
         if (!collection) return null
-        const logs: typeLog[]|null = await this.LogDbConnection.Get(collection)
+        const logs: typeLogObj[]|null = await this.LogDbConnection.Get(collection)
         return logs
     }
 
@@ -56,7 +57,7 @@ export class Logger {
         return logs
     }
 
-    private GetCollection(type: typeLogType): string {
+    private GetCollection(type: typeLog): string {
         let collection: string
         switch (type) {
             case login: collection = dbClient.CollLoginLogs; break;
@@ -67,6 +68,7 @@ export class Logger {
             case error: collection = dbClient.CollErrorLogs; break;
             case socketError: collection = dbClient.CollSocketErrorLogs; break;
             case userChanges: collection = dbClient.CollUserChangesLogs; break;
+            case app: collection = dbClient.CollAppLogs; break;
             default: collection = ""; break;
         }
         return collection

@@ -26,7 +26,8 @@ export class Logger {
     public async Add(logText: string, type: typeLog): Promise<boolean> {
         const collection: string = this.GetCollection(type)
         if (!collection || !logText) return false
-        const newDateTs = isProduction ? new Date().getTime() - 3*60*60*1000 : new Date().getTime()
+        let newDateTs: number = isProduction ? new Date().getTime() - 3*60*60*1000 : new Date().getTime()
+        if (logText === "Inicia App") newDateTs -= 5000
         const newDate = new Date().setTime(newDateTs)
         logText = new Date(newDate).toLocaleString("es-AR") + " | " + logText
         if (!isProduction) {

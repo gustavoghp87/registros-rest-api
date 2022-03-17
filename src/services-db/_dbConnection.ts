@@ -1,3 +1,4 @@
+import { logger } from '../server'
 import { MongoClient } from 'mongodb'
 import { databaseUrl } from '../env-variables'
 
@@ -5,6 +6,7 @@ export class DbConnection {
 
     public DbMW: string = "Misericordia-Web"
     public DbMWLogs: string = "Misericordia-Web-Logs"
+    private DbMWTesting: string = "Misericordia-Web-Testing"
     
     public CollUsers: string = "usuarios"
     public CollUnit: string = "viviendas"
@@ -26,7 +28,10 @@ export class DbConnection {
     public Client: MongoClient = new MongoClient(databaseUrl)
     
     constructor (testingDb: boolean) {
-        if (testingDb) this.DbMW = "Misericordia-Web-Testing"
-        this.Client.connect().then(() => console.log("DB connected -", this.DbMW, "\n\n"))
+        if (testingDb) this.DbMW = this.DbMWTesting
+        this.Client.connect().then(() => {
+            console.log("DB connected -", this.DbMW, "\n\n")
+            logger.Add(`Inicia objeto DB`, "app")
+        })
     }
 }

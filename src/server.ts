@@ -44,5 +44,5 @@ app.use('/api/log', logController)
 export const server = app.listen(port, () => {
     console.log(`\n\n\nListening on port ${port}`)
     socketConnection(isProduction)
-    logger.Add(`Inicia App`, "app")
+    setTimeout(() => { logger.Add(`Inicia App`, "app") }, 5000)
 })

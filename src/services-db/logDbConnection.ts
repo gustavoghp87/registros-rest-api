@@ -1,15 +1,9 @@
-import { dbClient, isProduction, logger } from '../server'
+import { dbClient, logger } from '../server'
 import { typeLog, typeLogsObj } from '../models/log'
 
 export class LogDb {
 
-    async Add(logText: string, collection: string): Promise<boolean> {
-        if (!isProduction) return true
-        logText = new Date().toLocaleString("es-AR") + " | " + logText
-        const log: typeLog = {
-            timestamp: + new Date(),
-            logText
-        }
+    async Add(log: typeLog, collection: string): Promise<boolean> {
         try {
             await dbClient.Client.db(dbClient.DbMWLogs).collection(collection).insertOne(log)
             return true

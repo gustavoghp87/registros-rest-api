@@ -123,7 +123,6 @@ export const getHouseholdsByTerritoryService = async (token: string, territory: 
     const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
     if (!user || !territory || !manzana || typeof todo !== 'boolean' || !traidos || typeof traerTodos !== 'boolean') return null;
     if (!isTerritoryAssignedToUser(user, territory)) return null
-    console.log("Searching households by terr number", territory, manzana, todo, traidos, traerTodos)
     const households: types.typeHousehold[]|null =
         await new HouseholdDb().GetTerritoryByNumber(territory, manzana, todo, traidos, traerTodos)
     return households
@@ -145,18 +144,12 @@ export const modifyHouseholdService = async (token: string,
     const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
     if (!user || !inner_id || !estado || typeof noAbonado !== 'boolean' || typeof asignado !== 'boolean') return null
     if (!isHouseholdAssignedToUser) return null
-    console.log("1");
-    
     const success: boolean = await new HouseholdDb().UpdateHouseholdState(inner_id, estado, noAbonado, asignado)
-    console.log("2");
     if (!success) return null
     const updatedHousehold: types.typeHousehold|null = await new HouseholdDb().GetHouseholdById(inner_id)
-    console.log("3");
     if (!updatedHousehold) return null
-    console.log("4");
-    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} modificó una vivienda: territorio ${updatedHousehold.territorio}, vivienda ${updatedHousehold.inner_id}, estado ${updatedHousehold.estado}, no abonado ${updatedHousehold.noAbonado}, asignado ${updatedHousehold.asignado}`,
+    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} modificó una vivienda: territorio ${updatedHousehold.territorio}, vivienda ${updatedHousehold.inner_id}, estado ${updatedHousehold.estado}, no abonado ${updatedHousehold.noAbonado}, asignado ${updatedHousehold.asignado}`,
     "territoryChange")
-    console.log("5");
     checkAlert()
     return updatedHousehold
 }

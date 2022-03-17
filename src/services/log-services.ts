@@ -1,8 +1,8 @@
-import { dbClient } from '../server'
+import { dbClient, isProduction } from '../server'
 import { LogDb } from '../services-db/logDbConnection'
+import { getActivatedAdminByAccessTokenService } from './user-services'
 import { typeLog, typeLogsObj } from '../models/log'
 import { typeUser } from '../models/user'
-import { getActivatedAdminByAccessTokenService } from './user-services'
 
 type typeLogType = "login" | "territoryChange" | "stateOfTerritoryChange" | "campaignAssignment" | "campaignFinishing" | "error" | "socketError" | "userChanges"
 const login: typeLogType = "login"
@@ -23,13 +23,20 @@ export class Logger {
     }
 
     public async Add(logText: string, type: typeLogType): Promise<boolean> {
-        console.log(type);
-        
         const collection: string = this.GetCollection(type)
-        if (!collection) return false
-        console.log(collection);
-        
-        const success: boolean = await this.LogDbConnection.Add(logText, collection)
+        if (!collection || !logText) return false
+        const newDateTs = isProduction ? new Date().getTime() - 3*60*60*1000 : new Date().getTime()
+        const newDate = new Date().setTime(newDateTs)
+        logText = new Date(newDate).toLocaleString("es-AR") + " | " + logText
+        if (!isProduction) {
+            console.log(logText)
+            return true
+        }
+        const log: typeLog = {
+            timestamp: + new Date(),
+            logText
+        }
+        const success: boolean = await this.LogDbConnection.Add(log, collection)
         return success
     }
 

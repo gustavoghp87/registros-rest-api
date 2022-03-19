@@ -75,7 +75,6 @@ export const sendEmailNewPsw = async (email: string, newPsw: string): Promise<bo
 // checks in db last 24 hs email was sent
 export const checkAlert = async (): Promise<void> => {
     const timestampRightNow = + new Date()
-    console.log(`Timestamp: ${timestampRightNow}`)
     const lastEmailTime: number|null = await new EmailDb().GetEmailLastTime()
     if (!lastEmailTime) { console.log("Cannot retrieve lastEmailTime from db"); return }
     console.log(`Timestamp last email: ${lastEmailTime}`);

@@ -18,10 +18,10 @@ import { Logger } from './services/log-services'
 export let testingDb: boolean = true
 export const isProduction: boolean = NODE_ENV !== "dev"
 if (isProduction) testingDb = false
-export const accessTokensExpiresIn = '2160h'  // 90 days
+export const accessTokensExpiresIn: string = '2160h'  // 90 days
 export const domain: string = "https://www.misericordiaweb.com"
 export const testingDomain: string = "http://localhost:3000"
-export const dbClient = new DbConnection(testingDb)
+export const dbClient: DbConnection = new DbConnection(testingDb)
 export const logger: Logger = new Logger()
 
 const app = express()

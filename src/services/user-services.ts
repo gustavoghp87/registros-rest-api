@@ -135,7 +135,7 @@ export const logoutAllService = async (token: string): Promise<string|null> => {
     const tokenId = user.tokenId || 1
     const success: boolean = await new UserDb().UpdateTokenId(user._id.toString(), tokenId + 1)
     if (!success) return null
-    if (success) logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cerró todas las sesiones`, "login")
+    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cerró todas las sesiones`, "login")
     const newToken: string|null = generateAccessTokenService(user, tokenId + 1 || 2)
     return newToken
 }
@@ -148,8 +148,11 @@ export const changePswService = async (token: string, psw: string, newPsw: strin
     const encryptedPassword: string|null = await generatePasswordHash(newPsw)
     if (!encryptedPassword) return null
     const success: boolean = await new UserDb().ChangePsw(user.email, encryptedPassword)
-    if (!success) { console.log("Fail trying to change password for", user.email); return null }
-    if (success) logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cambió su contraseña`, "login")
+    if (!success) {
+        console.log("Fail trying to change password for", user.email)
+        return null
+    }
+    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cambió su contraseña`, "login")
     const newToken: string|null = generateAccessTokenService(user, user.tokenId || 1)
     return newToken
 }
@@ -164,7 +167,7 @@ export const changePswOtherUserService = async (token: string, email: string): P
     const encryptedPassword: string|null = await generatePasswordHash(newPsw)
     if (!encryptedPassword) return null
     const success: boolean = await new UserDb().ChangePsw(email, encryptedPassword)
-    if (success) if (success) logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cambió la contraseña de ${email}`, "login")
+    if (success) logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cambió la contraseña de ${email}`, "login")
     return success ? newPsw : null
 }
 
@@ -215,7 +218,7 @@ export const modifyUserService = async (token: string, user_id: string, estado: 
     try { group = parseInt(group.toString()) } catch { return null }
     if (!user || !user_id || typeof role !== 'number' || typeof group !== 'number') return null
     const updatedUser: typeUser|null = await new UserDb().UpdateUserState(user_id, estado, role, group)
-    logger.Add(`Admin ${user.email} modificó al usuario ${updatedUser?.email}: activado ${updatedUser?.estado}, rol ${updatedUser?.role}, grupo ${updatedUser?.group}`, "userChanges")
+    if (updatedUser) logger.Add(`Admin ${user.email} modificó al usuario ${updatedUser.email}: activado ${updatedUser.estado}, rol ${updatedUser.role}, grupo ${updatedUser.group}`, "userChanges")
     return updatedUser
 }
 
@@ -240,7 +243,7 @@ export const assignTerritoryService = async (token: string, user_id: string, asi
     const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
     if (!user || !user_id || (!asignar && !desasignar && !all)) return null
     const updatedUser: typeUser|null = await new UserDb().AssignTerritory(user_id, asignar, desasignar, all)
-    logger.Add(`Admin ${user.email} modificó las asignaciones de ${updatedUser?.email}: asignados antes ${user.asign}, ahora ${updatedUser?.asign}`, "userChanges")
+    if (updatedUser) logger.Add(`Admin ${user.email} modificó las asignaciones de ${updatedUser?.email}: asignados antes ${user.asign}, ahora ${updatedUser.asign}`, "userChanges")
     return updatedUser
 }
 

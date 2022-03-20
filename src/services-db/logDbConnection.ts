@@ -27,7 +27,7 @@ export class LogDb {
     async GetAll(): Promise<typeLogsObj|null> {
         try {
             const loginLogs: typeLogObj[] =
-                await dbClient.Client.db(dbClient.DbMWLogs).collection(dbClient.CollLoginLogs).find().sort({ timestamp: 1 }).toArray() as typeLogObj[]
+                await dbClient.Client.db(dbClient.DbMWLogs).collection(dbClient.CollLoginLogs).find().sort({ timestamp: 'descending' }).toArray() as typeLogObj[]
             const campaignAssignmentLogs: typeLogObj[] = 
                 await dbClient.Client.db(dbClient.DbMWLogs).collection(dbClient.CollCampaignAssignmentLogs).find().sort({ timestamp: 'descending' }).toArray() as typeLogObj[]
             const campaignFinishingLogs: typeLogObj[] = 

@@ -4,11 +4,13 @@ import { getActivatedUserByAccessTokenService } from './user-services'
 import { noPredicadoHTH, typeHTHBuilding, typeHTHHousehold } from '../models/houseToHouse'
 import { typeUser } from '../models/user'
 
+const houseToHouseDbConnection = new HouseToHouseDb()
+
 export const getHTHBuildingsService = async (token: string, territory: string): Promise<typeHTHBuilding[]|null> => {
     const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
     if (!user) return null
     if (user.email !== 'ghp.2120@gmail.com') return null
-    const buildings: typeHTHBuilding[]|null = await new HouseToHouseDb().GetBuildingsByTerritory(territory)
+    const buildings: typeHTHBuilding[]|null = await houseToHouseDbConnection.GetBuildingsByTerritory(territory)
     return buildings
 }
 
@@ -30,7 +32,7 @@ export const addHTHBuildingService = async (token: string, body: any): Promise<t
     if (conLetras === undefined || !deptosX || !households || !households.length || numCorrido === undefined
     || !pisosX || sinPB === undefined || !street || !streetNumber || !territory) return null
     
-    const building: typeHTHBuilding|null = await new HouseToHouseDb().GetBuilding(territory, street, streetNumber)
+    const building: typeHTHBuilding|null = await houseToHouseDbConnection.GetBuilding(territory, street, streetNumber)
     if (building) return { exists: true }
         
     const newBuilding: typeHTHBuilding = {
@@ -54,9 +56,9 @@ export const addHTHBuildingService = async (token: string, body: any): Promise<t
         }
     })
     if (!newBuilding.households.length) return null
-    const success: boolean = await new HouseToHouseDb().AddBuilding(newBuilding)
+    const success: boolean = await houseToHouseDbConnection.AddBuilding(newBuilding)
     if (!success) return null
-    const buildings: typeHTHBuilding[]|null = await new HouseToHouseDb().GetBuildingsByTerritory(territory)
+    const buildings: typeHTHBuilding[]|null = await houseToHouseDbConnection.GetBuildingsByTerritory(territory)
     return buildings
 }
 
@@ -65,7 +67,7 @@ export const modifyHTHBuildingService = async (token: string, building: typeHTHB
     if (!user) return false
     if (user.email !== 'ghp.2120@gmail.com') return false
     //if (typeof building !== typeHTHBuilding) return false
-    const success: boolean = await new HouseToHouseDb().ModifyHTHBuilding(building)
+    const success: boolean = await houseToHouseDbConnection.ModifyHTHBuilding(building)
     return success
 }
 
@@ -74,7 +76,7 @@ export const modifyHTHHouseholdStateService = async (token: string, household: t
     if (!user) return false
     if (user.email !== 'ghp.2120@gmail.com') return false
     if (!household.estado || !household.piso || !household.depto || !household.idNumber || !buildingId) return false
-    const success: boolean = await new HouseToHouseDb().ModifyHTHHousehold(household, buildingId)
+    const success: boolean = await houseToHouseDbConnection.ModifyHTHHousehold(household, buildingId)
     return success
 }
 

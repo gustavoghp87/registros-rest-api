@@ -6,7 +6,7 @@ import { checkAlert } from './email-services'
 import * as types from '../models/household'
 import { typeUser } from '../models/user'
 
-const householdDbObject: HouseholdDb = new HouseholdDb()
+const householdDbConnection: HouseholdDb = new HouseholdDb()
 
 export const isTerritoryAssignedToUser = (user: typeUser, territory: string): boolean => {
     if (user.asign?.find(assignedTerritory => assignedTerritory.toString() === territory)) return true
@@ -16,7 +16,7 @@ export const isTerritoryAssignedToUser = (user: typeUser, territory: string): bo
 export const resetTerritoryService = async (token: string, territory: string, option: number): Promise<boolean> => {
     const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
     if (!user || !territory || !option) return false
-    let success: boolean = await householdDbObject.ResetTerritory(territory, option)
+    let success: boolean = await householdDbConnection.ResetTerritory(territory, option)
     if (!success) {
         console.log("Something failed in reset territory", territory);
         logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} no pudo resetear territorio ${territory} opción ${option}`, "stateOfTerritoryChange")
@@ -33,7 +33,7 @@ export const getBlocksService = async (token: string, territory: string): Promis
     const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
     if (!user || !territory) return null
     if (!isTerritoryAssignedToUser(user, territory)) return null
-    const blocks: string[]|null = await householdDbObject.GetBlocks(territory)
+    const blocks: string[]|null = await householdDbConnection.GetBlocks(territory)
     return blocks
 }
 
@@ -46,7 +46,7 @@ export const getHouseholdsByTerritoryService =
     let households: types.typeHousehold[]|null = null
     let isAll: boolean = false    
     if (traerTodos) {
-        const allHouseholds: types.typeHousehold[]|null = await householdDbObject.GetTerritoryByNumberAndBlock(territory, manzana)
+        const allHouseholds: types.typeHousehold[]|null = await householdDbConnection.GetTerritoryByNumberAndBlock(territory, manzana)
         const allHouseholdsAmount: number|undefined = allHouseholds?.length
         if (!allHouseholdsAmount) return null
         households= allHouseholds
@@ -55,7 +55,7 @@ export const getHouseholdsByTerritoryService =
             isAll = households.length === allHouseholdsAmount
         }
     } else {
-        const allFreeHouseholds: types.typeHousehold[]|null = await householdDbObject.GetFreePhonesOfTerritoryByNumberAndBlock(territory, manzana)
+        const allFreeHouseholds: types.typeHousehold[]|null = await householdDbConnection.GetFreePhonesOfTerritoryByNumberAndBlock(territory, manzana)
         const allFreeHouseholdsAmount: number|undefined = allFreeHouseholds?.length
         if (allFreeHouseholdsAmount === undefined) return null
         households = allFreeHouseholds
@@ -69,7 +69,7 @@ export const getHouseholdsByTerritoryService =
 
 export const getAllHouseholdsService = async (): Promise<types.typeHousehold[]|null> => {
     // without permission filter / 
-    const households: types.typeHousehold[]|null = await householdDbObject.GetAllHouseholds()
+    const households: types.typeHousehold[]|null = await householdDbConnection.GetAllHouseholds()
     return households
 }
 
@@ -78,9 +78,9 @@ export const modifyHouseholdService = async (token: string,
     const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
     if (!user || !inner_id || !estado || typeof noAbonado !== 'boolean' || typeof asignado !== 'boolean') return null
     if (!isHouseholdAssignedToUser) return null
-    const success: boolean = await householdDbObject.UpdateHouseholdState(inner_id, estado, noAbonado, asignado)
+    const success: boolean = await householdDbConnection.UpdateHouseholdState(inner_id, estado, noAbonado, asignado)
     if (!success) return null
-    const updatedHousehold: types.typeHousehold|null = await householdDbObject.GetHouseholdById(inner_id)
+    const updatedHousehold: types.typeHousehold|null = await householdDbConnection.GetHouseholdById(inner_id)
     if (!updatedHousehold) return null
     logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} modificó una vivienda: territorio ${updatedHousehold.territorio}, vivienda ${updatedHousehold.inner_id}, estado ${updatedHousehold.estado}, no abonado ${updatedHousehold.noAbonado}, asignado ${updatedHousehold.asignado}`,
     "territoryChange")
@@ -89,7 +89,7 @@ export const modifyHouseholdService = async (token: string,
 }
 
 const isHouseholdAssignedToUser = async (user: typeUser, inner_id: string): Promise<boolean> => {
-    const household: types.typeHousehold|null = await householdDbObject.GetHouseholdById(inner_id)
+    const household: types.typeHousehold|null = await householdDbConnection.GetHouseholdById(inner_id)
     if (!household || !household.territorio || !user || !user.asign || !user.asign.length) return false
     try {
         const territoryNumber: number = parseInt(household.territorio)
@@ -103,7 +103,7 @@ const isHouseholdAssignedToUser = async (user: typeUser, inner_id: string): Prom
 
 export const getTerritoryStreetsService = async (territory: string): Promise<string[]|null> => {
     // without permission filter / all users
-    const households: types.typeHousehold[]|null = await householdDbObject.GetTerritory(territory)
+    const households: types.typeHousehold[]|null = await householdDbConnection.GetTerritory(territory)
     const payload: string[] = []
     if (!households || !households.length) return null
     households.forEach((household: types.typeHousehold) => {

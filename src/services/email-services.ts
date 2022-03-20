@@ -7,6 +7,8 @@ import { EmailDb } from '../services-db/emailDbConnection'
 import { noPredicado, typeHousehold } from '../models/household'
 import { typeUser } from '../models/user'
 
+const emailDbConnection: EmailDb = new EmailDb()
+
 export const sendEmailRecoverAccount = async (email: string, id: string): Promise<boolean> => {
     const url: string = `${domain}/recovery/${id}`
     const mailOptions = emailOptions(myEmail, email, "Misericordia Web: Recupero de cuenta",
@@ -75,7 +77,7 @@ export const sendEmailNewPsw = async (email: string, newPsw: string): Promise<bo
 // checks in db last 24 hs email was sent
 export const checkAlert = async (): Promise<void> => {
     const timestampRightNow = + new Date()
-    const lastEmailTime: number|null = await new EmailDb().GetEmailLastTime()
+    const lastEmailTime: number|null = await emailDbConnection.GetEmailLastTime()
     if (!lastEmailTime) { console.log("Cannot retrieve lastEmailTime from db"); return }
     console.log(`Timestamp last email: ${lastEmailTime}`);
     console.log(`Difference: ${timestampRightNow - lastEmailTime}, ${(timestampRightNow-lastEmailTime)/1000/60/60} hours`);
@@ -153,6 +155,6 @@ const sendEmail = (territories: string[]): void => {
 }
 
 const updateLastEmail = async (): Promise<void> => {
-    const response: boolean = await new EmailDb().UpdateLastEmail()
+    const response: boolean = await emailDbConnection.UpdateLastEmail()
     if (!response) return console.log("Update Last Email failed...")
 }

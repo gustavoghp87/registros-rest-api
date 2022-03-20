@@ -5,20 +5,20 @@ import * as types from '../models/household'
 import { statistic, localStatistic } from '../models/statistic'
 import { typeUser } from '../models/user'
 
-const householdDbObject: HouseholdDb = new HouseholdDb()
+const householdDbConnection: HouseholdDb = new HouseholdDb()
 
 export const getNumberOfFreePhonesService = async (token: string, territory: string): Promise<number|null> => {
     const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
     if (!user || !territory) return null
     if (!isTerritoryAssignedToUser(user, territory)) return null
-    const numberOfFreePhones: number|null = await householdDbObject.GetNumbreOfFreePhonesOfTerritoryByNumber(territory)
+    const numberOfFreePhones: number|null = await householdDbConnection.GetNumbreOfFreePhonesOfTerritoryByNumber(territory)
     return numberOfFreePhones
 }
 
 export const getLocalStatisticsService = async (token: string, territorio: string): Promise<localStatistic|null> => {
     const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
     if (!user || !territorio) return null
-    const localStatistics: localStatistic|null = await householdDbObject.GetLocalStatistics(territorio)
+    const localStatistics: localStatistic|null = await householdDbConnection.GetLocalStatistics(territorio)
     if (!localStatistics) return null
     const count: number = localStatistics.count || 0
     const countContesto: number = localStatistics.countContesto || 0
@@ -77,7 +77,7 @@ export const getAllLocalStatisticsService = async (token: string): Promise<local
 export const getGlobalStatisticsService = async (token: string): Promise<statistic|null> => {
     const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
     if (!user) return null
-    const statistics: statistic|null = await householdDbObject.GetGlobalStatistics()
+    const statistics: statistic|null = await householdDbConnection.GetGlobalStatistics()
     if (!statistics) return null
     const count: number = statistics.count || 0
     const countContesto: number = statistics.countContesto || 0

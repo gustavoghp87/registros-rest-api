@@ -152,7 +152,7 @@ export const changePswService = async (token: string, psw: string, newPsw: strin
         console.log("Fail trying to change password for", user.email)
         return null
     }
-    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cambió su contraseña`, "login")
+    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cambió su contraseña usando la que tenía`, "login")
     const newToken: string|null = generateAccessTokenService(user, user.tokenId || 1)
     return newToken
 }

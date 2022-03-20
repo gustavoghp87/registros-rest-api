@@ -43,47 +43,52 @@ export class HouseholdDb {
         }
     }
 
-    async GetTerritoryByNumber(terr: string,
-         manzana: string, todo: boolean, traidos: number, traerTodos: boolean): Promise<types.typeHousehold[]|null> {
-        let households: types.typeHousehold[] = []
-        try {
-            if (!todo && !traerTodos)
-                households = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({
-                    $and: [
-                        { territorio: { $in: [terr] } },
-                        { manzana: { $in: [manzana] } },
-                        { estado: types.noPredicado },
-                        { $or: [{ noAbonado: false }, { noAbonado: null }] }
-                    ]
-                }).limit(traidos).toArray() as types.typeHousehold[]
-
-            else if (!todo && traerTodos)
-                households = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({
-                    $and: [
-                        { territorio: { $in: [terr] } },
-                        { manzana: { $in: [manzana] } },
-                        { estado: types.noPredicado },
-                        { $or: [{ noAbonado: false }, { noAbonado: null }]}
-                    ]
-                }).toArray() as types.typeHousehold[]
-
-            else if (todo && traerTodos)
-                households = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({
-                    territorio: { $in: [terr] },
-                    manzana: { $in: [manzana] }
-                }).sort({ fechaUlt: 1 }).toArray() as types.typeHousehold[]
-
-            else if (todo && !traerTodos)
-                households = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({
-                    territorio: { $in: [terr] },
-                    manzana: { $in: [manzana] }
-                }).limit(traidos).toArray() as types.typeHousehold[]
-
-            ;
+    async GetTerritoryByNumberAndBlock(territory: string, block: string): Promise<types.typeHousehold[]|null> {
+            try {
+            const households: types.typeHousehold[] = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({
+                territorio: { $in: [territory] },
+                manzana: { $in: [block] }
+            }).sort({ inner_id: 1 }).toArray() as types.typeHousehold[]
             return households
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló GetTerritoryByNumber() ${terr} ${manzana} ${todo} ${traidos} ${traerTodos}: ${error}`, "error")
+            logger.Add(`Falló GetTerritoryByNumberAndBlock() ${territory} ${block}: ${error}`, "error")
+            return null
+        }
+    }
+
+    async GetFreePhonesOfTerritoryByNumberAndBlock(territory: string, block: string): Promise<types.typeHousehold[]|null> {
+        try {
+            let households: types.typeHousehold[] = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({
+                $and: [
+                    { territorio: { $in: [territory] } },
+                    { manzana: { $in: [block] } },
+                    { estado: types.noPredicado },
+                    { $or: [{ noAbonado: false }, { noAbonado: null }]}
+                ]
+            }).sort({ inner_id: 1 }).toArray() as types.typeHousehold[]
+            return households
+        } catch (error) {
+            console.log(error)
+            logger.Add(`Falló GetFreePhonesOfTerritoryByNumberAndBlock() ${territory} ${block}: ${error}`, "error")
+            return null
+        }
+    }
+
+    async GetNumbreOfFreePhonesOfTerritoryByNumber(territory: string): Promise<number|null> {
+        try {
+            const getNumberOfFreePhones: number = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({
+                $and: [
+                    { territorio: { $in: [territory] } },
+                    { estado: types.noPredicado },
+                    { $or: [{ noAbonado: false }, { noAbonado: null }]}
+                ]
+            })?.count()
+            if (getNumberOfFreePhones === undefined) return null
+            return getNumberOfFreePhones
+        } catch (error) {
+            console.log(error)
+            logger.Add(`Falló GetNumbreOfFreePhonesOfTerritoryByNumber() ${territory}: ${error}`, "error")
             return null
         }
     }

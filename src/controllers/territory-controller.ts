@@ -16,11 +16,12 @@ export const router = express.Router()
     // get households
     .post('/', async (req: any, res: any) => {
         const token: string = req.header('authorization') || ""
-        const { territory, manzana, isTodo, traidos, traerTodos } = req.body
-        const households: typeHousehold[]|null =
-            await territoryServices.getHouseholdsByTerritoryService(token, territory, manzana, isTodo, traidos, traerTodos)
-        if (!households) return res.json({ success: false })
-        res.json({ success: true, households })
+        const { territory, manzana, aTraer, traerTodos } = req.body
+        const response: [typeHousehold[], boolean] | null =
+            await territoryServices.getHouseholdsByTerritoryService(token, territory, manzana, aTraer, traerTodos)
+        if (!response || !response[0]) return res.json({ success: false })
+        const households: typeHousehold[]|null = response[0]
+        res.json({ success: true, households, isAll: response[1] })
     })
 
     // edit household

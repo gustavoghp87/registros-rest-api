@@ -82,8 +82,6 @@ export class CampaignDb {
 
     async AskForANewCampaignPack(email: string): Promise<number|null> {
         try {
-            console.log(email);
-            
             await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollCampaign).updateOne(
                 { $and: [
                     { $or: [{ terminado: null}, { terminado: false }] },
@@ -97,6 +95,19 @@ export class CampaignDb {
             console.log(error)
             logger.Add(`Falló AskForANewCampaignPack() ${email}: ${error}`, "error")
             return null
+        }
+    }
+
+    async ChangeAccesibilityMode(id: number, accessible: boolean): Promise<boolean> {
+        try {
+            await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollCampaign).updateOne({ id },
+                { $set: { accessible }
+            })
+            return true
+        } catch (error) {
+            console.log(error)
+            logger.Add(`Falló ChangeAccesibilityMode() ${id} ${accessible}: ${error}`, "error")
+            return false
         }
     }
 }

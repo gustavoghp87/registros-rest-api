@@ -55,6 +55,7 @@ export class Logger {
         const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
         if (!user) return null
         const logs: typeLogsObj|null = await this.LogDbConnection.GetAll()
+        if (logs && logs.territoryChangeLogs.length > 100) logs.territoryChangeLogs = logs.territoryChangeLogs.slice(0, 100)
         return logs
     }
 

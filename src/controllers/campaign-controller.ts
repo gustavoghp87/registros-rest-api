@@ -62,4 +62,13 @@ export const router = express.Router()
         const success: boolean = await campaignServices.askForANewCampaignPackService(token)
         res.json({ success })
     })
+
+    // change accessibility mode
+    .patch('/accessibility', async (req: any, res: any) => {
+        const token: string = req.header('authorization') || ""
+        const id: number = req.body.id
+        const accessible: boolean = req.body.accessible
+        const success: boolean = await campaignServices.enableAccesibilityModeService(token, id, accessible)
+        res.json({ success })
+    })
 ;

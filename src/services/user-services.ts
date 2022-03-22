@@ -127,8 +127,14 @@ const generatePasswordHash = async (password: string): Promise<string|null> => {
 }
 
 export const comparePasswordsService = async (password0: string, password1: string): Promise<boolean> => {
-    const success: boolean = await bcrypt.compare(password0, password1)
-    return success
+    try {
+        const success: boolean = await bcrypt.compare(password0, password1)
+        return success
+    } catch (error) {
+        console.log(error)
+        logger.Add(`Falló comparePasswordsService(): ${error}`, "error")
+        return false
+    }
 }
 
 export const logoutAllService = async (token: string): Promise<string|null> => {
@@ -169,7 +175,7 @@ export const changePswOtherUserService = async (token: string, email: string): P
     const encryptedPassword: string|null = await generatePasswordHash(newPsw)
     if (!encryptedPassword) return null
     const success: boolean = await userDbConnection.ChangePsw(email, encryptedPassword)
-    if (success) logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cambió la contraseña de ${email}`, "login")
+    if (success) logger.Add(`${myUser.role === 1 ? 'Admin' : 'Usuario'} ${myUser.email} cambió la contraseña de ${email}`, "login")
     return success ? newPsw : null
 }
 
@@ -243,9 +249,10 @@ export const assignTerritoryService = async (token: string, user_id: string, asi
             } catch { return null }
         }
     const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
-    if (!user || !user_id || (!asignar && !desasignar && !all)) return null
+    const userToEdit :typeUser|null = await userDbConnection.GetUserById(user_id)
+    if (!user || !userToEdit || (!asignar && !desasignar && !all)) return null
     const updatedUser: typeUser|null = await userDbConnection.AssignTerritory(user_id, asignar, desasignar, all)
-    if (updatedUser) logger.Add(`Admin ${user.email} modificó las asignaciones de ${updatedUser?.email}: asignados antes ${user.asign}, ahora ${updatedUser.asign}`, "userChanges")
+    if (updatedUser) logger.Add(`Admin ${user.email} modificó las asignaciones de ${updatedUser?.email}: asignados antes ${userToEdit.asign?.length ? userToEdit.asign : "ninguno"}, ahora ${updatedUser.asign?.length ? updatedUser.asign : "ninguno"}`, "userChanges")
     return updatedUser
 }
 

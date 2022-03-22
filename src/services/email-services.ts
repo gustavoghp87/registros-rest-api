@@ -35,11 +35,15 @@ export const sendEmailRecoverAccount = async (email: string, id: string): Promis
         }).sendMail(mailOptions)
         const response = sent.response
         const error = sent.rejected
-        if (error.length) { console.log("Email recovery account could not be send:", response, error); return false }
+        if (error.length) {
+            console.log("Email recovery account could not be send:", response, error)
+            logger.Add(`Falló sendEmailRecoverAccount() 1 ${email}: ${error}`, "error")
+            return false
+        }
         console.log('Email recovery account was sent: ' + response)
         return true
     } catch (error) {
-        logger.Add(`Falló sendEmailRecoverAccount() ${email}: ${error}`, "error")
+        logger.Add(`Falló sendEmailRecoverAccount() 2 ${email}: ${error}`, "error")
         return false
     }
 }
@@ -65,7 +69,7 @@ export const sendEmailNewPsw = async (email: string, newPsw: string): Promise<bo
             logger.Add(`Falló sendEmailRecoverAccount() 1 ${email}: ${error}`, "error")
             return false
         }
-        console.log(response)
+        //console.log(response)
         return true
     } catch (error) {
         console.log(error)
@@ -78,10 +82,12 @@ export const sendEmailNewPsw = async (email: string, newPsw: string): Promise<bo
 export const checkAlert = async (): Promise<void> => {
     const timestampRightNow = + new Date()
     const lastEmailTime: number|null = await emailDbConnection.GetEmailLastTime()
-    if (!lastEmailTime) { console.log("Cannot retrieve lastEmailTime from db"); return }
-    console.log(`Timestamp last email: ${lastEmailTime}`);
-    console.log(`Difference: ${timestampRightNow - lastEmailTime}, ${(timestampRightNow-lastEmailTime)/1000/60/60} hours`);
-    if (timestampRightNow - lastEmailTime > 86400000) checkTerritories()   // 24 hs
+    if (!lastEmailTime) {
+        logger.Add("No se pudo recuperar último email de territorios llenos enviado", "error")
+        return
+    }
+    console.log(`Timestamp last email: ${lastEmailTime}; difference: ${timestampRightNow - lastEmailTime}, ${(timestampRightNow-lastEmailTime)/1000/60/60} hours`);
+    if (timestampRightNow - lastEmailTime > 86400000) checkTerritories()    // 24 hs
 }
 
 // get finished and almost finished territories and order email send

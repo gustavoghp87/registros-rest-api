@@ -5,6 +5,7 @@ export type typeCampaignPack = {
     asignado?: string
     terminado?: boolean
     llamados?: number[]
+    accessible?: boolean
 }
 
 export const noAsignado: string = "No asignado"

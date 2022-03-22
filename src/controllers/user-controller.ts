@@ -4,7 +4,7 @@ import { typeUser } from '../models/user'
 
 export const router = express.Router()
 
-    //get my user
+    // get my user
     .get('/', async (req: any, res: any) => {
         const token: string = req.header('authorization') || ""
         let user: typeUser|null = await userServices.getActivatedUserByAccessTokenService(token)

@@ -1,29 +1,31 @@
-import { logger } from '../server'
+// import { logger } from '../server'
 import { MongoClient } from 'mongodb'
 import { databaseUrl } from '../env-variables'
+
+export type typeCollection = "usuarios" | "viviendas" | "emailAlert" | "territorios" | "casaEnCasa" | "campaign2022" | "LoginLogs" | "CampaignAssignmentLogs" | "CampaignFinishingLogs" | "TerritoryChangeLogs" | "StateOfTerritoryChangeLogs" | "ErrorLogs" | "SocketErrorLogs" | "UserChangesLogs" | "AppLogs"
 
 export class DbConnection {
 
     public DbMW: string = "Misericordia-Web"
-    public DbMWLogs: string = "Misericordia-Web-Logs"
     private DbMWTesting: string = "Misericordia-Web-Testing"
+    public DbMWLogs: string = "Misericordia-Web-Logs"
     
-    public CollUsers: string = "usuarios"
-    public CollUnit: string = "viviendas"
-    public CollEmails: string = "emailAlert"
-    public CollTerr: string = "territorios"
-    public CollCasa: string = "casaEnCasa"
-    public CollCampaign: string = "campaign2022"
+    public CollUsers: typeCollection = "usuarios"
+    public CollUnit: typeCollection = "viviendas"
+    public CollEmails: typeCollection = "emailAlert"
+    public CollTerr: typeCollection = "territorios"
+    public CollCasa: typeCollection = "casaEnCasa"
+    public CollCampaign: typeCollection = "campaign2022"
 
-    public CollLoginLogs: string = "LoginLogs"
-    public CollCampaignAssignmentLogs: string = "CampaignAssignmentLogs"
-    public CollCampaignFinishingLogs: string = "CampaignFinishingLogs"
-    public CollTerritoryChangeLogs: string = "TerritoryChangeLogs"
-    public CollStateOfTerritoryChangeLogs: string = "StateOfTerritoryChangeLogs"
-    public CollErrorLogs: string = "ErrorLogs"
-    public CollSocketErrorLogs: string = "SocketErrorLogs"
-    public CollUserChangesLogs: string = "UserChangesLogs"
-    public CollAppLogs: string = "AppLogs"
+    public CollLoginLogs: typeCollection = "LoginLogs"
+    public CollCampaignAssignmentLogs: typeCollection = "CampaignAssignmentLogs"
+    public CollCampaignFinishingLogs: typeCollection = "CampaignFinishingLogs"
+    public CollTerritoryChangeLogs: typeCollection = "TerritoryChangeLogs"
+    public CollStateOfTerritoryChangeLogs: typeCollection = "StateOfTerritoryChangeLogs"
+    public CollErrorLogs: typeCollection = "ErrorLogs"
+    public CollSocketErrorLogs: typeCollection = "SocketErrorLogs"
+    public CollUserChangesLogs: typeCollection = "UserChangesLogs"
+    public CollAppLogs: typeCollection = "AppLogs"
 
     public Client: MongoClient = new MongoClient(databaseUrl)
     
@@ -31,7 +33,7 @@ export class DbConnection {
         if (testingDb) this.DbMW = this.DbMWTesting
         this.Client.connect().then(() => {
             console.log("DB connected -", this.DbMW, "\n\n")
-            logger.Add(`Inicia objeto DB`, "app")
+            // logger.Add(`Inicia objeto DB`, "app")
         })
     }
 }

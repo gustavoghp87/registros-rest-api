@@ -1,6 +1,7 @@
 import { dbClient, isProduction } from '../server'
 import { LogDb } from '../services-db/logDbConnection'
 import { getActivatedAdminByAccessTokenService } from './user-services'
+import { typeCollection } from '../services-db/_dbConnection'
 import { typeLogObj, typeLogsObj } from '../models/log'
 import { typeUser } from '../models/user'
 
@@ -24,7 +25,7 @@ export class Logger {
     }
 
     public async Add(logText: string, type: typeLog): Promise<boolean> {
-        const collection: string = this.GetCollection(type)
+        const collection: typeCollection = this.GetCollection(type)
         if (!collection || !logText) return false
         let newDateTs: number = isProduction ? new Date().getTime() - 3*60*60*1000 : new Date().getTime()
         if (logText === "Inicia App") newDateTs -= 5000
@@ -59,8 +60,8 @@ export class Logger {
         return logs
     }
 
-    private GetCollection(type: typeLog): string {
-        let collection: string
+    private GetCollection(type: typeLog): typeCollection {
+        let collection: typeCollection
         switch (type) {
             case login: collection = dbClient.CollLoginLogs; break;
             case territoryChange: collection = dbClient.CollTerritoryChangeLogs; break;
@@ -71,7 +72,7 @@ export class Logger {
             case socketError: collection = dbClient.CollSocketErrorLogs; break;
             case userChanges: collection = dbClient.CollUserChangesLogs; break;
             case app: collection = dbClient.CollAppLogs; break;
-            default: collection = ""; break;
+            default: collection = dbClient.CollErrorLogs; break;
         }
         return collection
     }

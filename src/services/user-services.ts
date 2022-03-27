@@ -81,14 +81,12 @@ export const generateAccessTokenService = (user: typeUser, tokenId: number): str
 }
 
 export const getActivatedUserByAccessTokenService = async (token: string): Promise<typeUser|null> => {
-    if (!token) return null
     const user: typeUser|null = await getUserByAccessToken(token)
     if (!user) return null
     return user && user.estado ? user : null
 }
 
 export const getActivatedAdminByAccessTokenService = async (token: string): Promise<typeUser|null> => {
-    if (!token) return null
     const user: typeUser|null = await getUserByAccessToken(token)
     return user && user.estado && user.role == 1 ? user : null
 }

@@ -10,15 +10,15 @@ export const getStateOfTerritoryService = async (token: string, territory: strin
     const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
     if (!user || !territory) return null
     // assigned ?
-    const obj: stateOfTerritory|null = await stateOfTerritoryDbConnection.GetStateOfTerritory(territory)
-    return obj
+    const stateOfTerritory: stateOfTerritory|null = await stateOfTerritoryDbConnection.GetStateOfTerritory(territory)
+    return stateOfTerritory
 }
 
 export const getStateOfTerritoriesService = async (token: string): Promise<stateOfTerritory[]|null> => {
     const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
     if (!user) return null
-    const obj: stateOfTerritory[]|null = await stateOfTerritoryDbConnection.GetStateOfTerritories()
-    return obj
+    const stateOfTerritories: stateOfTerritory[]|null = await stateOfTerritoryDbConnection.GetStateOfTerritories()
+    return stateOfTerritories
 }
 
 export const changeStateOfTerritoryService = async (token: string, territory: string, isFinished: boolean): Promise<boolean> => {

@@ -1,16 +1,26 @@
 import express from 'express'
 import * as userServices from '../services/user-services'
 import { typeUser } from '../models/user'
+import { Request, Response } from 'express'
+
+const unauthenticatedUser: typeUser = {
+    isAuth: false,
+    isAdmin: false,
+    role: 0,
+    email: "",
+    estado: false,
+    group: 0
+}
 
 export const router = express.Router()
 
     // get my user
-    .get('/', async (req: any, res: any) => {
+    .get('/', async (req: Request, res: Response) => {
         const token: string = req.header('authorization') || ""
         let user: typeUser|null = await userServices.getActivatedUserByAccessTokenService(token)
         if (!user) return res.json({
             success: false,
-            user: { isAuth: false, isAdmin: false }
+            user: unauthenticatedUser
         })
         user.isAuth = true
         user.isAdmin = user.role == 1 ? true : false
@@ -19,7 +29,7 @@ export const router = express.Router()
     })
     
     // sign up user
-    .post('/', async (req: any, res: any) => {
+    .post('/', async (req: Request, res: Response) => {
         const { email, password, group, recaptchaToken } = req.body
         const checkRecaptch: boolean = await userServices.checkRecaptchaTokenService(recaptchaToken)
         if (!checkRecaptch) return res.json({ success: false, recaptchaFails: true })
@@ -30,7 +40,7 @@ export const router = express.Router()
     })
 
     // get all users
-    .get('/all', async (req: any, res: any) => {
+    .get('/all', async (req: Request, res: Response) => {
         const token: string = req.header('authorization') || ""
         const users: typeUser[]|null = await userServices.getUsersService(token)
         if (!users) return res.json({ success: false })
@@ -39,7 +49,7 @@ export const router = express.Router()
     })
 
     // change features for other users
-    .put('/', async (req: any, res: any) => {
+    .put('/', async (req: Request, res: Response) => {
         const token: string = req.header('authorization') || ""
         const user_id: string = req.body.user_id
         const estado: boolean = req.body.estado
@@ -52,7 +62,7 @@ export const router = express.Router()
     })
 
     // change my dark mode
-    .put('/mode', async (req: any, res: any) => {    // suspended
+    .put('/mode', async (req: Request, res: Response) => {    // suspended
         const token: string = req.header('authorization') || ""
         const darkMode: boolean = req.body.darkMode
         const success: boolean = await userServices.changeModeService(token, darkMode)
@@ -60,7 +70,7 @@ export const router = express.Router()
     })
 
     // change assignations for other users
-    .put('/assignment', async (req: any, res: any) => {
+    .put('/assignment', async (req: Request, res: Response) => {
         const token: string = req.header('authorization') || ""
         const user_id: string = req.body.user_id
         const asignar: number = req.body.asignar
@@ -73,7 +83,7 @@ export const router = express.Router()
     })
     
     // get email from email link id
-    .get('/recovery/:id', async (req: any, res: any) => {
+    .get('/recovery/:id', async (req: Request, res: Response) => {
         const id: string = req.params.id
         const user: typeUser|null = await userServices.getUserByEmailLinkService(id)
         if (!user || !user.email) return res.json({ success: false })
@@ -81,7 +91,7 @@ export const router = express.Router()
     })
 
     // recover account by a link in email box
-    .patch('/', async (req: any, res: any) => {
+    .patch('/', async (req: Request, res: Response) => {
         const email: string = req.body.email || ""
         const response: string = await userServices.recoverAccountService(email)
         if (response === "no user") res.json({ success: false, noUser: true })

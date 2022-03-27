@@ -1,20 +1,20 @@
 import express from 'express'
 import * as territoryServices from '../services/territory-services'
 import { typeHousehold } from '../models/household'
+import { Request, Response } from 'express'
 
 export const router = express.Router()
 
     // get blocks
-    .get('/blocks/:territory', async (req: any, res: any) => {
+    .get('/blocks/:territory', async (req: Request, res: Response) => {
         const token: string = req.header('authorization') || ""
         const territory: string = req.params.territory
         const blocks: string[]|null = await territoryServices.getBlocksService(token, territory)
-        if (!blocks) return res.json({ success: false })
-        res.json({ success: true, blocks })
+        res.json({ success: blocks !== null, blocks })
     })
 
     // get households
-    .post('/', async (req: any, res: any) => {
+    .post('/', async (req: Request, res: Response) => {
         const token: string = req.header('authorization') || ""
         const { territory, manzana, aTraer, traerTodos } = req.body
         const response: [typeHousehold[], boolean] | null =
@@ -25,16 +25,15 @@ export const router = express.Router()
     })
 
     // edit household
-    .put('/', async (req: any, res: any) => {
+    .put('/', async (req: Request, res: Response) => {
         const token: string = req.header('authorization') || ""
         const { inner_id, estado, noAbonado, asignado } = req.body
-        const households: typeHousehold|null = await territoryServices.modifyHouseholdService(token, inner_id, estado, noAbonado, asignado)
-        if (!households) return res.json({ success: false })
-        res.json({ success: true, households })
+        const household: typeHousehold|null = await territoryServices.modifyHouseholdService(token, inner_id, estado, noAbonado, asignado)
+        res.json({ success: household !== null, household })
     })
     
     // reset territory
-    .delete('/', async (req: any, res: any) => {
+    .delete('/', async (req: Request, res: Response) => {
         const token: string = req.header('authorization') || ""
         const { territory, option } = req.body
         const success: boolean = await territoryServices.resetTerritoryService(token, territory, option)

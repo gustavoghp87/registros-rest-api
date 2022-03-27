@@ -1,10 +1,16 @@
 import { dbClient, logger } from '../server'
 import { typeLogObj, typeLogsObj } from '../models/log'
+import { typeCollection } from './_dbConnection'
 
 export class LogDb {
 
-    async Add(log: typeLogObj, collection: string): Promise<boolean> {
+    async Add(log: typeLogObj, collection: typeCollection): Promise<boolean> {
         try {
+            const isAlreadySaved: boolean = await this.IsAlreadySaved(log, collection)
+            if (collection !== "TerritoryChangeLogs" && isAlreadySaved) {
+                console.log("Se evitó un repetido")
+                return true
+            }
             await dbClient.Client.db(dbClient.DbMWLogs).collection(collection).insertOne(log)
             return true
         } catch (error) {
@@ -58,5 +64,48 @@ export class LogDb {
             logger.Add(`Falló GetAll() logs: ${error}`, "error")
             return null
         }
+    }
+
+    private async IsAlreadySaved(log: typeLogObj, collection: string): Promise<boolean> {
+        try {
+            const logObj: typeLogObj = await dbClient.Client.db(dbClient.DbMWLogs).collection(collection).findOne({ logtext: log.logText }) as typeLogObj
+            console.log("Búsqueda:", logObj)
+            if (logObj !== null && logObj !== undefined) {
+                logger.Add("Se evitó un duplicado simple: " + log.logText, "error")
+                return true
+            }
+    
+            const logObjs: typeLogObj[] = await dbClient.Client.db(dbClient.DbMWLogs).collection(collection).find({
+                logtext: { $regex: `/.*${log.logText.split(" | ")[1]}.*/` }
+            }).toArray() as typeLogObj[]
+
+            if (!logObjs || !logObjs.length) return false
+
+            logObjs.forEach((logObj0: typeLogObj) => {
+                if (logObj0 && log.timestamp - logObj0.timestamp < 500) {
+                    logger.Add("Se evitó un duplicado por regex: " + log.logText, "error")
+                    return true
+                }
+            })
+
+            return false
+
+        } catch (error) {
+            logger.Add(`Falló IsAlreadySaved() ${log.logText}: ${error}`, "error")
+            return false
+        }
+
+        // First, create the index:
+
+        //     db.users.createIndex( { "username": "text" } )
+
+        // Then, to search:
+
+        //     db.users.find( { $text: { $search: "son" } } )
+
+        // Benchmarks (~150K documents):
+
+        // Regex (other answers) => 5.6-6.9 seconds
+        // Text Search => .164-.201 seconds
     }
 }

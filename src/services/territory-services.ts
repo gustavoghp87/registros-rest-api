@@ -1,6 +1,6 @@
 import { HouseholdDb } from '../services-db/householdDbConnection'
 import { logger } from '../server'
-import { changeStateOfTerritoryService, setResetDate } from './state-territory-services'
+import { changeStateOfTerritoryService, setResetDate } from './state-of-territory-services'
 import { getActivatedAdminByAccessTokenService, getActivatedUserByAccessTokenService } from './user-services'
 import { checkAlert } from './email-services'
 import * as types from '../models/household'
@@ -17,7 +17,9 @@ export const resetTerritoryService = async (token: string, territory: string, op
     const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
     if (!user || !territory || !option) return false
     let success: boolean = await householdDbConnection.ResetTerritory(territory, option)
-    if (!success) {
+    if (success) {
+        logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} reseteó territorio ${territory} con la opción ${option}`, "stateOfTerritoryChange")
+    } else {
         console.log("Something failed in reset territory", territory);
         logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} no pudo resetear territorio ${territory} opción ${option}`, "stateOfTerritoryChange")
         return false

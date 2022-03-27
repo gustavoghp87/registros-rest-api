@@ -86,7 +86,7 @@ export const checkAlert = async (): Promise<void> => {
         logger.Add("No se pudo recuperar último email de territorios llenos enviado", "error")
         return
     }
-    console.log(`Timestamp last email: ${lastEmailTime}; difference: ${timestampRightNow - lastEmailTime}, ${(timestampRightNow-lastEmailTime)/1000/60/60} hours`);
+    console.log(`Timestamp last email: ${lastEmailTime}; difference: ${timestampRightNow - lastEmailTime}, ${Math.floor((timestampRightNow-lastEmailTime)/1000/60/60)} hours`);
     if (timestampRightNow - lastEmailTime > 86400000) checkTerritories()    // 24 hs
 }
 
@@ -109,7 +109,7 @@ const checkTerritories = async () => {
             if (users0 && users0.length) {
                 text += `, asignado a `
                 users0.forEach((user: typeUser) => {
-                    if (user.email !== 'ghp.2120@gmail.com' && user.email !== 'ghp.21@hotmail.com')
+                    if (user.email !== 'ghp.2120@gmail.com' && user.email !== 'ghp.21@hotmail.com' && user.email !== 'pabloech@yahoo.com.ar')
                         text += `${user.email} `
                 })
                 if (!text.includes('@')) text = `Territorio ${i.toString()}`

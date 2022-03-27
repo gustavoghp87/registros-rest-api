@@ -2,11 +2,12 @@ import express from 'express'
 import * as userServices from '../services/user-services'
 import { sendEmailNewPsw } from '../services/email-services'
 import { typeUser } from '../models/user'
+import { Request, Response } from 'express'
 
 export const router = express.Router()
 
-    // login
-    .post('/', async (req: any, res: any) => {
+    // new login
+    .post('/', async (req: Request, res: Response) => {
         const { email, password, recaptchaToken } = req.body
         const checkRecaptch: boolean = await userServices.checkRecaptchaTokenService(recaptchaToken)
         if (!checkRecaptch) return res.json({ success: false, recaptchaFails: true })
@@ -16,20 +17,18 @@ export const router = express.Router()
         const match: boolean = await userServices.comparePasswordsService(password, user.password)
         if (!match) return res.json({ success: false })
         const newToken: string|null = userServices.generateAccessTokenService(user, user.tokenId || 1)
-        if (!newToken) return res.json({ success: false })
-        res.json({ success: true, newToken })
+        res.json({ success: newToken !== null, newToken })
     })
 
     // logout all devices
-    .delete('/', async (req: any, res: any) => {
+    .delete('/', async (req: Request, res: Response) => {
         const token: string = req.header('authorization') || ""
         const newToken: string|null = await userServices.logoutAllService(token)
-        if (!newToken) return res.json({ success: false })
-        res.json({ success: true, newToken })
+        res.json({ success: newToken !== null, newToken })
     })
 
     // change my password
-    .put('/', async (req: any, res: any) => {
+    .put('/', async (req: Request, res: Response) => {
         const token: string = req.header('authorization') || ""
         const { psw, newPsw, id } = req.body
         if (psw && newPsw) {
@@ -51,7 +50,7 @@ export const router = express.Router()
     })
 
     // change the password of other user by admin
-    .patch('/', async (req: any, res: any) => {
+    .patch('/', async (req: Request, res: Response) => {
         const token: string = req.header('authorization') || ""
         const email: string = req.body.email
         const newPassword: string|null = await userServices.changePswOtherUserService(token, email)

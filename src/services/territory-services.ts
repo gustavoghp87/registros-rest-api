@@ -3,6 +3,7 @@ import { logger } from '../server'
 import { changeStateOfTerritoryService, setResetDate } from './state-of-territory-services'
 import { getActivatedAdminByAccessTokenService, getActivatedUserByAccessTokenService } from './user-services'
 import { checkAlert } from './email-services'
+import { generalError, stateOfTerritoryChange, territoryChange } from './log-services'
 import * as types from '../models/household'
 import { typeUser } from '../models/user'
 
@@ -18,16 +19,16 @@ export const resetTerritoryService = async (token: string, territory: string, op
     if (!user || !territory || !option) return false
     let success: boolean = await householdDbConnection.ResetTerritory(territory, option)
     if (success) {
-        logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} reseteó territorio ${territory} con la opción ${option}`, "stateOfTerritoryChange")
+        logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} reseteó territorio ${territory} con la opción ${option}`, stateOfTerritoryChange)
     } else {
         console.log("Something failed in reset territory", territory);
-        logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} no pudo resetear territorio ${territory} opción ${option}`, "stateOfTerritoryChange")
+        logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} no pudo resetear territorio ${territory} opción ${option}`, stateOfTerritoryChange)
         return false
     }
     await changeStateOfTerritoryService(token, territory, false)
     const success1 = await setResetDate(territory, option)
     if (!success1)
-        logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} no pudo setear fecha de reseteo de territorio ${territory} opción ${option}`, "stateOfTerritoryChange")
+        logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} no pudo setear fecha de reseteo de territorio ${territory} opción ${option}`, stateOfTerritoryChange)
     return success
 }
 
@@ -78,14 +79,15 @@ export const getAllHouseholdsService = async (): Promise<types.typeHousehold[]|n
 export const modifyHouseholdService = async (token: string,
      inner_id: string, estado: string, noAbonado: boolean, asignado: boolean): Promise<types.typeHousehold|null> => {
     const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
-    if (!user || !inner_id || !estado || typeof noAbonado !== 'boolean' || typeof asignado !== 'boolean') return null
+    noAbonado = !noAbonado ? false : true
+    asignado = !asignado ? false : true
+    if (!user || !inner_id || !estado) return null
     if (!isHouseholdAssignedToUser) return null
     const success: boolean = await householdDbConnection.UpdateHouseholdState(inner_id, estado, noAbonado, asignado)
     if (!success) return null
     const updatedHousehold: types.typeHousehold|null = await householdDbConnection.GetHouseholdById(inner_id)
     if (!updatedHousehold) return null
-    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} modificó una vivienda: territorio ${updatedHousehold.territorio}, vivienda ${updatedHousehold.inner_id}, estado ${updatedHousehold.estado}, no abonado ${updatedHousehold.noAbonado}, asignado ${updatedHousehold.asignado}`,
-    "territoryChange")
+    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} modificó una vivienda: territorio ${updatedHousehold.territorio}, vivienda ${updatedHousehold.inner_id}, estado ${updatedHousehold.estado}, no abonado ${updatedHousehold.noAbonado}, asignado ${updatedHousehold.asignado}`, territoryChange)
     checkAlert()
     return updatedHousehold
 }
@@ -98,7 +100,7 @@ const isHouseholdAssignedToUser = async (user: typeUser, inner_id: string): Prom
         const success: boolean = user.asign.includes(territoryNumber)
         return success
     } catch (error) {
-        logger.Add(`Falló isTerritoryAssignedToUser(): ${error}`, "error")
+        logger.Add(`Falló isTerritoryAssignedToUser(): ${error}`, generalError)
         return false
     }
 }

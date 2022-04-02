@@ -1,5 +1,6 @@
 import { Server, Socket } from 'socket.io'
 import { domain, logger, server, testingDomain } from '../server'
+import { socketError } from './log-services'
 import { typeUser } from '../models/user'
 import { typeHousehold } from '../models/household'
 import { typeHTHBuilding } from '../models/houseToHouse'
@@ -11,6 +12,12 @@ type householdChangeObjectPackage = {
     userEmail: string
 }
 
+type socketConnection = 'user: change' | 'household: change' | 'hth: change' | 'connection'
+const userChange: socketConnection = 'user: change'
+const householdChange: socketConnection = 'household: change'
+const hthChange: socketConnection = 'hth: change'
+const connection: socketConnection = 'connection'
+
 export const socketConnection = (production: boolean): void => {
     new Server(server, {
         cors: {
@@ -18,31 +25,30 @@ export const socketConnection = (production: boolean): void => {
             methods: ["GET", "POST"],
             credentials: true
         }
-    }).on('connection', (socket: Socket): void => {
-        console.log("NEW SOCKET CONNECTION -", socket.id)
-        socket.emit('connection', null);
-        socket.on('household: change', (objPackage: householdChangeObjectPackage): void => {
+    }).on(connection, (socket: Socket): void => {
+        // console.log("NEW SOCKET CONNECTION -", socket.id)
+        socket.emit(connection, null);
+        socket.on(householdChange, (objPackage: householdChangeObjectPackage): void => {
             if (!objPackage) return
             let households: typeHousehold[] = objPackage.households
             const updatedHousehold: typeHousehold = objPackage.updatedHousehold
             const indexOfHousehold: number = objPackage.indexOfHousehold
             const userEmail: string = objPackage.userEmail
             if (!households || !updatedHousehold || indexOfHousehold === null) {
-                console.log("\n\nError in socket household: change\n\n");
-                logger.Add(`Error en socket household change: ${userEmail} ${households?.length} ${indexOfHousehold} ${JSON.stringify(updatedHousehold)}`, 'socketError')
+                logger.Add(`Error en socket household change: ${userEmail} ${households?.length} ${indexOfHousehold} ${JSON.stringify(updatedHousehold)}`, socketError)
                 return
             }
             households[indexOfHousehold] = updatedHousehold
-            socket.emit('household: change', households, userEmail)
-            socket.broadcast.emit('household: change', households, userEmail)
+            socket.emit(householdChange, households, userEmail)
+            socket.broadcast.emit(householdChange, households, userEmail)
         })
-        socket.on('user: change', (updatedUser: typeUser): void => {
-            socket.emit('user: change', updatedUser)
-            socket.broadcast.emit('user: change', updatedUser)
+        socket.on(userChange, (updatedUser: typeUser): void => {
+            socket.emit(userChange, updatedUser)
+            socket.broadcast.emit(userChange, updatedUser)
         })
-        socket.on('hth: change', (updatedBuildings: typeHTHBuilding[]) => {
-            socket.emit('hth: change', updatedBuildings)
-            socket.broadcast.emit('hth: change', updatedBuildings)
+        socket.on(hthChange, (updatedBuildings: typeHTHBuilding[]) => {
+            socket.emit(hthChange, updatedBuildings)
+            socket.broadcast.emit(hthChange, updatedBuildings)
         })
     })
 }

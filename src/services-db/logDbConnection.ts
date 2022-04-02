@@ -1,6 +1,7 @@
 import { dbClient, logger } from '../server'
-import { typeLogObj, typeLogsObj } from '../models/log'
+import { generalError } from '../services/log-services'
 import { typeCollection } from './_dbConnection'
+import { typeLogObj, typeLogsObj } from '../models/log'
 
 export class LogDb {
 
@@ -25,7 +26,7 @@ export class LogDb {
             return logs            
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló Get() logs ${collection}: ${error}`, 'error')
+            logger.Add(`Falló Get() logs ${collection}: ${error}`, generalError)
             return null
         }
     }
@@ -61,7 +62,7 @@ export class LogDb {
             return logs
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló GetAll() logs: ${error}`, 'error')
+            logger.Add(`Falló GetAll() logs: ${error}`, generalError)
             return null
         }
     }
@@ -71,7 +72,7 @@ export class LogDb {
             const logObj: typeLogObj[] = await dbClient.Client.db(dbClient.DbMWLogs).collection(collection).find({ logText: log.logText })?.toArray() as typeLogObj[]
 
             if (logObj !== null && logObj !== undefined) {
-                logger.Add("Se evitó un duplicado simple: " + log.logText, 'error')
+                console.log("Se evitó un duplicado simple: " + log.logText)
                 return true
             }
     
@@ -84,16 +85,15 @@ export class LogDb {
             if (logObjs && logObjs.length) {
                 logObjs.forEach((logObj0: typeLogObj) => {
                     if (logObj0 && log.timestamp - logObj0.timestamp < 200) {
-                        logger.Add("Se evitó un duplicado por regex: " + log.logText, 'error')
+                        console.log("Se evitó un duplicado por regex: " + log.logText)
                         return true
                     }
                 })
             }
 
             return false
-
         } catch (error) {
-            logger.Add(`Falló IsAlreadySaved() ${log.logText}: ${error}`, 'error')
+            console.log(`Falló IsAlreadySaved() ${log.logText}: ${error}`)
             return false
         }
 

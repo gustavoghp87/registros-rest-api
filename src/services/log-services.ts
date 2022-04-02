@@ -5,16 +5,16 @@ import { typeCollection } from '../services-db/_dbConnection'
 import { typeLogObj, typeLogsObj } from '../models/log'
 import { typeUser } from '../models/user'
 
-type typeLog = "login" | "territoryChange" | "stateOfTerritoryChange" | "campaignAssignment" | "campaignFinishing" | "error" | "socketError" | "userChanges" | "app"
-const login: typeLog = "login"
-const territoryChange: typeLog = "territoryChange"
-const stateOfTerritoryChange: typeLog = "stateOfTerritoryChange"
-const campaignAssignment: typeLog = "campaignAssignment"
-const campaignFinishing: typeLog = "campaignFinishing"
-const error: typeLog = "error"
-const socketError: typeLog = "socketError"
-const userChanges: typeLog = "userChanges"
-const app: typeLog = "app"
+type typeLog = 'login' | 'territoryChange' | 'stateOfTerritoryChange' | 'campaignAssignment' | 'campaignFinishing' | 'error' | 'socketError' | 'userChanges' | 'app'
+export const login: typeLog = 'login'
+export const territoryChange: typeLog = 'territoryChange'
+export const stateOfTerritoryChange: typeLog = 'stateOfTerritoryChange'
+export const campaignAssignment: typeLog = 'campaignAssignment'
+export const campaignFinishing: typeLog = 'campaignFinishing'
+export const generalError: typeLog = 'error'
+export const socketError: typeLog = 'socketError'
+export const userChanges: typeLog = 'userChanges'
+export const app: typeLog = 'app'
 
 export class Logger {
 
@@ -30,7 +30,7 @@ export class Logger {
         let newDateTs: number = isProduction ? new Date().getTime() - 3*60*60*1000 : new Date().getTime()
         if (logText === "Inicia App") newDateTs -= 5000
         const newDate = new Date().setTime(newDateTs)
-        logText = new Date(newDate).toLocaleString("es-AR") + " | " + logText
+        logText = new Date(newDate).toLocaleString('es-AR') + " | " + logText
         if (!isProduction) {
             console.log(logText)
             return true
@@ -68,7 +68,7 @@ export class Logger {
             case stateOfTerritoryChange: collection = dbClient.CollStateOfTerritoryChangeLogs; break;
             case campaignAssignment: collection = dbClient.CollCampaignAssignmentLogs; break;
             case campaignFinishing: collection = dbClient.CollCampaignFinishingLogs; break;
-            case error: collection = dbClient.CollErrorLogs; break;
+            case generalError: collection = dbClient.CollErrorLogs; break;
             case socketError: collection = dbClient.CollSocketErrorLogs; break;
             case userChanges: collection = dbClient.CollUserChangesLogs; break;
             case app: collection = dbClient.CollAppLogs; break;

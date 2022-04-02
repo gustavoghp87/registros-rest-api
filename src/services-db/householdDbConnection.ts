@@ -1,4 +1,5 @@
 import { dbClient, logger } from '../server'
+import { generalError } from '../services/log-services'
 import * as types from '../models/household'
 import { localStatistic, statistic } from '../models/statistic'
 
@@ -18,14 +19,14 @@ export class HouseholdDb {
                     if (busq) blocks.push(i.toString())
                 } catch (error) {
                     console.log(error)
-                    logger.Add(`Falló GetBlocks() territorio ${territory} manzana ${i}: ${error}`, "error")
+                    logger.Add(`Falló GetBlocks() territorio ${territory} manzana ${i}: ${error}`, generalError)
                 }
                 i++
             }
             return blocks
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló GetBlocks() territorio ${territory}: ${error}`, "error")
+            logger.Add(`Falló GetBlocks() territorio ${territory}: ${error}`, generalError)
             return null
         }
     }
@@ -38,7 +39,7 @@ export class HouseholdDb {
             return territories
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló GetTerritory() territorio ${territory}: ${error}`, "error")
+            logger.Add(`Falló GetTerritory() territorio ${territory}: ${error}`, generalError)
             return null
         }
     }
@@ -52,7 +53,7 @@ export class HouseholdDb {
             return households
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló GetTerritoryByNumberAndBlock() ${territory} ${block}: ${error}`, "error")
+            logger.Add(`Falló GetTerritoryByNumberAndBlock() ${territory} ${block}: ${error}`, generalError)
             return null
         }
     }
@@ -70,7 +71,7 @@ export class HouseholdDb {
             return households
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló GetFreePhonesOfTerritoryByNumberAndBlock() ${territory} ${block}: ${error}`, "error")
+            logger.Add(`Falló GetFreePhonesOfTerritoryByNumberAndBlock() ${territory} ${block}: ${error}`, generalError)
             return null
         }
     }
@@ -88,7 +89,7 @@ export class HouseholdDb {
             return getNumberOfFreePhones
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló GetNumbreOfFreePhonesOfTerritoryByNumber() ${territory}: ${error}`, "error")
+            logger.Add(`Falló GetNumbreOfFreePhonesOfTerritoryByNumber() ${territory}: ${error}`, generalError)
             return null
         }
     }
@@ -98,7 +99,7 @@ export class HouseholdDb {
             const household: types.typeHousehold = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).findOne({ inner_id }) as types.typeHousehold
             return household
         } catch (error) {
-            logger.Add(`Falló GetHouseholdById(): ${error}`, "error")
+            logger.Add(`Falló GetHouseholdById(): ${error}`, generalError)
             return null
         }
     }
@@ -111,7 +112,7 @@ export class HouseholdDb {
             return territories
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló GetAllHouseholds(): ${error}`, "error")
+            logger.Add(`Falló GetAllHouseholds(): ${error}`, generalError)
             return null
         }
     }
@@ -172,7 +173,7 @@ export class HouseholdDb {
             return true
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló ResetTerritory() territorio ${territorio} opción ${option}: ${error}`, "error")
+            logger.Add(`Falló ResetTerritory() territorio ${territorio} opción ${option}: ${error}`, generalError)
             return false
         }
     }
@@ -185,7 +186,7 @@ export class HouseholdDb {
             return true
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló UpdateHouseholdState() pasando ${inner_id} ${estado} ${noAbonado} ${asignado}: ${error}`, "error")
+            logger.Add(`Falló UpdateHouseholdState() pasando ${inner_id} ${estado} ${noAbonado} ${asignado}: ${error}`, generalError)
             return false
         }
     }
@@ -221,7 +222,7 @@ export class HouseholdDb {
             }
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló GetGlobalStatistics(): ${error}`, "error")
+            logger.Add(`Falló GetGlobalStatistics(): ${error}`, generalError)
             return null
         }
     }
@@ -229,17 +230,17 @@ export class HouseholdDb {
     async GetLocalStatistics(territorio: string): Promise<localStatistic|null> {
         try {
             const count: number =
-                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({territorio}).count()
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({ territorio }).count()
             const countContesto: number =
-                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({ $and: [{ territorio}, { estado: types.contesto }] }).count()
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({ $and: [{ territorio }, { estado: types.contesto }] }).count()
             const countNoContesto: number =
-                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({ $and: [{ territorio}, { estado: types.noContesto }] }).count()
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({ $and: [{ territorio }, { estado: types.noContesto }] }).count()
             const countDejarCarta: number =
-                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({ $and: [{ territorio}, { estado: types.aDejarCarta }] }).count()
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({ $and: [{ territorio }, { estado: types.aDejarCarta }] }).count()
             const countNoLlamar: number =
-                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({ $and: [{ territorio}, { estado: types.noLlamar }] }).count()
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({ $and: [{ territorio }, { estado: types.noLlamar }] }).count()
             const countNoAbonado: number =
-                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({ $and: [{ territorio}, { noAbonado: true }] }).count()
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({ $and: [{ territorio }, { noAbonado: true }] }).count()
             const libres: number =
                 await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({ $and: [{ territorio }, { $or: [{ estado: types.noPredicado }]}, { $or: [{ noAbonado: false }, { noAbonado: null }] }] }).count()
             return {
@@ -254,7 +255,7 @@ export class HouseholdDb {
             }
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló GetLocalStatistics() pasando ${territorio}: ${error}`, "error")
+            logger.Add(`Falló GetLocalStatistics() pasando ${territorio}: ${error}`, generalError)
             return null
         }
     }

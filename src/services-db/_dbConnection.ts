@@ -1,8 +1,9 @@
-// import { logger } from '../server'
 import { MongoClient } from 'mongodb'
 import { databaseUrl } from '../env-variables'
 
-export type typeCollection = "usuarios" | "viviendas" | "emailAlert" | "territorios" | "casaEnCasa" | "campaign2022" | "LoginLogs" | "CampaignAssignmentLogs" | "CampaignFinishingLogs" | "TerritoryChangeLogs" | "StateOfTerritoryChangeLogs" | "ErrorLogs" | "SocketErrorLogs" | "UserChangesLogs" | "AppLogs"
+export type typeCollection = "usuarios" | "viviendas" | "emailAlert" | "territorios" | "casaEnCasa" | "campaign2022" | "LoginLogs" |
+                             "CampaignAssignmentLogs" | "CampaignFinishingLogs" | "TerritoryChangeLogs" | "StateOfTerritoryChangeLogs" |
+                             "ErrorLogs" | "SocketErrorLogs" | "UserChangesLogs" | "AppLogs"
 
 export class DbConnection {
 
@@ -32,7 +33,7 @@ export class DbConnection {
     constructor (testingDb: boolean) {
         if (testingDb) this.DbMW = this.DbMWTesting
         this.Client.connect().then(() => {
-            console.log("DB connected -", this.DbMW, "\n\n")
+            console.log("\nDB connected -", this.DbMW, "\n\n")
             // logger.Add(`Inicia objeto DB`, "app")
         })
     }

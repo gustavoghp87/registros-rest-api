@@ -1,5 +1,6 @@
 import { dbClient, logger } from '../server'
 import { nadie, noAsignado, typeCampaignPack } from '../models/campaign'
+import { generalError } from '../services/log-services'
 
 export class CampaignDb {
     async GetCampaignPacks(): Promise<typeCampaignPack[]|null> {
@@ -9,7 +10,7 @@ export class CampaignDb {
             return packs
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló GetCampaignPacks(): ${error}`, "error")
+            logger.Add(`Falló GetCampaignPacks(): ${error}`, generalError)
             return null
         }
     }
@@ -22,7 +23,7 @@ export class CampaignDb {
             return packs
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló GetCampaignPacksByUser() usuario ${userEmail}: ${error}`, "error")
+            logger.Add(`Falló GetCampaignPacksByUser() usuario ${userEmail}: ${error}`, generalError)
             return null
         }
     }
@@ -34,7 +35,7 @@ export class CampaignDb {
             return pack
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló GetCampaignPackById() id ${id}: ${error}`, "error")
+            logger.Add(`Falló GetCampaignPackById() id ${id}: ${error}`, generalError)
             return null
         }
     }
@@ -50,7 +51,7 @@ export class CampaignDb {
             return true
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló EditCampaignPackById() ${id} ${phoneNumber} ${checked}: ${error}`, "error")
+            logger.Add(`Falló EditCampaignPackById() ${id} ${phoneNumber} ${checked}: ${error}`, generalError)
             return false
         }
     }
@@ -61,7 +62,7 @@ export class CampaignDb {
             return true
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló CloseCampaignPack() id ${id}: ${error}`, "error")
+            logger.Add(`Falló CloseCampaignPack() id ${id}: ${error}`, generalError)
             return false
         }
     }
@@ -75,7 +76,7 @@ export class CampaignDb {
             return true
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló AssignCampaignPackByEmail() ${id} ${email}: ${error}`, "error")
+            logger.Add(`Falló AssignCampaignPackByEmail() ${id} ${email}: ${error}`, generalError)
             return false
         }
     }
@@ -93,7 +94,7 @@ export class CampaignDb {
             return pack?.id
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló AskForANewCampaignPack() ${email}: ${error}`, "error")
+            logger.Add(`Falló AskForANewCampaignPack() ${email}: ${error}`, generalError)
             return null
         }
     }
@@ -106,7 +107,7 @@ export class CampaignDb {
             return true
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló ChangeAccesibilityMode() ${id} ${accessible}: ${error}`, "error")
+            logger.Add(`Falló ChangeAccesibilityMode() ${id} ${accessible}: ${error}`, generalError)
             return false
         }
     }

@@ -7,11 +7,11 @@ export class HouseToHouseDb {
     async GetBuildingsByTerritory(territory: string): Promise<typeHTHBuilding[]|null> {
         try {
             const buildings: typeHTHBuilding[] =
-                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollCasa).find({territory}).toArray() as typeHTHBuilding[]
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollCasa).find({ territory }).toArray() as typeHTHBuilding[]
             return buildings
         } catch (error) {
             console.log(error)
-            //logger.Add(`Falló GetBuildingsByTerritory() pasando ${territorio} a ${isFinished}: ${error}`, "error")
+            //logger.Add(`Falló GetBuildingsByTerritory() pasando ${territorio} a ${isFinished}: ${error}`, generalError)
             return null
         }
     }
@@ -22,7 +22,7 @@ export class HouseToHouseDb {
             return true
         } catch (error) {
             console.log(error)
-            //logger.Add(`Falló AddBuilding() pasando ${territorio} a ${isFinished}: ${error}`, "error")
+            //logger.Add(`Falló AddBuilding() pasando ${territorio} a ${isFinished}: ${error}`, generalError)
             return false
         }
     }
@@ -37,7 +37,7 @@ export class HouseToHouseDb {
             return building
         } catch (error) {
             console.log(error)
-            //logger.Add(`Falló GetBuilding() pasando ${territorio} a ${isFinished}: ${error}`, "error")
+            //logger.Add(`Falló GetBuilding() pasando ${territorio} a ${isFinished}: ${error}`, generalError)
             return null
         }
     }
@@ -61,7 +61,7 @@ export class HouseToHouseDb {
             return true
         } catch (error) {
             console.log(error)
-            //logger.Add(`Falló ModifyHTHBuilding() pasando ${territorio} a ${isFinished}: ${error}`, "error")
+            //logger.Add(`Falló ModifyHTHBuilding() pasando ${territorio} a ${isFinished}: ${error}`, generalError)
             return false
         }
     }
@@ -93,15 +93,8 @@ export class HouseToHouseDb {
             return true
         } catch (error) {
             console.log(error)
-            //logger.Add(`Falló ModifyHTHHousehold() pasando ${household} a ${buildingId}: ${error}`, "error")
+            //logger.Add(`Falló ModifyHTHHousehold() pasando ${household} a ${buildingId}: ${error}`, generalError)
             return false
         }
     }
 }
-
-// isChecked: boolean         // provisional
-// piso: string
-// depto: string
-// idNumber: number
-// estado: typeEstado
-// lastTime: number

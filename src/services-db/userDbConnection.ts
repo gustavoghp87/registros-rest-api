@@ -1,5 +1,6 @@
 import { dbClient, logger } from '../server'
 import { ObjectId } from 'mongodb'
+import { generalError } from '../services/log-services';
 import { recoveryOption, typeUser } from '../models/user'
 
 export class UserDb {
@@ -13,7 +14,7 @@ export class UserDb {
             return user
         } catch (error) {
             console.log("Db user by email", error)
-            logger.Add(`Falló GetUserByEmail() ${email}: ${error}`, "error")
+            logger.Add(`Falló GetUserByEmail() ${email}: ${error}`, generalError)
             return null
         }
     }
@@ -27,7 +28,7 @@ export class UserDb {
             return user
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló GetUserById() ${_id}: ${error}`, "error")
+            logger.Add(`Falló GetUserById() ${_id}: ${error}`, generalError)
             return null
         }
     }
@@ -45,7 +46,7 @@ export class UserDb {
             return user0
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló GetUserByEmailLink() ${id}: ${error}`, "error")
+            logger.Add(`Falló GetUserByEmailLink() ${id}: ${error}`, generalError)
             return null
         }
     }
@@ -58,7 +59,7 @@ export class UserDb {
             return users
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló GetAllUsers(): ${error}`, "error")
+            logger.Add(`Falló GetAllUsers(): ${error}`, generalError)
             return null
         }
     }
@@ -70,7 +71,7 @@ export class UserDb {
             return user ? true : false
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló RegisterUser() ${JSON.stringify(newUser)}: ${error}`, "error")
+            logger.Add(`Falló RegisterUser() ${JSON.stringify(newUser)}: ${error}`, generalError)
             return false
         }
     }
@@ -84,7 +85,7 @@ export class UserDb {
             return user && user.tokenId === tokenId ? true : false
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló UpdateTokenId() ${_id}: ${error}`, "error")
+            logger.Add(`Falló UpdateTokenId() ${_id}: ${error}`, generalError)
             return false
         }
     }
@@ -98,7 +99,7 @@ export class UserDb {
             return user && user.darkMode === darkMode ? true : false
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló ChangeMode() ${email} ${darkMode}: ${error}`, "error")
+            logger.Add(`Falló ChangeMode() ${email} ${darkMode}: ${error}`, generalError)
             return false
         }
     }
@@ -112,7 +113,7 @@ export class UserDb {
             return user && user.password === passwordEncrypted ? true : false
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló ChangePsw() ${email}: ${error}`, "error")
+            logger.Add(`Falló ChangePsw() ${email}: ${error}`, generalError)
             return false
         }
     }
@@ -126,7 +127,7 @@ export class UserDb {
             return user && user.estado === estado && user.role === role && user.group === group ? user : null
         } catch (error) {
             console.log("Update User State failed:", error)
-            logger.Add(`Falló UpdateUserState() ${user_id} ${estado} ${role} ${group}: ${error}`, "error")
+            logger.Add(`Falló UpdateUserState() ${user_id} ${estado} ${role} ${group}: ${error}`, generalError)
             return null
         }
     }
@@ -155,7 +156,7 @@ export class UserDb {
             return user ? user : null
         } catch (error) {
             console.log("Asign Territory failed:", error)
-            logger.Add(`Falló AssignTerritory() ${user_id} ${asignar} ${desasignar} ${all}: ${error}`, "error")
+            logger.Add(`Falló AssignTerritory() ${user_id} ${asignar} ${desasignar} ${all}: ${error}`, generalError)
             return null
         }
     }
@@ -178,7 +179,7 @@ export class UserDb {
             return true
         } catch (error) {
             console.log("Add recovery option failed:", error)
-            logger.Add(`Falló AddRecoveryOption() ${email} ${id}: ${error}`, "error")
+            logger.Add(`Falló AddRecoveryOption() ${email} ${id}: ${error}`, generalError)
             return false
         }
     }
@@ -195,7 +196,7 @@ export class UserDb {
             return true
         } catch (error) {
             console.log("Set recovery option as used failed:", error)
-            logger.Add(`Falló SetRecoveryOptionAsUsed() ${JSON.stringify(user)} ${id}: ${error}`, "error")
+            logger.Add(`Falló SetRecoveryOptionAsUsed() ${JSON.stringify(user)} ${id}: ${error}`, generalError)
             return false
         }
     }

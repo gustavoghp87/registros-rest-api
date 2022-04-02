@@ -13,7 +13,7 @@ import { router as campaignController } from './controllers/campaign-controller'
 import { router as logController } from './controllers/log-controller'
 import { DbConnection } from './services-db/_dbConnection'
 import { socketConnection } from './services/broadcast-services'
-import { Logger } from './services/log-services'
+import { Logger, app as appType } from './services/log-services'
 
 export const isProduction: boolean = NODE_ENV !== "dev"
 export const testingDb: boolean = !isProduction
@@ -42,5 +42,5 @@ app.use('/api/log', logController)
 export const server = app.listen(port, () => {
     console.log(`\n\n\nListening on port ${port}`)
     socketConnection(isProduction)
-    setTimeout(() => { logger.Add(`Inicia App`, "app") }, 5000)
+    setTimeout(() => { logger.Add(`Inicia App`, appType) }, 5000)
 })

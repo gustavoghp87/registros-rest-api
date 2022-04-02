@@ -1,4 +1,5 @@
 import { dbClient, logger } from '../server'
+import { generalError } from '../services/log-services'
 import { stateOfTerritory } from '../models/stateOfTerritory'
 
 export class StateOfTerritoryDb {
@@ -10,7 +11,7 @@ export class StateOfTerritoryDb {
             return obj
         } catch (error) {
             console.log("Territory Db SearchStateOfTerritory", error)
-            logger.Add(`Falló GetStateOfTerritory() pasando ${territory}: ${error}`, "error")
+            logger.Add(`Falló GetStateOfTerritory() pasando ${territory}: ${error}`, generalError)
             return null
         }
     }
@@ -22,7 +23,7 @@ export class StateOfTerritoryDb {
             return obj
         } catch (error) {
             console.log("Territory Db SearchStatesOfTerritories", error)
-            logger.Add(`Falló GetStateOfTerritories(): ${error}`, "error")
+            logger.Add(`Falló GetStateOfTerritories(): ${error}`, generalError)
             return null
         }
     }
@@ -35,7 +36,7 @@ export class StateOfTerritoryDb {
             return true
         } catch (error) {
             console.log("Territory Db ChangeStateOfTerritory", error)
-            logger.Add(`Falló ChangeStateOfTerritory() pasando ${territory} a ${isFinished}: ${error}`, "error")
+            logger.Add(`Falló ChangeStateOfTerritory() pasando ${territory} a ${isFinished}: ${error}`, generalError)
             return false
         }
     }
@@ -48,7 +49,7 @@ export class StateOfTerritoryDb {
             return true
         } catch (error) {
             console.log(error);
-            logger.Add(`Falló SetResetDate() pasando ${territory} opción ${option}: ${error}`, "error")
+            logger.Add(`Falló SetResetDate() pasando ${territory} opción ${option}: ${error}`, generalError)
             return false
         }
     }

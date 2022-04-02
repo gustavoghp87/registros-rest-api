@@ -1,8 +1,9 @@
 import { dbClient, logger } from '../server'
 import { ObjectId } from 'mongodb'
+import { generalError } from '../services/log-services'
 
 export class EmailDb {
-    private _id: ObjectId = new ObjectId('5fcbdce29382c6966fa4d583');
+    private _id: ObjectId = new ObjectId('5fcbdce29382c6966fa4d583')
 
     async GetEmailLastTime(): Promise<number|null> {
         try {
@@ -12,7 +13,7 @@ export class EmailDb {
             return lastEmailTime
         } catch (error) {
             console.log("Get Email Last Time failed", error)
-            logger.Add(`Falló GetEmailLastTime(): ${error}`, "error")
+            logger.Add(`Falló GetEmailLastTime(): ${error}`, generalError)
             return null
         }
     }
@@ -30,7 +31,7 @@ export class EmailDb {
             return true
         } catch (error) {
             console.log("Update Last Email failed", error)
-            logger.Add(`Falló UpdateLastEmail(): ${error}`, "error")
+            logger.Add(`Falló UpdateLastEmail(): ${error}`, generalError)
             return false
         }
     }

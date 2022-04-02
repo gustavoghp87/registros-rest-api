@@ -6,6 +6,7 @@ import { UserDb } from '../services-db/userDbConnection'
 import { accessTokensExpiresIn, logger } from '../server'
 import { sendEmailRecoverAccount } from './email-services'
 import { decodedObject, recoveryOption, typeUser } from '../models/user'
+import { generalError, login, territoryChange, userChanges } from './log-services'
 
 const userDbConnection: UserDb = new UserDb()
 
@@ -42,7 +43,7 @@ export const checkRecaptchaTokenService = async (recaptchaToken: string): Promis
         return true
     } catch (error) {
         console.log(error)
-        logger.Add(`Falló checkRecaptchaTokenService(): ${error}`, 'error')
+        logger.Add(`Falló checkRecaptchaTokenService(): ${error}`, generalError)
         return false
     }
 }
@@ -62,7 +63,7 @@ export const registerUserService = async (email: string, password: string, group
         tokenId: 1
     }
     const success: boolean = await userDbConnection.RegisterUser(newUser)
-    if (success) logger.Add(`Se registró un usuario con email ${email} y grupo ${group}`, "login")
+    if (success) logger.Add(`Se registró un usuario con email ${email} y grupo ${group}`, login)
     return success
 }
 
@@ -72,10 +73,10 @@ export const generateAccessTokenService = (user: typeUser, tokenId: number): str
     try { if (typeof tokenId !== 'number') tokenId = parseInt(tokenId) } catch { return null }
     try {
         const newToken: string = jwt.sign({ userId: user._id, tokenId }, string_jwt, { expiresIn: accessTokensExpiresIn })
-        if (newToken) logger.Add(`Se logueó el usuario ${user.email}`, "login")
+        if (newToken) logger.Add(`Se logueó el usuario ${user.email}`, login)
         return newToken
     } catch (error) {
-        logger.Add(`Falló generateAccessTokenService() ${user.email} ${tokenId}`, 'error')
+        logger.Add(`Falló generateAccessTokenService() ${user.email} ${tokenId}`, generalError)
         return null
     }
 }
@@ -100,7 +101,7 @@ const getUserByAccessToken = async (token: string): Promise<typeUser|null> => {
         decoded = jwt.verify(token, string_jwt) as decodedObject
     } catch (error) {
         console.log(error)
-        logger.Add(`Falló retrieveUserIdByAccessToken(): ${error}`, 'error')
+        logger.Add(`Falló retrieveUserIdByAccessToken(): ${error}`, generalError)
         return null
     }
     const userId: string|null = decoded && decoded.iat && decoded.exp && decoded.iat < timeNow && decoded.exp > timeNow ? decoded?.userId : null
@@ -119,7 +120,7 @@ const generatePasswordHash = async (password: string): Promise<string|null> => {
         return passwordHash
     } catch (error) {
         console.log(error)
-        logger.Add(`Falló generatePasswordHash(): ${error}`, 'error')
+        logger.Add(`Falló generatePasswordHash(): ${error}`, generalError)
         return null
     }
 }
@@ -130,7 +131,7 @@ export const comparePasswordsService = async (password0: string, password1: stri
         return success
     } catch (error) {
         console.log(error)
-        logger.Add(`Falló comparePasswordsService(): ${error}`, 'error')
+        logger.Add(`Falló comparePasswordsService(): ${error}`, generalError)
         return false
     }
 }
@@ -141,7 +142,7 @@ export const logoutAllService = async (token: string): Promise<string|null> => {
     const tokenId = user.tokenId || 1
     const success: boolean = await userDbConnection.UpdateTokenId(user._id.toString(), tokenId + 1)
     if (!success) return null
-    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cerró todas las sesiones`, "login")
+    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cerró todas las sesiones`, login)
     const newToken: string|null = generateAccessTokenService(user, tokenId + 1 || 2)
     return newToken
 }
@@ -158,7 +159,7 @@ export const changePswService = async (token: string, psw: string, newPsw: strin
         console.log("Fail trying to change password for", user.email)
         return null
     }
-    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cambió su contraseña usando la que tenía`, "login")
+    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cambió su contraseña usando la que tenía`, login)
     const newToken: string|null = generateAccessTokenService(user, user.tokenId || 1)
     return newToken
 }
@@ -173,7 +174,7 @@ export const changePswOtherUserService = async (token: string, email: string): P
     const encryptedPassword: string|null = await generatePasswordHash(newPsw)
     if (!encryptedPassword) return null
     const success: boolean = await userDbConnection.ChangePsw(email, encryptedPassword)
-    if (success) logger.Add(`${myUser.role === 1 ? 'Admin' : 'Usuario'} ${myUser.email} cambió la contraseña de ${email}`, "login")
+    if (success) logger.Add(`${myUser.role === 1 ? 'Admin' : 'Usuario'} ${myUser.email} cambió la contraseña de ${email}`, login)
     return success ? newPsw : null
 }
 
@@ -198,7 +199,7 @@ export const changePswByEmailLinkService = async (id: string, newPsw: string): P
     if (!encryptedPassword) return null
     const success: boolean = await userDbConnection.ChangePsw(user.email, encryptedPassword)
     if (!success) return null
-    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} recuperó su contraseña por link de email`, "login")
+    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} recuperó su contraseña por link de email`, login)
     await userDbConnection.SetRecoveryOptionAsUsed(user, id)
     const newToken: string|null = generateAccessTokenService(user, user.tokenId || 1)
     return newToken
@@ -211,7 +212,7 @@ export const recoverAccountService = async (email: string): Promise<string> => {
     const id: string = getRandomCharacter(4) + "-" + getRandomCharacter(4) + "-" + getRandomCharacter(4) + "-" + getRandomCharacter(4) + "-" + getRandomCharacter(4)
     let success: boolean = await userDbConnection.AddRecoveryOption(email, id)
     if (!success) return ""
-    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} solicitó un email de recuperación de contraseña`, "login")
+    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} solicitó un email de recuperación de contraseña`, login)
     success = await sendEmailRecoverAccount(email, id)
     if (!success) return "not sent"
     return "ok"
@@ -224,7 +225,7 @@ export const modifyUserService = async (token: string, user_id: string, estado: 
     try { group = parseInt(group.toString()) } catch { return null }
     if (!user || !user_id || typeof role !== 'number' || typeof group !== 'number') return null
     const updatedUser: typeUser|null = await userDbConnection.UpdateUserState(user_id, estado, role, group)
-    if (updatedUser) logger.Add(`Admin ${user.email} modificó al usuario ${updatedUser.email}: activado ${updatedUser.estado}, rol ${updatedUser.role}, grupo ${updatedUser.group}`, "userChanges")
+    if (updatedUser) logger.Add(`Admin ${user.email} modificó al usuario ${updatedUser.email}: activado ${updatedUser.estado}, rol ${updatedUser.role}, grupo ${updatedUser.group}`, userChanges)
     return updatedUser
 }
 
@@ -250,7 +251,7 @@ export const assignTerritoryService = async (token: string, user_id: string, asi
     const userToEdit :typeUser|null = await userDbConnection.GetUserById(user_id)
     if (!user || !userToEdit || (!asignar && !desasignar && !all)) return null
     const updatedUser: typeUser|null = await userDbConnection.AssignTerritory(user_id, asignar, desasignar, all)
-    if (updatedUser) logger.Add(`Admin ${user.email} modificó las asignaciones de ${updatedUser?.email}: asignados antes ${userToEdit.asign?.length ? userToEdit.asign : "ninguno"}, ahora ${updatedUser.asign?.length ? updatedUser.asign : "ninguno"}`, "userChanges")
+    if (updatedUser) logger.Add(`Admin ${user.email} modificó las asignaciones de ${updatedUser?.email}: asignados antes ${userToEdit.asign?.length ? userToEdit.asign : "ninguno"}, ahora ${updatedUser.asign?.length ? updatedUser.asign : "ninguno"}`, userChanges)
     return updatedUser
 }
 
@@ -262,10 +263,10 @@ export const deallocateMyTerritoryService = async (token: string, territory: str
         territoryNumber = parseInt(territory)
     } catch (error) {
        console.log(error)
-       logger.Add(`Falló deallocateMyTerritoryService(): ${error}`, 'error')
+       logger.Add(`Falló deallocateMyTerritoryService(): ${error}`, generalError)
        return false
     }
     const updatedUser: typeUser|null = await userDbConnection.AssignTerritory(user._id.toString(), 0, territoryNumber, false)
-    if (!updatedUser) logger.Add(`Usuario ${user.email} no pudo ser desasignado de ${territory}`, "territoryChange")
+    if (!updatedUser) logger.Add(`Usuario ${user.email} no pudo ser desasignado de ${territory}`, territoryChange)
     return updatedUser ? true : false
 }

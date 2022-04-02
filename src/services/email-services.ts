@@ -4,6 +4,7 @@ import { myEmail, yourEmail, emailPSW } from '../env-variables'
 import { getUsersNotAuthService } from './user-services'
 import { getAllHouseholdsService } from './territory-services'
 import { EmailDb } from '../services-db/emailDbConnection'
+import { generalError } from './log-services'
 import { noPredicado, typeHousehold } from '../models/household'
 import { typeUser } from '../models/user'
 
@@ -37,13 +38,13 @@ export const sendEmailRecoverAccount = async (email: string, id: string): Promis
         const error = sent.rejected
         if (error.length) {
             console.log("Email recovery account could not be send:", response, error)
-            logger.Add(`Falló sendEmailRecoverAccount() 1 ${email}: ${error}`, "error")
+            logger.Add(`Falló sendEmailRecoverAccount() 1 ${email}: ${error}`, generalError)
             return false
         }
         console.log('Email recovery account was sent: ' + response)
         return true
     } catch (error) {
-        logger.Add(`Falló sendEmailRecoverAccount() 2 ${email}: ${error}`, "error")
+        logger.Add(`Falló sendEmailRecoverAccount() 2 ${email}: ${error}`, generalError)
         return false
     }
 }
@@ -66,14 +67,14 @@ export const sendEmailNewPsw = async (email: string, newPsw: string): Promise<bo
         const error = sent.rejected
         if (error.length) {
             console.log("Email new psw could not send:", response, error)
-            logger.Add(`Falló sendEmailRecoverAccount() 1 ${email}: ${error}`, "error")
+            logger.Add(`Falló sendEmailRecoverAccount() 1 ${email}: ${error}`, generalError)
             return false
         }
         //console.log(response)
         return true
     } catch (error) {
         console.log(error)
-        logger.Add(`Falló sendEmailRecoverAccount() 2 ${email}: ${error}`, "error")
+        logger.Add(`Falló sendEmailRecoverAccount() 2 ${email}: ${error}`, generalError)
         return false
     }
 }
@@ -83,7 +84,7 @@ export const checkAlert = async (): Promise<void> => {
     const timestampRightNow = + new Date()
     const lastEmailTime: number|null = await emailDbConnection.GetEmailLastTime()
     if (!lastEmailTime) {
-        logger.Add("No se pudo recuperar último email de territorios llenos enviado", "error")
+        logger.Add("No se pudo recuperar último email de territorios llenos enviado", generalError)
         return
     }
     console.log(`Timestamp last email: ${lastEmailTime}; difference: ${timestampRightNow - lastEmailTime}, ${Math.floor((timestampRightNow-lastEmailTime)/1000/60/60)} hours`);
@@ -152,7 +153,7 @@ const sendEmail = (territories: string[]): void => {
     }).sendMail(mailOptions, async (error, info) => {
         if (error) {
             console.log("Email could not send:", error)
-            logger.Add(`Falló sendEmail(): ${error}`, "error")
+            logger.Add(`Falló sendEmail(): ${error}`, generalError)
             return
         }
         console.log('Email sent: ' + info.response)
@@ -162,5 +163,5 @@ const sendEmail = (territories: string[]): void => {
 
 const updateLastEmail = async (): Promise<void> => {
     const response: boolean = await emailDbConnection.UpdateLastEmail()
-    if (!response) return console.log("Update Last Email failed...")
+    if (!response) logger.Add(`Falló updateLastEmail()`, generalError)
 }

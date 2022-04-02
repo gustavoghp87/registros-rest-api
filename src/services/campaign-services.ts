@@ -2,6 +2,7 @@ import { typeCampaignPack } from '../models/campaign'
 import { typeUser } from '../models/user'
 import { logger } from '../server'
 import { CampaignDb } from '../services-db/campaignDbConnection'
+import { campaignAssignment, campaignFinishing } from './log-services'
 import { getActivatedAdminByAccessTokenService, getActivatedUserByAccessTokenService } from './user-services'
 
 const campaignDbConnection: CampaignDb = new CampaignDb()
@@ -51,7 +52,7 @@ const checkIfTerritoryIsFinishedService = async (id: number, user: typeUser|null
     const pack: typeCampaignPack|null = await campaignDbConnection.GetCampaignPackById(id)
     if (pack && pack.llamados && pack.llamados.length === 50) {
         const success: boolean = await campaignDbConnection.CloseCampaignPack(id)
-        if (success) logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user?.email} terminó el paquete ${id}`, "campaignFinishing")
+        if (success) logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user?.email} terminó el paquete ${id}`, campaignFinishing)
     }
 }
 
@@ -64,7 +65,7 @@ export const closeCampaignPackService = async (token: string, id: number): Promi
     if (!pack.accessible && (!user || (pack.asignado !== user.email && user.role !== 1))) return false    //checks this user is auth to edit this pack
     const success: boolean = await campaignDbConnection.CloseCampaignPack(id)
     if (!user) user = { role: 0, email: "anónimo por accesibilidad", estado: false, group: 0 }
-    if (success) logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user?.email} marcó como terminado el paquete ${id}`, "campaignFinishing")
+    if (success) logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user?.email} marcó como terminado el paquete ${id}`, campaignFinishing)
     return success
 }
 
@@ -78,7 +79,7 @@ export const assignCampaignPackService = async (token: string, idString: string,
     const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
     if (!user || !token || !id || !email) return false
     const success: boolean = await campaignDbConnection.AssignCampaignPackByEmail(id, email)
-    if (success) logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} asignó el paquete ${id} a ${email}`, "campaignAssignment")
+    if (success) logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} asignó el paquete ${id} a ${email}`, campaignAssignment)
     return success
 }
 
@@ -86,7 +87,7 @@ export const askForANewCampaignPackService = async (token: string): Promise<bool
     const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
     if (!user) return false
     const id: number|null = await campaignDbConnection.AskForANewCampaignPack(user.email)
-    if (id) logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} recibió el paquete ${id} por solicitud automática`, "campaignAssignment")
+    if (id) logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} recibió el paquete ${id} por solicitud automática`, campaignAssignment)
     return id ? true : false
 }
 
@@ -96,8 +97,8 @@ export const enableAccesibilityModeService = async (token: string, id: number, a
     accessible = !accessible ? false : true
     const success: boolean = await campaignDbConnection.ChangeAccesibilityMode(id, accessible)
     if (success)
-        logger.Add(`Admin ${user.email} ${accessible ? "habilitó" : "deshabilitó"} el modo de accesibilidad para el paquete ${id} ${accessible}`, "campaignAssignment")
+        logger.Add(`Admin ${user.email} ${accessible ? "habilitó" : "deshabilitó"} el modo de accesibilidad para el paquete ${id} ${accessible}`, campaignAssignment)
     else
-        logger.Add(`Admin ${user.email} no pudo habilitar el modo de accesibilidad para el paquete ${id} ${accessible}`, "campaignAssignment")
+        logger.Add(`Admin ${user.email} no pudo habilitar el modo de accesibilidad para el paquete ${id} ${accessible}`, campaignAssignment)
     return id ? true : false
 }

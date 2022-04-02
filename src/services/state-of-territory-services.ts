@@ -1,6 +1,7 @@
 import { logger } from '../server'
 import { StateOfTerritoryDb } from '../services-db/stateOfTerritoryDbConnection'
 import { deallocateMyTerritoryService, getActivatedAdminByAccessTokenService, getActivatedUserByAccessTokenService } from './user-services'
+import { stateOfTerritoryChange } from './log-services'
 import { stateOfTerritory } from '../models/stateOfTerritory'
 import { typeUser } from '../models/user'
 
@@ -27,11 +28,11 @@ export const changeStateOfTerritoryService = async (token: string, territory: st
     if (!user || !territory || typeof isFinished !== 'boolean') return false
     let success: boolean = await stateOfTerritoryDbConnection.ChangeStateOfTerritory(territory, isFinished)
     if (success) {
-        logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cambia territorio ${territory} a ${isFinished ? 'terminado' : 'abierto'}`, "stateOfTerritoryChange")
+        logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cambia territorio ${territory} a ${isFinished ? 'terminado' : 'abierto'}`, stateOfTerritoryChange)
         // if I am not an Admin
         if (user.role !== 1) await deallocateMyTerritoryService(token, territory)
     } else
-        logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} no pudo cambiar territorio ${territory} a ${isFinished ? 'terminado' : 'abierto'}`, "stateOfTerritoryChange")
+        logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} no pudo cambiar territorio ${territory} a ${isFinished ? 'terminado' : 'abierto'}`, stateOfTerritoryChange)
     return success
 }
 

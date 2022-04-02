@@ -42,7 +42,7 @@ export const checkRecaptchaTokenService = async (recaptchaToken: string): Promis
         return true
     } catch (error) {
         console.log(error)
-        logger.Add(`Falló checkRecaptchaTokenService(): ${error}`, "error")
+        logger.Add(`Falló checkRecaptchaTokenService(): ${error}`, 'error')
         return false
     }
 }
@@ -75,7 +75,7 @@ export const generateAccessTokenService = (user: typeUser, tokenId: number): str
         if (newToken) logger.Add(`Se logueó el usuario ${user.email}`, "login")
         return newToken
     } catch (error) {
-        logger.Add(`Falló generateAccessTokenService() ${user.email} ${tokenId}`, "error")
+        logger.Add(`Falló generateAccessTokenService() ${user.email} ${tokenId}`, 'error')
         return null
     }
 }
@@ -100,7 +100,7 @@ const getUserByAccessToken = async (token: string): Promise<typeUser|null> => {
         decoded = jwt.verify(token, string_jwt) as decodedObject
     } catch (error) {
         console.log(error)
-        logger.Add(`Falló retrieveUserIdByAccessToken(): ${error}`, "error")
+        logger.Add(`Falló retrieveUserIdByAccessToken(): ${error}`, 'error')
         return null
     }
     const userId: string|null = decoded && decoded.iat && decoded.exp && decoded.iat < timeNow && decoded.exp > timeNow ? decoded?.userId : null
@@ -119,7 +119,7 @@ const generatePasswordHash = async (password: string): Promise<string|null> => {
         return passwordHash
     } catch (error) {
         console.log(error)
-        logger.Add(`Falló generatePasswordHash(): ${error}`, "error")
+        logger.Add(`Falló generatePasswordHash(): ${error}`, 'error')
         return null
     }
 }
@@ -130,7 +130,7 @@ export const comparePasswordsService = async (password0: string, password1: stri
         return success
     } catch (error) {
         console.log(error)
-        logger.Add(`Falló comparePasswordsService(): ${error}`, "error")
+        logger.Add(`Falló comparePasswordsService(): ${error}`, 'error')
         return false
     }
 }
@@ -262,7 +262,7 @@ export const deallocateMyTerritoryService = async (token: string, territory: str
         territoryNumber = parseInt(territory)
     } catch (error) {
        console.log(error)
-       logger.Add(`Falló deallocateMyTerritoryService(): ${error}`, "error")
+       logger.Add(`Falló deallocateMyTerritoryService(): ${error}`, 'error')
        return false
     }
     const updatedUser: typeUser|null = await userDbConnection.AssignTerritory(user._id.toString(), 0, territoryNumber, false)

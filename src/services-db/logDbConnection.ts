@@ -9,7 +9,6 @@ export class LogDb {
             const isAlreadySaved: boolean = collection !== 'TerritoryChangeLogs' && await this.IsAlreadySaved(log, collection)
             if (isAlreadySaved) {
                 console.log("Se evitó un repetido")
-                logger.Add("Se evitó un repetido: " + log.logText, 'app')
                 return true
             }
             await dbClient.Client.db(dbClient.DbMWLogs).collection(collection).insertOne(log)
@@ -82,14 +81,14 @@ export class LogDb {
                 }
             }).toArray() as typeLogObj[]
 
-            if (!logObjs || !logObjs.length) return false
-
-            logObjs.forEach((logObj0: typeLogObj) => {
-                if (logObj0 && log.timestamp - logObj0.timestamp < 200) {
-                    logger.Add("Se evitó un duplicado por regex: " + log.logText, 'error')
-                    return true
-                }
-            })
+            if (logObjs && logObjs.length) {
+                logObjs.forEach((logObj0: typeLogObj) => {
+                    if (logObj0 && log.timestamp - logObj0.timestamp < 200) {
+                        logger.Add("Se evitó un duplicado por regex: " + log.logText, 'error')
+                        return true
+                    }
+                })
+            }
 
             return false
 

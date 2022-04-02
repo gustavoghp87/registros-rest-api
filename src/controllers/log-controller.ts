@@ -7,7 +7,7 @@ export const router = express.Router()
 
     // get all logs
     .get('/', async (req: Request, res: Response) => {
-        const token: string = req.header('authorization') || ""
+        const token: string = req.header('Authorization') || ""
         const logsObject: typeLogsObj|null = await logger.GetAll(token)
         if (!logsObject) return res.json({ success: false })
         res.json({ success: true, logsObject })

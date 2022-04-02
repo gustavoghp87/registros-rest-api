@@ -7,7 +7,7 @@ export const router = express.Router()
 
     // get the number of free phone numbers
     .get('/free/:territory', async (req: Request, res: Response) => {
-        const token: string = req.header('authorization') || ""
+        const token: string = req.header('Authorization') || ""
         const territory: string = req.params.territory
         const numberOfFreePhones: number|null = await statisticServices.getNumberOfFreePhonesService(token, territory)
         res.json({ success: numberOfFreePhones !== null, numberOfFreePhones })
@@ -15,7 +15,7 @@ export const router = express.Router()
 
     // get local statistics
     .get('/:territory', async (req: Request, res: Response) => {
-        const token: string = req.header('authorization') || ""
+        const token: string = req.header('Authorization') || ""
         const territory: string = req.params.territory
         const localStatistic: localStatistic|null = await statisticServices.getLocalStatisticsService(token, territory)
         res.json({ success: localStatistic !== null, localStatistic })
@@ -23,14 +23,14 @@ export const router = express.Router()
 
     // get local statistics for all territories
     .get('/', async (req: Request, res: Response) => {
-        const token: string = req.header('authorization') || ""
+        const token: string = req.header('Authorization') || ""
         const localStatistics: localStatistic[]|null = await statisticServices.getAllLocalStatisticsService(token)
         res.json({ success: localStatistics !== null, localStatistics })
     })
 
     // get global statistics
     .post('/', async (req: Request, res: Response) => {
-        const token: string = req.header('authorization') || ""
+        const token: string = req.header('Authorization') || ""
         const statistic: statistic|null = await statisticServices.getGlobalStatisticsService(token)
         res.json({ success: statistic !== null, statistic })
     })

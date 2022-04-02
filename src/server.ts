@@ -15,9 +15,8 @@ import { DbConnection } from './services-db/_dbConnection'
 import { socketConnection } from './services/broadcast-services'
 import { Logger } from './services/log-services'
 
-export let testingDb: boolean = true
 export const isProduction: boolean = NODE_ENV !== "dev"
-if (isProduction) testingDb = false
+export const testingDb: boolean = !isProduction
 export const accessTokensExpiresIn: string = '2160h'  // 90 days
 export const domain: string = "https://www.misericordiaweb.com"
 export const testingDomain: string = "http://localhost:3000"
@@ -25,8 +24,7 @@ export const dbClient: DbConnection = new DbConnection(testingDb)
 export const logger: Logger = new Logger()
 
 const app = express()
-if (isProduction) app.use(cors({ origin: [`${domain}`] }))
-else app.use(cors({ origin: [`${domain}`, `${testingDomain}`] }))
+app.use(cors({ origin: isProduction ? [domain] : [domain, testingDomain] }))
 app.use(express.json() as RequestHandler)
 app.use(express.urlencoded({ extended: false }) as RequestHandler)
 app.use(morgan('dev') as RequestHandler)

@@ -7,7 +7,7 @@ export const router = express.Router()
 
     // get blocks
     .get('/blocks/:territory', async (req: Request, res: Response) => {
-        const token: string = req.header('authorization') || ""
+        const token: string = req.header('Authorization') || ""
         const territory: string = req.params.territory
         const blocks: string[]|null = await territoryServices.getBlocksService(token, territory)
         res.json({ success: blocks !== null, blocks })
@@ -15,7 +15,7 @@ export const router = express.Router()
 
     // get households
     .post('/', async (req: Request, res: Response) => {
-        const token: string = req.header('authorization') || ""
+        const token: string = req.header('Authorization') || ""
         const { territory, manzana, aTraer, traerTodos } = req.body
         const response: [typeHousehold[], boolean] | null =
             await territoryServices.getHouseholdsByTerritoryService(token, territory, manzana, aTraer, traerTodos)
@@ -26,7 +26,7 @@ export const router = express.Router()
 
     // edit household
     .put('/', async (req: Request, res: Response) => {
-        const token: string = req.header('authorization') || ""
+        const token: string = req.header('Authorization') || ""
         const { inner_id, estado, noAbonado, asignado } = req.body
         const household: typeHousehold|null = await territoryServices.modifyHouseholdService(token, inner_id, estado, noAbonado, asignado)
         res.json({ success: household !== null, household })
@@ -34,7 +34,7 @@ export const router = express.Router()
     
     // reset territory
     .delete('/', async (req: Request, res: Response) => {
-        const token: string = req.header('authorization') || ""
+        const token: string = req.header('Authorization') || ""
         const { territory, option } = req.body
         const success: boolean = await territoryServices.resetTerritoryService(token, territory, option)
         res.json({ success })

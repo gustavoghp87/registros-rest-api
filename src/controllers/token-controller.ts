@@ -22,14 +22,14 @@ export const router = express.Router()
 
     // logout all devices
     .delete('/', async (req: Request, res: Response) => {
-        const token: string = req.header('authorization') || ""
+        const token: string = req.header('Authorization') || ""
         const newToken: string|null = await userServices.logoutAllService(token)
         res.json({ success: newToken !== null, newToken })
     })
 
     // change my password
     .put('/', async (req: Request, res: Response) => {
-        const token: string = req.header('authorization') || ""
+        const token: string = req.header('Authorization') || ""
         const { psw, newPsw, id } = req.body
         if (psw && newPsw) {
             // change my psw
@@ -51,7 +51,7 @@ export const router = express.Router()
 
     // change the password of other user by admin
     .patch('/', async (req: Request, res: Response) => {
-        const token: string = req.header('authorization') || ""
+        const token: string = req.header('Authorization') || ""
         const email: string = req.body.email
         const newPassword: string|null = await userServices.changePswOtherUserService(token, email)
         if (!newPassword) return res.json({ success: false })

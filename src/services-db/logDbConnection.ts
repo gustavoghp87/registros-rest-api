@@ -6,9 +6,10 @@ export class LogDb {
 
     async Add(log: typeLogObj, collection: typeCollection): Promise<boolean> {
         try {
-            const isAlreadySaved: boolean = await this.IsAlreadySaved(log, collection)
-            if (collection !== "TerritoryChangeLogs" && isAlreadySaved) {
+            const isAlreadySaved: boolean = collection !== 'TerritoryChangeLogs' && await this.IsAlreadySaved(log, collection)
+            if (isAlreadySaved) {
                 console.log("Se evitó un repetido")
+                logger.Add("Se evitó un repetido: " + log.logText, 'app')
                 return true
             }
             await dbClient.Client.db(dbClient.DbMWLogs).collection(collection).insertOne(log)
@@ -25,7 +26,7 @@ export class LogDb {
             return logs            
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló Get() logs ${collection}: ${error}`, "error")
+            logger.Add(`Falló Get() logs ${collection}: ${error}`, 'error')
             return null
         }
     }
@@ -61,29 +62,31 @@ export class LogDb {
             return logs
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló GetAll() logs: ${error}`, "error")
+            logger.Add(`Falló GetAll() logs: ${error}`, 'error')
             return null
         }
     }
 
     private async IsAlreadySaved(log: typeLogObj, collection: string): Promise<boolean> {
         try {
-            const logObj: typeLogObj = await dbClient.Client.db(dbClient.DbMWLogs).collection(collection).findOne({ logtext: log.logText }) as typeLogObj
-            console.log("Búsqueda:", logObj)
+            const logObj: typeLogObj[] = await dbClient.Client.db(dbClient.DbMWLogs).collection(collection).find({ logText: log.logText })?.toArray() as typeLogObj[]
+
             if (logObj !== null && logObj !== undefined) {
-                logger.Add("Se evitó un duplicado simple: " + log.logText, "error")
+                logger.Add("Se evitó un duplicado simple: " + log.logText, 'error')
                 return true
             }
     
             const logObjs: typeLogObj[] = await dbClient.Client.db(dbClient.DbMWLogs).collection(collection).find({
-                logtext: { $regex: `/.*${log.logText.split(" | ")[1]}.*/` }
+                logText: {
+                    $regex: `/.*${log.logText.split(" | ")[1]}.*/`
+                }
             }).toArray() as typeLogObj[]
 
             if (!logObjs || !logObjs.length) return false
 
             logObjs.forEach((logObj0: typeLogObj) => {
-                if (logObj0 && log.timestamp - logObj0.timestamp < 500) {
-                    logger.Add("Se evitó un duplicado por regex: " + log.logText, "error")
+                if (logObj0 && log.timestamp - logObj0.timestamp < 200) {
+                    logger.Add("Se evitó un duplicado por regex: " + log.logText, 'error')
                     return true
                 }
             })
@@ -91,7 +94,7 @@ export class LogDb {
             return false
 
         } catch (error) {
-            logger.Add(`Falló IsAlreadySaved() ${log.logText}: ${error}`, "error")
+            logger.Add(`Falló IsAlreadySaved() ${log.logText}: ${error}`, 'error')
             return false
         }
 

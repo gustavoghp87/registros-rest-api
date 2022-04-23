@@ -40,7 +40,7 @@ export class LogDb {
             const campaignFinishingLogs: typeLogObj[] = 
                 await dbClient.Client.db(dbClient.DbMWLogs).collection(dbClient.CollCampaignFinishingLogs).find().sort({ timestamp: 'descending' }).toArray() as typeLogObj[]
             const territoryChangeLogs: typeLogObj[] = 
-                await dbClient.Client.db(dbClient.DbMWLogs).collection(dbClient.CollTerritoryChangeLogs).find().sort({ timestamp: 'descending' }).toArray() as typeLogObj[]
+                await dbClient.Client.db(dbClient.DbMWLogs).collection(dbClient.CollTerritoryChangeLogs).find().sort({ timestamp: 'descending' }).limit(100).toArray() as typeLogObj[]
             const stateOfTerritoryChangeLogs: typeLogObj[] = 
                 await dbClient.Client.db(dbClient.DbMWLogs).collection(dbClient.CollStateOfTerritoryChangeLogs).find().sort({ timestamp: 'descending' }).toArray() as typeLogObj[]
             const errorLogs: typeLogObj[] = 
@@ -70,8 +70,7 @@ export class LogDb {
     private async IsAlreadySaved(log: typeLogObj, collection: string): Promise<boolean> {
         try {
             const logObj: typeLogObj[] = await dbClient.Client.db(dbClient.DbMWLogs).collection(collection).find({ logText: log.logText })?.toArray() as typeLogObj[]
-
-            if (logObj !== null && logObj !== undefined) {
+            if (logObj && logObj.length) {
                 console.log("Se evitó un duplicado simple: " + log.logText)
                 return true
             }
@@ -81,7 +80,6 @@ export class LogDb {
                     $regex: `/.*${log.logText.split(" | ")[1]}.*/`
                 }
             }).toArray() as typeLogObj[]
-
             if (logObjs && logObjs.length) {
                 logObjs.forEach((logObj0: typeLogObj) => {
                     if (logObj0 && log.timestamp - logObj0.timestamp < 200) {

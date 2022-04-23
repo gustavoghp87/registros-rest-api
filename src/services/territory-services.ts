@@ -19,16 +19,16 @@ export const resetTerritoryService = async (token: string, territory: string, op
     if (!user || !territory || !option) return false
     let success: boolean = await householdDbConnection.ResetTerritory(territory, option)
     if (success) {
-        logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} reseteó territorio ${territory} con la opción ${option}`, stateOfTerritoryChange)
+        logger.Add(`Admin ${user.email} reseteó territorio ${territory} con la opción ${option}`, stateOfTerritoryChange)
     } else {
         console.log("Something failed in reset territory", territory);
-        logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} no pudo resetear territorio ${territory} opción ${option}`, stateOfTerritoryChange)
+        logger.Add(`Admin ${user.email} no pudo resetear territorio ${territory} opción ${option}`, stateOfTerritoryChange)
         return false
     }
     await changeStateOfTerritoryService(token, territory, false)
     const success1 = await setResetDate(territory, option)
     if (!success1)
-        logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} no pudo setear fecha de reseteo de territorio ${territory} opción ${option}`, stateOfTerritoryChange)
+        logger.Add(`Admin ${user.email} no pudo setear fecha de reseteo de territorio ${territory} opción ${option}`, stateOfTerritoryChange)
     return success
 }
 

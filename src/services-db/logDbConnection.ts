@@ -69,8 +69,8 @@ export class LogDb {
 
     private async IsAlreadySaved(log: typeLogObj, collection: string): Promise<boolean> {
         try {
-            const logObj: typeLogObj[] = await dbClient.Client.db(dbClient.DbMWLogs).collection(collection).find({ logText: log.logText })?.toArray() as typeLogObj[]
-            if (logObj && logObj.length) {
+            const logObj: typeLogObj = await dbClient.Client.db(dbClient.DbMWLogs).collection(collection).findOne({ logText: log.logText }) as typeLogObj
+            if (logObj) {
                 console.log("Se evitó un duplicado simple: " + log.logText)
                 return true
             }

@@ -34,21 +34,21 @@ export class LogDb {
     async GetAll(): Promise<typeLogsObj|null> {
         try {
             const loginLogs: typeLogObj[] =
-                await dbClient.Client.db(dbClient.DbMWLogs).collection(dbClient.CollLoginLogs).find().sort({ timestamp: 'descending' }).toArray() as typeLogObj[]
+                await dbClient.Client.db(dbClient.DbMWLogs).collection(dbClient.CollLoginLogs).find().sort({ timestamp: 'descending' }).limit(100).toArray() as typeLogObj[]
             const campaignAssignmentLogs: typeLogObj[] = 
-                await dbClient.Client.db(dbClient.DbMWLogs).collection(dbClient.CollCampaignAssignmentLogs).find().sort({ timestamp: 'descending' }).toArray() as typeLogObj[]
+                await dbClient.Client.db(dbClient.DbMWLogs).collection(dbClient.CollCampaignAssignmentLogs).find().sort({ timestamp: 'descending' }).limit(100).toArray() as typeLogObj[]
             const campaignFinishingLogs: typeLogObj[] = 
-                await dbClient.Client.db(dbClient.DbMWLogs).collection(dbClient.CollCampaignFinishingLogs).find().sort({ timestamp: 'descending' }).toArray() as typeLogObj[]
+                await dbClient.Client.db(dbClient.DbMWLogs).collection(dbClient.CollCampaignFinishingLogs).find().sort({ timestamp: 'descending' }).limit(100).toArray() as typeLogObj[]
             const territoryChangeLogs: typeLogObj[] = 
                 await dbClient.Client.db(dbClient.DbMWLogs).collection(dbClient.CollTerritoryChangeLogs).find().sort({ timestamp: 'descending' }).limit(100).toArray() as typeLogObj[]
             const stateOfTerritoryChangeLogs: typeLogObj[] = 
-                await dbClient.Client.db(dbClient.DbMWLogs).collection(dbClient.CollStateOfTerritoryChangeLogs).find().sort({ timestamp: 'descending' }).toArray() as typeLogObj[]
+                await dbClient.Client.db(dbClient.DbMWLogs).collection(dbClient.CollStateOfTerritoryChangeLogs).find().sort({ timestamp: 'descending' }).limit(100).toArray() as typeLogObj[]
             const errorLogs: typeLogObj[] = 
-                await dbClient.Client.db(dbClient.DbMWLogs).collection(dbClient.CollErrorLogs).find().sort({ timestamp: 'descending' }).toArray() as typeLogObj[]
+                await dbClient.Client.db(dbClient.DbMWLogs).collection(dbClient.CollErrorLogs).find().sort({ timestamp: 'descending' }).limit(100).toArray() as typeLogObj[]
             const userChangesLogs: typeLogObj[] = 
-                await dbClient.Client.db(dbClient.DbMWLogs).collection(dbClient.CollUserChangesLogs).find().sort({ timestamp: 'descending' }).toArray() as typeLogObj[]
+                await dbClient.Client.db(dbClient.DbMWLogs).collection(dbClient.CollUserChangesLogs).find().sort({ timestamp: 'descending' }).limit(100).toArray() as typeLogObj[]
             const appLogs: typeLogObj[] = 
-                await dbClient.Client.db(dbClient.DbMWLogs).collection(dbClient.CollAppLogs).find().sort({ timestamp: 'descending' }).toArray() as typeLogObj[]
+                await dbClient.Client.db(dbClient.DbMWLogs).collection(dbClient.CollAppLogs).find().sort({ timestamp: 'descending' }).limit(100).toArray() as typeLogObj[]
             const logs: typeLogsObj = {
                 loginLogs,
                 campaignAssignmentLogs,

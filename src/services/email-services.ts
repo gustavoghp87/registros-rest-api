@@ -81,14 +81,14 @@ export const sendEmailNewPsw = async (email: string, newPsw: string): Promise<bo
 
 // checks in db last 24 hs email was sent
 export const checkAlert = async (): Promise<void> => {
-    const timestampRightNow = + new Date()
-    const lastEmailTime: number|null = await emailDbConnection.GetEmailLastTime()
-    if (!lastEmailTime) {
-        logger.Add("No se pudo recuperar último email de territorios llenos enviado", generalError)
-        return
-    }
-    console.log(`Timestamp last email: ${lastEmailTime}; difference: ${timestampRightNow - lastEmailTime}, ${Math.floor((timestampRightNow-lastEmailTime)/1000/60/60)} hours`);
-    if (timestampRightNow - lastEmailTime > 86400000) checkTerritories()    // 24 hs
+    // const timestampRightNow = + new Date()
+    // const lastEmailTime: number|null = await emailDbConnection.GetEmailLastTime()
+    // if (!lastEmailTime) {
+    //     logger.Add("No se pudo recuperar último email de territorios llenos enviado", generalError)
+    //     return
+    // }
+    // console.log(`Timestamp last email: ${lastEmailTime}; difference: ${timestampRightNow - lastEmailTime}, ${Math.floor((timestampRightNow-lastEmailTime)/1000/60/60)} hours`);
+    // if (timestampRightNow - lastEmailTime > 86400000) checkTerritories()    // 24 hs
 }
 
 // get finished and almost finished territories and order email send

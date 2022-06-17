@@ -1,99 +1,77 @@
-import { dbClient } from '../server'
-import { ObjectId } from 'mongodb'
-import { typeHTHBuilding, typeHTHHousehold } from '../models/houseToHouse'
-import { ObjectID } from 'bson'
+import { dbClient, logger } from '../server'
+import { generalError } from '../services/log-services'
+import { typeDoNotCall, typeHTHTerritory, typeObservation } from '../models/houseToHouse'
+import { typeTerritoryNumber } from '../models/household'
 
 export class HouseToHouseDb {
-    async GetBuildingsByTerritory(territory: string): Promise<typeHTHBuilding[]|null> {
+    async GetHTHTerritory(territory: typeTerritoryNumber): Promise<typeHTHTerritory|null> {
         try {
-            const buildings: typeHTHBuilding[] =
-                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollCasa).find({ territory }).toArray() as typeHTHBuilding[]
-            return buildings
+            const hthTerritory: typeHTHTerritory =
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollCasa).findOne({ territory }) as typeHTHTerritory
+            return hthTerritory
         } catch (error) {
             console.log(error)
-            //logger.Add(`Falló GetBuildingsByTerritory() pasando ${territorio} a ${isFinished}: ${error}`, generalError)
+            logger.Add(`Falló GetHTHTerritory() territorio ${territory}`, generalError)
             return null
         }
     }
-
-    async AddBuilding(newHousehold: typeHTHBuilding): Promise<boolean> {
+    async AddHTHDoNotCall(doNotCall: typeDoNotCall, territory: typeTerritoryNumber): Promise<boolean> {
         try {
-            await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollCasa).insertOne(newHousehold as Object)
-            return true
-        } catch (error) {
-            console.log(error)
-            //logger.Add(`Falló AddBuilding() pasando ${territorio} a ${isFinished}: ${error}`, generalError)
-            return false
-        }
-    }
-
-    async GetBuilding(territory: string, street: string, streetNumber: number): Promise<typeHTHBuilding|null> {
-        try {
-            const building: typeHTHBuilding = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollCasa).findOne({
-                territory,
-                street,
-                streetNumber
-            }) as typeHTHBuilding
-            return building
-        } catch (error) {
-            console.log(error)
-            //logger.Add(`Falló GetBuilding() pasando ${territorio} a ${isFinished}: ${error}`, generalError)
-            return null
-        }
-    }
-
-    async ModifyHTHBuilding(building: typeHTHBuilding): Promise<boolean> {
-        console.log(building)
-        
-        try {
-            await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollCasa).updateOne({ _id: new ObjectID(building._id) }, {
-                $set: {
-                    street: building.street,
-                    streetNumber: building.streetNumber,
-                    households: building.households,
-                    pisosX: building.pisosX,
-                    deptosX: building.deptosX,
-                    conLetras: building.conLetras,
-                    numCorrido: building.numCorrido,
-                    sinPB: building.sinPB
-                }
-            })
-            return true
-        } catch (error) {
-            console.log(error)
-            //logger.Add(`Falló ModifyHTHBuilding() pasando ${territorio} a ${isFinished}: ${error}`, generalError)
-            return false
-        }
-    }
-    
-    async ModifyHTHHousehold(household: typeHTHHousehold, buildingId: string): Promise<boolean> {
-        try {
-            household.lastTime = + new Date()
-            const building: typeHTHBuilding|null = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollCasa)
-                .findOne({ _id: new ObjectId(buildingId) }) as typeHTHBuilding
-            if (!building) return false
-            const households: typeHTHHousehold[] = building.households
-            for (let i = 0; i < households.length; i++) {
-                if (households[i].idNumber === household.idNumber) households[i] = household
-            }
-            await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollCasa).updateOne({ _id: new ObjectId(buildingId) },
-                {$set: { households }}
+            if (!doNotCall || !territory) throw new Error("No llegó no tocar o territorio")
+            const result = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollCasa).updateOne(
+                { territory },
+                { $push: { doNotCalls: doNotCall } }
             )
-            
-            // , {
-            //     $set: {
-            //         piso: household.piso,
-            //         depto: household.depto,
-            //         idNumber: household.idNumber,
-            //         estado: household.estado,
-            //         lastTime: household.lastTime
-            //     }
-            // })
-
+            console.log("RESULT:", result)
             return true
         } catch (error) {
             console.log(error)
-            //logger.Add(`Falló ModifyHTHHousehold() pasando ${household} a ${buildingId}: ${error}`, generalError)
+            logger.Add(`Falló AddBuilding() territorio ${territory}: ${error}`, generalError)
+            return false
+        }
+    }
+    async AddHTHObservation(observation: typeObservation, territory: typeTerritoryNumber): Promise<boolean> {
+        try {
+            if (!observation || !territory) throw new Error("No llegó observación o territorio")
+            const result = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollCasa).updateOne(
+                { territory },
+                { $push: { observations: observation } }
+            )
+            console.log("RESULT:", result)
+            return true
+        } catch (error) {
+            console.log(error)
+            logger.Add(`Falló AddBuilding() territorio ${territory}: ${error}`, generalError)
+            return false
+        }
+    }
+    async EditHTHDoNotCall(doNotCalls: typeDoNotCall[], territory: typeTerritoryNumber): Promise<boolean> {
+        try {
+            if (!doNotCalls || !doNotCalls.length || !territory) throw new Error("No llegaron no tocar o territorio")
+            const result = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollCasa).updateOne(
+                { territory },
+                { $set: { doNotCalls } }
+            )
+            console.log("RESULT:", result)
+            return true
+        } catch (error) {
+            console.log(error)
+            logger.Add(`Falló EditHTHDoNotCall() territorio ${territory}: ${error}`, generalError)
+            return false
+        }
+    }
+    async EditHTHObservation(observations: typeObservation[], territory: typeTerritoryNumber): Promise<boolean> {
+        try {
+            if (!observations || !observations.length || !territory) throw new Error("No llegaron observaciones o territorio")
+            const result = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollCasa).updateOne(
+                { territory },
+                { $set: { observations } }
+            )
+            console.log("RESULT:", result)
+            return true
+        } catch (error) {
+            console.log(error)
+            logger.Add(`Falló EditHTHObservation() territorio ${territory}: ${error}`, generalError)
             return false
         }
     }

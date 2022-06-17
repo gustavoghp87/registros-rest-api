@@ -1,89 +1,90 @@
 import { HouseToHouseDb } from '../services-db/houseToHouseDbConnection'
 import { getTerritoryStreetsService } from './territory-services'
-import { getActivatedUserByAccessTokenService } from './user-services'
-import { noPredicadoHTH, typeHTHBuilding, typeHTHHousehold } from '../models/houseToHouse'
+import { getActivatedAdminByAccessTokenService, getActivatedUserByAccessTokenService } from './user-services'
+import { typeDoNotCall, typeHTHTerritory, typeObservation } from '../models/houseToHouse'
 import { typeUser } from '../models/user'
+import { typeTerritoryNumber } from '../models/household'
 
 const houseToHouseDbConnection = new HouseToHouseDb()
 
-export const getHTHBuildingsService = async (token: string, territory: string): Promise<typeHTHBuilding[]|null> => {
+export const getHTHTerritoryService = async (token: string, territory: typeTerritoryNumber): Promise<typeHTHTerritory|null> => {
     const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
     if (!user) return null
-    if (user.email !== 'ghp.2120@gmail.com') return null
-    const buildings: typeHTHBuilding[]|null = await houseToHouseDbConnection.GetBuildingsByTerritory(territory)
-    return buildings
+    const hthTerritory: typeHTHTerritory|null = await houseToHouseDbConnection.GetHTHTerritory(territory)
+    return hthTerritory
 }
 
-export const addHTHBuildingService = async (token: string, body: any): Promise<typeHTHBuilding[]|null|object> => {
+export const getHTHStreetsByTerritoryService = async (token: string, territory: typeTerritoryNumber) => {
     const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
     if (!user) return null
-    if (user.email !== 'ghp.2120@gmail.com') return null
-
-    const conLetras: boolean = body.conLetras
-    const deptosX: number = body.deptosX
-    const households: typeHTHHousehold[] = body.households
-    const numCorrido: boolean = body.numCorrido
-    const pisosX: number = body.pisosX
-    const sinPB: boolean = body.sinPB
-    const street: string = body.street
-    const streetNumber: number = body.streetNumber
-    const territory: string = body.territory
-
-    if (conLetras === undefined || !deptosX || !households || !households.length || numCorrido === undefined
-    || !pisosX || sinPB === undefined || !street || !streetNumber || !territory) return null
-    
-    const building: typeHTHBuilding|null = await houseToHouseDbConnection.GetBuilding(territory, street, streetNumber)
-    if (building) return { exists: true }
-        
-    const newBuilding: typeHTHBuilding = {
-        territory,
-        street,
-        streetNumber,
-        manzana: '9',
-        households: [],
-        pisosX,
-        deptosX,
-        conLetras,
-        numCorrido,
-        sinPB
-    }
-
-    households.forEach((household: typeHTHHousehold) => {
-        if (household.isChecked) {
-            household.estado = noPredicadoHTH
-            household.lastTime = 0
-            newBuilding.households.push(household)
-        }
-    })
-    if (!newBuilding.households.length) return null
-    const success: boolean = await houseToHouseDbConnection.AddBuilding(newBuilding)
-    if (!success) return null
-    const buildings: typeHTHBuilding[]|null = await houseToHouseDbConnection.GetBuildingsByTerritory(territory)
-    return buildings
-}
-
-export const modifyHTHBuildingService = async (token: string, building: typeHTHBuilding): Promise<boolean> => {
-    const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
-    if (!user) return false
-    if (user.email !== 'ghp.2120@gmail.com') return false
-    //if (typeof building !== typeHTHBuilding) return false
-    const success: boolean = await houseToHouseDbConnection.ModifyHTHBuilding(building)
-    return success
-}
-
-export const modifyHTHHouseholdStateService = async (token: string, household: typeHTHHousehold, buildingId: string): Promise<boolean> => {
-    const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
-    if (!user) return false
-    if (user.email !== 'ghp.2120@gmail.com') return false
-    if (!household.estado || !household.piso || !household.depto || !household.idNumber || !buildingId) return false
-    const success: boolean = await houseToHouseDbConnection.ModifyHTHHousehold(household, buildingId)
-    return success
-}
-
-export const getHTHTerritoryStreetsService = async (token: string, territory: string): Promise<string[]|null> => {
-    const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
-    if (!user || !territory) return null
-    if (user.email !== 'ghp.2120@gmail.com') return null
     const streets: string[]|null = await getTerritoryStreetsService(territory)
     return streets
+}
+
+export const addHTHDoNotCallService = async (token: string, doNotCall: typeDoNotCall, territory: typeTerritoryNumber): Promise<boolean> => {
+    const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
+    if (!user) return false
+    if (!doNotCall || !doNotCall.date || !doNotCall.id || !doNotCall.street || !doNotCall.block || !doNotCall.face || !doNotCall.streetNumber) return false
+    const success: boolean = await houseToHouseDbConnection.AddHTHDoNotCall(doNotCall, territory)
+    return success
+}
+
+export const addHTHObservationService = async (token: string, observation: typeObservation, territory: typeTerritoryNumber): Promise<boolean> => {
+    const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
+    if (!user) return false
+    if (!observation || !observation.date || !observation.id || !observation.street || !observation.text) return false
+    const success: boolean = await houseToHouseDbConnection.AddHTHObservation(observation, territory)
+    return success
+}
+
+export const deleteHTHDoNotCallService = async (token: string, doNotCallId: number, territory: typeTerritoryNumber): Promise<boolean> => {
+    const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
+    if (!user) return false
+    const hthTerritory: typeHTHTerritory|null = await houseToHouseDbConnection.GetHTHTerritory(territory)
+    if (!hthTerritory) return false
+    let doNotCalls: typeDoNotCall[] = hthTerritory.doNotCalls
+    if (!doNotCalls || !doNotCalls.length) return false
+    doNotCalls = doNotCalls.filter(currentDoNotCall => currentDoNotCall.id !== doNotCallId)
+    const success: boolean = await houseToHouseDbConnection.EditHTHDoNotCall(doNotCalls, territory)
+    return success
+}
+
+export const deleteHTHObservationService = async (token: string, observationId: number, territory: typeTerritoryNumber): Promise<boolean> => {
+    const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
+    if (!user) return false
+    const hthTerritory: typeHTHTerritory|null = await houseToHouseDbConnection.GetHTHTerritory(territory)
+    if (!hthTerritory) return false
+    let observations: typeObservation[] = hthTerritory.observations
+    if (!observations || !observations.length) return false
+    observations = observations.filter((observation: typeObservation) => observation.id !== observationId)
+    const success: boolean = await houseToHouseDbConnection.EditHTHObservation(observations, territory)
+    return success
+}
+
+export const editHTHDoNotCallService = async (token: string, doNotCall: typeDoNotCall, territory: typeTerritoryNumber): Promise<boolean> => {
+    const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
+    if (!user) return false
+    const hthTerritory: typeHTHTerritory|null = await houseToHouseDbConnection.GetHTHTerritory(territory)
+    if (!hthTerritory) return false
+    let doNotCalls: typeDoNotCall[] = hthTerritory.doNotCalls
+    if (!doNotCalls || !doNotCalls.length) return false
+    doNotCalls = doNotCalls.map((currentDoNotCall: typeDoNotCall) => 
+        currentDoNotCall.id === doNotCall.id ? { ...doNotCalls, ...currentDoNotCall } : currentDoNotCall
+    )
+    const success: boolean = await houseToHouseDbConnection.EditHTHDoNotCall(doNotCalls, territory)
+    return success
+}
+
+export const editHTHObservationService = async (token: string, observation: typeObservation, territory: typeTerritoryNumber): Promise<boolean> => {
+    const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
+    if (!user) return false
+    const hthTerritory: typeHTHTerritory|null = await houseToHouseDbConnection.GetHTHTerritory(territory)
+    if (!hthTerritory) return false
+    let observations: typeObservation[] = hthTerritory.observations
+    if (!observations || !observations.length) return false
+    observations = observations.map((currentObservations: typeObservation) => 
+        currentObservations.id === observation.id ? { ...observations, ...currentObservations } : currentObservations
+    )
+    const success: boolean = await houseToHouseDbConnection.EditHTHObservation(observations, territory)
+    return success
 }

@@ -105,8 +105,8 @@ const isHouseholdAssignedToUser = async (user: typeUser, inner_id: string): Prom
     }
 }
 
-export const getTerritoryStreetsService = async (territory: string): Promise<string[]|null> => {
-    // without permission filter / all users
+export const getTerritoryStreetsService = async (territory: types.typeTerritoryNumber): Promise<string[]|null> => {
+    // without permission filter / used by hth services
     const households: types.typeHousehold[]|null = await householdDbConnection.GetTerritory(territory)
     const payload: string[] = []
     if (!households || !households.length) return null

@@ -1,29 +1,30 @@
-import { typeBlock } from "./household"
+import { typeBlock, typeTerritoryNumber } from "./household"
 import { ObjectId } from 'mongodb'
 
-type typeEstadoHTH = "No predicado" | "No contestó" | "Contestó" | "No tocar" | "Carta dejada"
+export type typeFace = 'A' | 'B' | 'C' | 'D' | 'E' | 'F'
 
-export const noPredicadoHTH: typeEstadoHTH = "No predicado"
-
-export type typeHTHBuilding = {
+export type typeHTHTerritory = {
     _id?: ObjectId
-    households: typeHTHHousehold[]
-    manzana?: typeBlock           // ?
-    street: string
-    streetNumber: number
-    territory: string
-    pisosX: number
-    deptosX: number
-    conLetras: boolean
-    numCorrido: boolean
-    sinPB: boolean
+    territory: typeTerritoryNumber
+    doNotCalls: typeDoNotCall[]
+    observations: typeObservation[]
 }
 
-export type typeHTHHousehold = {
-    isChecked: boolean         // provisional
-    piso: string
-    depto: string
-    idNumber: number
-    estado: typeEstadoHTH
-    lastTime: number
+export type typeDoNotCall = {
+    block: typeBlock
+    date: string
+    doorBell: string
+    face: typeFace
+    id: number
+    street: string
+    streetNumber: number
+}
+
+export type typeObservation = {
+    block: typeBlock | ''
+    date: string
+    face: typeFace | ''
+    id: number
+    street: string
+    text: string
 }

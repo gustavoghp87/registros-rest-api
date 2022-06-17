@@ -1,52 +1,81 @@
 import express from 'express'
-import * as hTHServices from '../services/house-to-house-services'
-import { typeHTHBuilding, typeHTHHousehold } from '../models/houseToHouse'
 import { Request, Response } from 'express'
+import * as hTHServices from '../services/house-to-house-services'
+import { getHTHStreetsByTerritoryService } from '../services/house-to-house-services'
+import { typeDoNotCall, typeHTHTerritory, typeObservation } from '../models/houseToHouse'
+import { typeTerritoryNumber } from '../models/household'
 
 export const router = express.Router()
 
-    // get HTH households by territory
+    // get hth territory
     .get('/:territory', async (req: Request, res: Response) => {
         const token: string = req.header('Authorization') || ""
-        const territory: string = req.params.territory
-        const buildings: typeHTHBuilding[]|null = await hTHServices.getHTHBuildingsService(token, territory)
-        if (!buildings) return res.json({ success: false })
-        res.json({ success: true, hthTerritory: buildings })
+        const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
+        const hthTerritory: typeHTHTerritory|null = await hTHServices.getHTHTerritoryService(token, territory)
+        if (!hthTerritory) return res.json({ success: false })
+        res.json({ success: true, hthTerritory })
     })
 
-    // add HTH building
-    .post('/', async (req: Request, res: Response) => {
+    // get territory streets
+    .get('/street/:territory', async (req: Request, res: Response) => {
         const token: string = req.header('Authorization') || ""
-        const building: typeHTHBuilding = req.body.building
-        const buildings: typeHTHBuilding[]|null|any = await hTHServices.addHTHBuildingService(token, building)
-        if (!buildings) return res.json({ success: false })
-        if (buildings.exists) return res.json({ success: false, exists: true })
-        res.json({ success: true, hthTerritory: buildings })
-    })
-
-    // edit HTH household
-    .patch('/', async (req: Request, res: Response) => {
-        const token: string = req.header('Authorization') || ""
-        const household: typeHTHHousehold = req.body.household
-        const buildingId: string = req.body.buildingId
-        const success: boolean = await hTHServices.modifyHTHHouseholdStateService(token, household, buildingId)
-        res.json({ success })
-    })
-
-    // edit HTH building
-    .put('/', async (req: Request, res: Response) => {
-        const token: string = req.header('Authorization') || ""
-        const building: typeHTHBuilding = req.body.building
-        const success: boolean = await hTHServices.modifyHTHBuildingService(token, building)
-        res.json({ success })
-    })
-
-    // get street names by territory
-    .get('/streets/:territory', async (req: Request, res: Response) => {
-        const token: string = req.header('Authorization') || ""
-        const territory: string = req.params.territory
-        const streets: string[]|null = await hTHServices.getHTHTerritoryStreetsService(token, territory)
-        if (!streets) return res.json({ success: false })
+        const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
+        const streets: string[]|null = await getHTHStreetsByTerritoryService(token, territory)
+        if (!streets || !streets.length) return res.json({ success: false })
         res.json({ success: true, streets })
+    })
+
+    // add do not call
+    .post('/do-not-call/:territory', async (req: Request, res: Response) => {
+        const token: string = req.header('Authorization') || ""
+        const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
+        const doNotCall: typeDoNotCall = req.body.doNotCall as typeDoNotCall
+        const success: boolean = await hTHServices.addHTHDoNotCallService(token, doNotCall, territory)
+        res.json({ success })
+    })
+
+    // add observation
+    .post('/observation/:territory', async (req: Request, res: Response) => {
+        const token: string = req.header('Authorization') || ""
+        const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
+        const observation: typeObservation = req.body.observation as typeObservation
+        const success: boolean = await hTHServices.addHTHObservationService(token, observation, territory)
+        res.json({ success })
+    })
+
+    // delete do not call
+    .delete('/do-not-call/:territory', async (req: Request, res: Response) => {
+        const token: string = req.header('Authorization') || ""
+        const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
+        const doNotCallId: number = req.body.doNotCallId as number
+        const success: boolean = await hTHServices.deleteHTHDoNotCallService(token, doNotCallId, territory)
+        res.json({ success })
+    })
+
+    // delete observation
+    .delete('/observation/:territory', async (req: Request, res: Response) => {
+        const token: string = req.header('Authorization') || ""
+        const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
+        const observationId: number = req.body.observationId as number
+        const success: boolean = await hTHServices.deleteHTHObservationService(token, observationId, territory)
+        res.json({ success })
+    })
+
+    // update do not call
+    .patch('/do-not-call/:territory', async (req: Request, res: Response) => {
+        const token: string = req.header('Authorization') || ""
+        const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
+        const doNotCall: typeDoNotCall = req.body.doNotCall as typeDoNotCall
+        const success: boolean = await hTHServices.editHTHDoNotCallService(token, doNotCall, territory)
+        res.json({ success })
+    })
+
+    // update observation
+    .patch('/observation/:territory', async (req: Request, res: Response) => {
+        const token: string = req.header('Authorization') || ""
+        const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
+        const observation: typeObservation = req.body.observation as typeObservation
+        const success: boolean = await hTHServices.editHTHObservationService(token, observation, territory)
+        res.json({ success })
     })
 ;

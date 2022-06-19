@@ -32,7 +32,7 @@ export const addHTHDoNotCallService = async (token: string, doNotCall: typeDoNot
 export const addHTHObservationService = async (token: string, observation: typeObservation, territory: typeTerritoryNumber): Promise<boolean> => {
     const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
     if (!user) return false
-    if (!observation || !observation.date || !observation.id || !observation.street || !observation.text) return false
+    if (!observation || !observation.date || !observation.id || !observation.text) return false
     const success: boolean = await houseToHouseDbConnection.AddHTHObservation(observation, territory)
     return success
 }

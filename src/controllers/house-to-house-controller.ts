@@ -2,8 +2,8 @@ import express from 'express'
 import { Request, Response } from 'express'
 import * as hTHServices from '../services/house-to-house-services'
 import { getHTHStreetsByTerritoryService } from '../services/house-to-house-services'
-import { typeDoNotCall, typeHTHTerritory, typeObservation } from '../models/houseToHouse'
-import { typeTerritoryNumber } from '../models/household'
+import { typeDoNotCall, typeFace, typeHTHTerritory, typeObservation } from '../models/houseToHouse'
+import { typeBlock, typeTerritoryNumber } from '../models/household'
 
 export const router = express.Router()
 
@@ -61,14 +61,14 @@ export const router = express.Router()
         res.json({ success })
     })
 
-    // update do not call
-    .patch('/do-not-call/:territory', async (req: Request, res: Response) => {
-        const token: string = req.header('Authorization') || ""
-        const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
-        const doNotCall: typeDoNotCall = req.body.doNotCall as typeDoNotCall
-        const success: boolean = await hTHServices.editHTHDoNotCallService(token, doNotCall, territory)
-        res.json({ success })
-    })
+    // // update do not call
+    // .patch('/do-not-call/:territory', async (req: Request, res: Response) => {
+    //     const token: string = req.header('Authorization') || ""
+    //     const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
+    //     const doNotCall: typeDoNotCall = req.body.doNotCall as typeDoNotCall
+    //     const success: boolean = await hTHServices.editHTHDoNotCallService(token, doNotCall, territory)
+    //     res.json({ success })
+    // })
 
     // update observation
     .patch('/observation/:territory', async (req: Request, res: Response) => {
@@ -76,6 +76,17 @@ export const router = express.Router()
         const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
         const observation: typeObservation = req.body.observation as typeObservation
         const success: boolean = await hTHServices.editHTHObservationService(token, observation, territory)
+        res.json({ success })
+    })
+
+    // update face state
+    .patch('/state/:territory', async (req: Request, res: Response) => {
+        const token: string = req.header('Authorization') || ""
+        const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
+        const isFinish: boolean = req.body.isFinish as boolean
+        const block: typeBlock = req.body.block as typeBlock
+        const face: typeFace = req.body.face as typeFace
+        const success: boolean = await hTHServices.setHTHIsFinishedService(token, isFinish, territory, block, face)
         res.json({ success })
     })
 ;

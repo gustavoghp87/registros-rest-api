@@ -1,4 +1,4 @@
-import { typeBlock, typeTerritoryNumber } from "./household"
+import { typeBlock, typeTerritoryNumber } from './household'
 import { ObjectId } from 'mongodb'
 
 export type typeFace = 'A' | 'B' | 'C' | 'D' | 'E' | 'F'
@@ -6,7 +6,7 @@ export type typeFace = 'A' | 'B' | 'C' | 'D' | 'E' | 'F'
 export type typeHTHTerritory = {
     _id?: ObjectId
     doNotCalls: typeDoNotCall[]
-    isFinished: boolean
+    finished: typeFinishedFace[]
     observations: typeObservation[]
     territory: typeTerritoryNumber
 }
@@ -23,11 +23,16 @@ export type typeDoNotCall = {
 }
 
 export type typeObservation = {
-    block: typeBlock | ''
+    block: typeBlock
     creator: string
     date: string
-    face: typeFace | ''
+    face: typeFace
     id: number
     street: string
     text: string
+}
+
+export type typeFinishedFace = {
+    block: typeBlock
+    face: typeFace
 }

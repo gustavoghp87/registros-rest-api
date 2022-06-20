@@ -3,7 +3,6 @@ import { domain, logger, server, testingDomain } from '../server'
 import { socketError } from './log-services'
 import { typeUser } from '../models/user'
 import { typeHousehold } from '../models/household'
-import { typeHTHBuilding } from '../models/houseToHouse'
 
 type householdChangeObjectPackage = {
     households: typeHousehold[]
@@ -46,9 +45,9 @@ export const socketConnection = (production: boolean): void => {
             socket.emit(userChange, updatedUser)
             socket.broadcast.emit(userChange, updatedUser)
         })
-        socket.on(hthChange, (updatedBuildings: typeHTHBuilding[]) => {
-            socket.emit(hthChange, updatedBuildings)
-            socket.broadcast.emit(hthChange, updatedBuildings)
-        })
+        // socket.on(hthChange, (updatedBuildings: typeHTHBuilding[]) => {
+        //     socket.emit(hthChange, updatedBuildings)
+        //     socket.broadcast.emit(hthChange, updatedBuildings)
+        // })
     })
 }

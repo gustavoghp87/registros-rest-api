@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken'
 import { bcryptSalt, privateKey, string_jwt } from '../env-variables'
 import { UserDb } from '../services-db/userDbConnection'
 import { accessTokensExpiresIn, logger } from '../server'
-import { sendEmailRecoverAccount } from './email-services'
+import { sendEmailRecoverAccount } from './email-services/email-services'
 import { decodedObject, recoveryOption, typeUser } from '../models/user'
 import { generalError, login, territoryChange, userChanges } from './log-services'
 

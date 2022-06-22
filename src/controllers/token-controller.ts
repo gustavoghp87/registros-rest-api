@@ -1,6 +1,6 @@
 import express from 'express'
 import * as userServices from '../services/user-services'
-import { sendEmailNewPsw } from '../services/email-services'
+import { sendEmailNewPsw } from '../services/email-services/email-services'
 import { typeUser } from '../models/user'
 import { Request, Response } from 'express'
 

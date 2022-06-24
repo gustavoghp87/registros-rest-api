@@ -3,14 +3,14 @@ import { yourEmail } from '../../env-variables'
 import { getUsersNotAuthService } from '../user-services'
 import { getAllHouseholdsService } from '../territory-services'
 import { EmailDb } from '../../services-db/emailDbConnection'
-import { generalError } from '../log-services'
+import { emailError, generalError } from '../log-services'
 import { noPredicado, typeHousehold } from '../../models/household'
 import { typeUser } from '../../models/user'
 import { sendEmail } from './send-email-service'
 
 const emailDbConnection: EmailDb = new EmailDb()
 
-export const sendEmailRecoverAccount = async (email: string, id: string): Promise<boolean> => {
+export const sendEmailRecoverAccountService = async (email: string, id: string): Promise<boolean> => {
     const url: string = `${domain}/recovery/${id}`
     const to: string = email
     const subject: string = "Misericordia Web: Recupero de cuenta"
@@ -30,10 +30,11 @@ export const sendEmailRecoverAccount = async (email: string, id: string): Promis
         </p>
     `
     const success: boolean = await sendEmail(to, subject, text, html)
+    if (!success) logger.Add(`No se pudo enviar correo de recuperación de cuenta a ${to}`, emailError)
     return success
 }
 
-export const sendEmailNewPsw = async (email: string, newPsw: string): Promise<boolean> => {
+export const sendEmailNewPswService = async (email: string, newPsw: string): Promise<boolean> => {
     const to: string = email
     const subject: string = "Misericordia Web: Recupero de clave"
     const text: string = "Correo solicitado"
@@ -46,23 +47,23 @@ export const sendEmailNewPsw = async (email: string, newPsw: string): Promise<bo
         </p>
     `
     const success: boolean = await sendEmail(to, subject, text, html)
+    if (!success) logger.Add("No se pudo enviar correo por nueva contraseña", emailError)
     return success
 }
 
-// checks in db last 24 hs email was sent
-export const checkAlert = async (): Promise<void> => {
+export const checkTerritoriesAlertAndSendEmailService = async (): Promise<void> => {
+    
+    // checks in db last 24 hs email was sent
     const timestampRightNow = + new Date()
     const lastEmailTime: number|null = await emailDbConnection.GetEmailLastTime()
     if (!lastEmailTime) {
-        logger.Add("No se pudo recuperar último email de territorios llenos enviado", generalError)
+        logger.Add("No se pudo recuperar último email de territorios llenos enviado", emailError)
         return
     }
     console.log(`Timestamp last email: ${lastEmailTime}; difference: ${timestampRightNow - lastEmailTime}, ${Math.floor((timestampRightNow-lastEmailTime)/1000/60/60)} hours`);
-    if (timestampRightNow - lastEmailTime > 86400000) checkTerritories()    // 24 hs
-}
+    if (timestampRightNow - lastEmailTime < 86400000) return    // 24 hs
 
-// get finished and almost finished territories and order email send
-const checkTerritories = async () => {
+    // get finished and almost finished territories and order email send
     const territories: typeHousehold[]|null = await getAllHouseholdsService()
     if (!territories) return
     const users: typeUser[]|null = await getUsersNotAuthService()
@@ -73,7 +74,6 @@ const checkTerritories = async () => {
         const freeNumbers: number = territories.filter((territory: typeHousehold) =>
             territory.territorio === i.toString() && territory.estado === noPredicado && (territory.noAbonado === false || territory.noAbonado === null))
         .length
-        // console.log(`Territorio ${i}, libres: ${freeNumbers}`)
         if (freeNumbers < 50) {
             let text: string = `Territorio ${i.toString()}`
             let users0: typeUser[]|null = users.filter((user0) => user0.asign?.includes(i))
@@ -93,10 +93,8 @@ const checkTerritories = async () => {
         console.log("There are not almost finished territories")
         return
     }
-    await sendAlertEmail(alert)
-}
 
-const sendAlertEmail = async (territories: string[]): Promise<void> => {
+    // send email
     if (!isProduction) return
     const to: string = yourEmail
     const subject: string = "Misericordia Web: Territorios"
@@ -107,13 +105,15 @@ const sendAlertEmail = async (territories: string[]): Promise<void> => {
             Este correo automático advierte que los siguientes territorios tienen menos de 50 viviendas libres para predicar:
         </p>
         <br/>
-        ${territories.map((territory: string) => `<p>${territory}</p>`)}
+        ${alert.map((territory: string) => `<p>${territory}</p>`)}
     `
     const success: boolean = await sendEmail(to, subject, text, html)
-    if (success) await updateLastEmail()
-}
+    if (!success) {
+        logger.Add(`Falló send email`, emailError)
+        return
+    }
 
-const updateLastEmail = async (): Promise<void> => {
+    // update db
     const response: boolean = await emailDbConnection.UpdateLastEmail()
-    if (!response) logger.Add(`Falló updateLastEmail()`, generalError)
+    if (!response) logger.Add(`Falló update last email in db`, emailError)
 }

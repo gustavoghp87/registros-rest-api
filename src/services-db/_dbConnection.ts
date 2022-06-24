@@ -1,9 +1,9 @@
 import { MongoClient } from 'mongodb'
 import { databaseUrl } from '../env-variables'
 
-export type typeCollection = "usuarios" | "viviendas" | "emailAlert" | "territorios" | "casaEnCasa" | "campaign2022" | "LoginLogs" |
-                             "CampaignAssignmentLogs" | "CampaignFinishingLogs" | "TerritoryChangeLogs" | "StateOfTerritoryChangeLogs" |
-                             "ErrorLogs" | "SocketErrorLogs" | "UserChangesLogs" | "AppLogs"
+export type typeCollection = 'usuarios' | 'viviendas' | 'emailAlert' | 'territorios' | 'casaEnCasa' | 'campaign2022' | 'LoginLogs' |
+                             'CampaignAssignmentLogs' | 'CampaignFinishingLogs' | 'TerritoryChangeLogs' | 'StateOfTerritoryChangeLogs' |
+                             'ErrorLogs' | 'SocketErrorLogs' | 'UserChangesLogs' | 'AppLogs' | 'EmailErrorLogs'
 
 export class DbConnection {
 
@@ -23,6 +23,7 @@ export class DbConnection {
     public CollCampaignFinishingLogs: typeCollection = "CampaignFinishingLogs"
     public CollTerritoryChangeLogs: typeCollection = "TerritoryChangeLogs"
     public CollStateOfTerritoryChangeLogs: typeCollection = "StateOfTerritoryChangeLogs"
+    public CollEmailErrorLogs: typeCollection = "EmailErrorLogs"
     public CollErrorLogs: typeCollection = "ErrorLogs"
     public CollSocketErrorLogs: typeCollection = "SocketErrorLogs"
     public CollUserChangesLogs: typeCollection = "UserChangesLogs"

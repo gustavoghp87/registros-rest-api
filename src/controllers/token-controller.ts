@@ -1,6 +1,6 @@
 import express from 'express'
 import * as userServices from '../services/user-services'
-import { sendEmailNewPsw } from '../services/email-services/email-services'
+import { sendEmailNewPswService } from '../services/email-services/email-services'
 import { typeUser } from '../models/user'
 import { Request, Response } from 'express'
 
@@ -55,7 +55,7 @@ export const router = express.Router()
         const email: string = req.body.email
         const newPassword: string|null = await userServices.changePswOtherUserService(token, email)
         if (!newPassword) return res.json({ success: false })
-        const emailSuccess: boolean = await sendEmailNewPsw(email, newPassword)
+        const emailSuccess: boolean = await sendEmailNewPswService(email, newPassword)
         if (!emailSuccess) return res.json({ success: false, newPassword, emailFailed: true })
         res.json({ success: true, newPassword })
     })

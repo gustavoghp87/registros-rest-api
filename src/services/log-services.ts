@@ -5,12 +5,13 @@ import { typeCollection } from '../services-db/_dbConnection'
 import { typeLogObj, typeLogsObj } from '../models/log'
 import { typeUser } from '../models/user'
 
-type typeLog = 'login' | 'territoryChange' | 'stateOfTerritoryChange' | 'campaignAssignment' | 'campaignFinishing' | 'error' | 'socketError' | 'userChanges' | 'app'
+type typeLog = 'login' | 'territoryChange' | 'stateOfTerritoryChange' | 'campaignAssignment' | 'campaignFinishing' | 'emailError' | 'error' | 'socketError' | 'userChanges' | 'app'
 export const login: typeLog = 'login'
 export const territoryChange: typeLog = 'territoryChange'
 export const stateOfTerritoryChange: typeLog = 'stateOfTerritoryChange'
 export const campaignAssignment: typeLog = 'campaignAssignment'
 export const campaignFinishing: typeLog = 'campaignFinishing'
+export const emailError: typeLog = 'emailError'
 export const generalError: typeLog = 'error'
 export const socketError: typeLog = 'socketError'
 export const userChanges: typeLog = 'userChanges'
@@ -56,7 +57,6 @@ export class Logger {
         const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
         if (!user) return null
         const logs: typeLogsObj|null = await this.LogDbConnection.GetAll()
-        if (logs && logs.territoryChangeLogs.length > 100) logs.territoryChangeLogs = logs.territoryChangeLogs.slice(0, 100)
         return logs
     }
 

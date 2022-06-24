@@ -43,6 +43,8 @@ export class LogDb {
                 await dbClient.Client.db(dbClient.DbMWLogs).collection(dbClient.CollTerritoryChangeLogs).find().sort({ timestamp: 'descending' }).limit(100).toArray() as typeLogObj[]
             const stateOfTerritoryChangeLogs: typeLogObj[] = 
                 await dbClient.Client.db(dbClient.DbMWLogs).collection(dbClient.CollStateOfTerritoryChangeLogs).find().sort({ timestamp: 'descending' }).limit(100).toArray() as typeLogObj[]
+            const emailErrorLogs: typeLogObj[] = 
+                await dbClient.Client.db(dbClient.DbMWLogs).collection(dbClient.CollEmailErrorLogs).find().sort({ timestamp: 'descending' }).limit(100).toArray() as typeLogObj[]
             const errorLogs: typeLogObj[] = 
                 await dbClient.Client.db(dbClient.DbMWLogs).collection(dbClient.CollErrorLogs).find().sort({ timestamp: 'descending' }).limit(100).toArray() as typeLogObj[]
             const userChangesLogs: typeLogObj[] = 
@@ -55,6 +57,7 @@ export class LogDb {
                 campaignFinishingLogs,
                 territoryChangeLogs,
                 stateOfTerritoryChangeLogs,
+                emailErrorLogs,
                 errorLogs,
                 userChangesLogs,
                 appLogs

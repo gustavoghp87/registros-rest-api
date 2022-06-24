@@ -2,7 +2,7 @@ import { HouseholdDb } from '../services-db/householdDbConnection'
 import { logger } from '../server'
 import { changeStateOfTerritoryService, setResetDate } from './state-of-territory-services'
 import { getActivatedAdminByAccessTokenService, getActivatedUserByAccessTokenService } from './user-services'
-import { checkAlert } from './email-services/email-services'
+import { checkTerritoriesAlertAndSendEmailService } from './email-services/email-services'
 import { generalError, stateOfTerritoryChange, territoryChange } from './log-services'
 import * as types from '../models/household'
 import { typeUser } from '../models/user'
@@ -88,7 +88,7 @@ export const modifyHouseholdService = async (token: string,
     const updatedHousehold: types.typeHousehold|null = await householdDbConnection.GetHouseholdById(inner_id)
     if (!updatedHousehold) return null
     logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} modificó una vivienda: territorio ${updatedHousehold.territorio}, vivienda ${updatedHousehold.inner_id}, estado ${updatedHousehold.estado}, no abonado ${updatedHousehold.noAbonado}, asignado ${updatedHousehold.asignado}`, territoryChange)
-    checkAlert()
+    checkTerritoriesAlertAndSendEmailService()
     return updatedHousehold
 }
 

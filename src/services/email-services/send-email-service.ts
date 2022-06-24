@@ -1,9 +1,9 @@
+import MailComposer from 'nodemailer/lib/mail-composer'
 import { GaxiosResponse } from 'gaxios'
 import { gmail_v1, google } from 'googleapis'
-import MailComposer from 'nodemailer/lib/mail-composer'
-import { gmailCredentials, gmailTokens } from '../../env-variables'
 import { logger } from '../../server'
-import { generalError } from '../log-services'
+import { gmailCredentials, gmailTokens } from '../../env-variables'
+import { emailError } from '../log-services'
 
 export const sendEmail = async (to: string, subject: string, text: string, html: string): Promise<boolean> => {
     try {
@@ -17,7 +17,7 @@ export const sendEmail = async (to: string, subject: string, text: string, html:
         const options: any = {
             to,
             //cc: '',
-            //replyTo: 'amit@labnol.org',
+            //replyTo: '',
             subject,
             text,
             html,
@@ -45,11 +45,14 @@ export const sendEmail = async (to: string, subject: string, text: string, html:
                 raw: rawMessage
             }
         })
-        console.log(response)
+        if (!response || response.status !== 200 || response.statusText !== 'OK') {
+            logger.Add(`Falló sendEmail() ${to} "${subject}"`, emailError)
+            return false
+        }
         return true
     } catch (error) {
         console.error(error)
-        logger.Add(`Falló sendEmailRecoverAccount() ${to} "${subject}": ${error}`, generalError)
+        logger.Add(`Falló sendEmail() ${to} "${subject}": ${error}`, emailError)
         return false
     }
 }

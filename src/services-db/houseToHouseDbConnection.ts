@@ -22,7 +22,7 @@ export class HouseToHouseDb {
                 { territory },
                 { $push: { doNotCalls: doNotCall } }
             )
-            console.log("RESULT:", result)
+            // console.log("RESULT:", result)
             return true
         } catch (error) {
             console.log(error)
@@ -37,7 +37,7 @@ export class HouseToHouseDb {
                 { territory },
                 { $push: { observations: observation } }
             )
-            console.log("RESULT:", result)
+            // console.log("RESULT:", result)
             return true
         } catch (error) {
             console.log(error)
@@ -52,7 +52,7 @@ export class HouseToHouseDb {
                 { territory },
                 { $set: { doNotCalls } }
             )
-            console.log("RESULT:", result)
+            // console.log("RESULT:", result)
             return true
         } catch (error) {
             console.log(error)
@@ -67,7 +67,7 @@ export class HouseToHouseDb {
                 { territory },
                 { $set: { observations } }
             )
-            console.log("RESULT:", result)
+            // console.log("RESULT:", result)
             return true
         } catch (error) {
             console.log(error)
@@ -90,7 +90,7 @@ export class HouseToHouseDb {
                     { $pull: { finished: { block, face } } }
                 )
             }
-            console.log("RESULT:", result)
+            // console.log("RESULT:", result)
             return true
         } catch (error) {
             console.log(error)

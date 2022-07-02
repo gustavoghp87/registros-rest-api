@@ -45,9 +45,6 @@ export const deleteHTHDoNotCallService = async (token: string, doNotCallId: numb
     let doNotCalls: typeDoNotCall[] = hthTerritory.doNotCalls
     if (!doNotCalls || !doNotCalls.length) return false
     doNotCalls = doNotCalls.filter(currentDoNotCall => currentDoNotCall.id !== doNotCallId)
-    
-    console.log(doNotCalls)
-    
     const success: boolean = await houseToHouseDbConnection.EditHTHDoNotCall(doNotCalls, territory)
     return success
 }
@@ -79,8 +76,6 @@ export const deleteHTHObservationService = async (token: string, observationId: 
 // }
 
 export const editHTHObservationService = async (token: string, observation: typeObservation, territory: typeTerritoryNumber): Promise<boolean> => {
-    console.log(observation);
-    
     const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
     if (!user) return false
     const hthTerritory: typeHTHTerritory|null = await houseToHouseDbConnection.GetHTHTerritory(territory)
@@ -91,9 +86,6 @@ export const editHTHObservationService = async (token: string, observation: type
     observations.forEach((currentObservations: typeObservation) => {
         if (currentObservations.id === observation.id) currentObservations.text = observation.text
     })
-
-    console.log(observations)
-    
     const success: boolean = await houseToHouseDbConnection.EditHTHObservation(observations, territory)
     return success
 }

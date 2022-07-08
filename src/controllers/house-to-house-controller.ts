@@ -2,7 +2,7 @@ import express from 'express'
 import { Request, Response } from 'express'
 import * as hTHServices from '../services/house-to-house-services'
 import { getHTHStreetsByTerritoryService } from '../services/house-to-house-services'
-import { typeDoNotCall, typeFace, typeHTHTerritory, typeObservation } from '../models/houseToHouse'
+import { typeDoNotCall, typeFace, typeHTHMap, typeHTHTerritory, typeObservation } from '../models/houseToHouse'
 import { typeBlock, typeTerritoryNumber } from '../models/household'
 
 export const router = express.Router()
@@ -87,6 +87,15 @@ export const router = express.Router()
         const block: typeBlock = req.body.block as typeBlock
         const face: typeFace = req.body.face as typeFace
         const success: boolean = await hTHServices.setHTHIsFinishedService(token, isFinish, territory, block, face)
+        res.json({ success })
+    })
+
+    // update territory map
+    .patch('/map/:territory', async (req: Request, res: Response) => {
+        const token: string = req.header('Authorization') || ""
+        const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
+        const hthMap: typeHTHMap = req.body.hthMap as typeHTHMap
+        const success: boolean = await hTHServices.editHTHMapService(token, territory, hthMap)
         res.json({ success })
     })
 ;

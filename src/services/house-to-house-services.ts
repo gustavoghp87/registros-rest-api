@@ -1,7 +1,7 @@
 import { HouseToHouseDb } from '../services-db/houseToHouseDbConnection'
 import { getTerritoryStreetsService } from './territory-services'
 import { getActivatedAdminByAccessTokenService, getActivatedUserByAccessTokenService } from './user-services'
-import { typeDoNotCall, typeFace, typeHTHTerritory, typeObservation } from '../models/houseToHouse'
+import { typeDoNotCall, typeFace, typeHTHMap, typeHTHTerritory, typeObservation } from '../models/houseToHouse'
 import { typeUser } from '../models/user'
 import { typeBlock, typeTerritoryNumber } from '../models/household'
 
@@ -94,5 +94,20 @@ export const setHTHIsFinishedService = async (token: string, isFinish: boolean, 
     const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
     if (!user) return false
     const success: boolean = await houseToHouseDbConnection.SetHTHIsFinished(isFinish, block, face, territory)
+    return success
+}
+
+// export const getHTHMapService = async (token: string, territory: typeTerritoryNumber): Promise<boolean> => {
+//     const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
+//     if (!user) return false
+//     const hthMap: boolean = await houseToHouseDbConnection.GetHTHMap(territory)
+//     return success
+// }
+
+export const editHTHMapService = async (token: string, territory: typeTerritoryNumber, hthMap: typeHTHMap): Promise<boolean> => {
+    const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
+    if (!user) return false
+    hthMap.lastEditor = user.email
+    const success: boolean = await houseToHouseDbConnection.EditHTHMap(territory, hthMap)
     return success
 }

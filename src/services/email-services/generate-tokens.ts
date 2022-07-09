@@ -1,32 +1,29 @@
-
 import { google } from 'googleapis'
-import { gmailCredentials } from '../../env-variables'
+import { gmailCredentials, sendScope } from './gmail-credentials'
 
-const { client_secret, client_id, redirect_uri } = gmailCredentials
+const uriNumber: 0|1 = 1       //  0 production | 1 localhost
 
-// step 1:
+export const getGmailUrl = (): void => {
+    const { client_secret, client_id, redirect_uris } = gmailCredentials
+    // step 1:
+    const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[uriNumber])
+    const url = oAuth2Client.generateAuthUrl({
+        access_type: 'offline',
+        prompt: 'consent',
+        scope: [sendScope],
+        redirect_uri: redirect_uris[uriNumber]
+    })
+    console.log('\n\n', url, '\n\n')
+}
 
-const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uri)
-
-const GMAIL_SCOPES = ['https://www.googleapis.com/auth/gmail.send']
-
-const url = oAuth2Client.generateAuthUrl({
-    access_type: 'offline',
-    prompt: 'consent',
-    scope: GMAIL_SCOPES,
-})
-
-console.log('Authorize this app by visiting this url and get the code from url parameter:', url)
-
-
-// step 2:
-
-const code = ""   // Replace with the code you received from Google
-
-const oAuth2Client1 = new google.auth.OAuth2(client_id, client_secret, redirect_uri)
-
-oAuth2Client1.getToken(code).then(({ tokens }) => {
-    console.log("\n\n")
-    console.log(tokens)
-    console.log("\n\n")
-})
+export const getGmailRequest = () => {
+    const { client_secret, client_id, redirect_uris } = gmailCredentials
+    // step 2:
+    const code = ""   // Replace with the code you received from Google
+    if (code) {
+        const oAuth2Client1 = new google.auth.OAuth2(client_id, client_secret, redirect_uris[uriNumber])
+        oAuth2Client1.getToken(code).then(({ tokens }) => {
+            console.log('\n\n', tokens, '\n\n')
+        })
+    }
+}

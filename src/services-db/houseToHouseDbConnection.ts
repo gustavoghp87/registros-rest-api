@@ -75,29 +75,29 @@ export class HouseToHouseDb {
             return false
         }
     }
-    async SetHTHIsFinished(isFinish: boolean, block: typeBlock, face: typeFace, territory: typeTerritoryNumber): Promise<boolean> {
-        try {
-            if (!block || !face || !territory || isFinish === undefined) throw new Error("No llegaron datos")
-            let result
-            if (isFinish) {
-                result = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollCasa).updateOne(
-                    { territory },
-                    { $addToSet: { finished: { block, face } } }
-                )
-            } else {
-                result = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollCasa).updateOne(
-                    { territory },
-                    { $pull: { finished: { block, face } } }
-                )
-            }
-            // console.log("RESULT:", result)
-            return true
-        } catch (error) {
-            console.log(error)
-            logger.Add(`Falló SetHTHIsFinished() territorio ${territory + ' ' + block + ' ' + face}: ${error}`, generalError)
-            return false
-        }
-    }
+    // async SetHTHIsFinished(isFinish: boolean, block: typeBlock, face: typeFace, territory: typeTerritoryNumber): Promise<boolean> {
+    //     try {
+    //         if (!block || !face || !territory || isFinish === undefined) throw new Error("No llegaron datos")
+    //         let result
+    //         if (isFinish) {
+    //             result = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollCasa).updateOne(
+    //                 { territory },
+    //                 { $addToSet: { finished: { block, face } } }
+    //             )
+    //         } else {
+    //             result = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollCasa).updateOne(
+    //                 { territory },
+    //                 { $pull: { finished: { block, face } } }
+    //             )
+    //         }
+    //         // console.log("RESULT:", result)
+    //         return true
+    //     } catch (error) {
+    //         console.log(error)
+    //         logger.Add(`Falló SetHTHIsFinished() territorio ${territory + ' ' + block + ' ' + face}: ${error}`, generalError)
+    //         return false
+    //     }
+    // }
     // async GetHTHMap(territory: typeTerritoryNumber): Promise<typeHTHMap|null> {
     //     try {
     //         if (!territory) throw new Error("No llegaron datos")
@@ -109,22 +109,6 @@ export class HouseToHouseDb {
     //         return null
     //     }
     // }
-    async EditHTHMap(territory: typeTerritoryNumber, hthMap: typeHTHMap): Promise<boolean> {
-        try {
-            if (!territory) throw new Error("No llegaron datos")
-            console.log(hthMap);
-            
-            await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollCasa).updateOne(
-                { territory },
-                { $set: { hthMap } }
-            )
-            return true
-        } catch (error) {
-            console.log(error)
-            logger.Add(`Falló GetHTHMap() territorio ${territory}: ${error}`, generalError)
-            return false
-        }
-    }
     async CreateMaps(email: string): Promise<boolean> {
         try {
             for (let i = 1; i <= 56; i++) {
@@ -148,6 +132,22 @@ export class HouseToHouseDb {
             return true
         } catch (error) {
             
+            return false
+        }
+    }
+    async EditHTHMap(territory: typeTerritoryNumber, hthMap: typeHTHMap): Promise<boolean> {
+        try {
+            if (!territory) throw new Error("No llegaron datos")
+            console.log(hthMap);
+            
+            await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollCasa).updateOne(
+                { territory },
+                { $set: { hthMap } }
+            )
+            return true
+        } catch (error) {
+            console.log(error)
+            logger.Add(`Falló GetHTHMap() territorio ${territory}: ${error}`, generalError)
             return false
         }
     }

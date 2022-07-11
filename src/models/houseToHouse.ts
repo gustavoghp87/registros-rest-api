@@ -5,10 +5,12 @@ export type typeFace = 'A' | 'B' | 'C' | 'D' | 'E' | 'F'
 
 export type typeHTHTerritory = {
     _id?: ObjectId
+    blocks: typeBlock[]
     doNotCalls: typeDoNotCall[]
-    finished: typeFinishedFace[]
+    faces: typeFace[]
     typeHTHMap: typeHTHMap
     observations: typeObservation[]
+    streets: string[]
     territory: typeTerritoryNumber
 }
 
@@ -54,10 +56,14 @@ export type typeMarker = {
 }
 
 export type typePolygon = {
-    id: number
+    block: typeBlock
     coordsPoint1: typeCoords
     coordsPoint2: typeCoords
     coordsPoint3: typeCoords
+    face: typeFace
+    id: number
+    isFinished: boolean
+    street: string
 }
 
 export type typeCoords = {

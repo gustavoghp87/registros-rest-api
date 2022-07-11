@@ -90,12 +90,12 @@ export const editHTHObservationService = async (token: string, observation: type
     return success
 }
 
-export const setHTHIsFinishedService = async (token: string, isFinish: boolean, territory: typeTerritoryNumber, block: typeBlock, face: typeFace): Promise<boolean> => {
-    const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
-    if (!user) return false
-    const success: boolean = await houseToHouseDbConnection.SetHTHIsFinished(isFinish, block, face, territory)
-    return success
-}
+// export const setHTHIsFinishedService = async (token: string, isFinish: boolean, territory: typeTerritoryNumber, block: typeBlock, face: typeFace): Promise<boolean> => {
+//     const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
+//     if (!user) return false
+//     const success: boolean = await houseToHouseDbConnection.SetHTHIsFinished(isFinish, block, face, territory)
+//     return success
+// }
 
 // export const getHTHMapService = async (token: string, territory: typeTerritoryNumber): Promise<boolean> => {
 //     const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
@@ -107,6 +107,8 @@ export const setHTHIsFinishedService = async (token: string, isFinish: boolean, 
 export const editHTHMapService = async (token: string, territory: typeTerritoryNumber, hthMap: typeHTHMap): Promise<boolean> => {
     const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
     if (!user) return false
+    // si edita caras agregar calle a lista de calles, manzana a lista de manzanas y cara a lista de caras
+
     hthMap.lastEditor = user.email
     const success: boolean = await houseToHouseDbConnection.EditHTHMap(territory, hthMap)
     return success

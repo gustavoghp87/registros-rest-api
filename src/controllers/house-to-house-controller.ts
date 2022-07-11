@@ -80,15 +80,15 @@ export const router = express.Router()
     })
 
     // update face state
-    .patch('/state/:territory', async (req: Request, res: Response) => {
-        const token: string = req.header('Authorization') || ""
-        const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
-        const isFinish: boolean = req.body.isFinish as boolean
-        const block: typeBlock = req.body.block as typeBlock
-        const face: typeFace = req.body.face as typeFace
-        const success: boolean = await hTHServices.setHTHIsFinishedService(token, isFinish, territory, block, face)
-        res.json({ success })
-    })
+    // .patch('/state/:territory', async (req: Request, res: Response) => {
+    //     const token: string = req.header('Authorization') || ""
+    //     const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
+    //     const isFinish: boolean = req.body.isFinish as boolean
+    //     const block: typeBlock = req.body.block as typeBlock
+    //     const face: typeFace = req.body.face as typeFace
+    //     const success: boolean = await hTHServices.setHTHIsFinishedService(token, isFinish, territory, block, face)
+    //     res.json({ success })
+    // })
 
     // update territory map
     .patch('/map/:territory', async (req: Request, res: Response) => {

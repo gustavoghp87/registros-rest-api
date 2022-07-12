@@ -1,11 +1,18 @@
-import express from 'express'
+import express, { Handler } from 'express'
 import { Request, Response } from 'express'
 import * as hTHServices from '../services/house-to-house-services'
 import { getHTHStreetsByTerritoryService } from '../services/house-to-house-services'
-import { typeDoNotCall, typeFace, typeHTHMap, typeHTHTerritory, typeObservation } from '../models/houseToHouse'
+import { typeDoNotCall, typeFace, typeHTHMap, typeHTHTerritory, typeObservation, typePolygon } from '../models/houseToHouse'
 import { typeBlock, typeTerritoryNumber } from '../models/household'
 
 export const router = express.Router()
+
+    // create hth territories
+    .post('/genesys', async (req: Request, res: Response) => {
+        const token: string = req.header('Authorization') || ""
+        const success: boolean = await hTHServices.createHTHTerritoriesService(token)
+        res.json({ success })
+    })
 
     // get hth territory
     .get('/:territory', async (req: Request, res: Response) => {
@@ -28,18 +35,22 @@ export const router = express.Router()
     // add do not call
     .post('/do-not-call/:territory', async (req: Request, res: Response) => {
         const token: string = req.header('Authorization') || ""
-        const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
+        const block: typeBlock = req.body.block as typeBlock
         const doNotCall: typeDoNotCall = req.body.doNotCall as typeDoNotCall
-        const success: boolean = await hTHServices.addHTHDoNotCallService(token, doNotCall, territory)
+        const face: typeFace = req.body.face as typeFace
+        const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
+        const success: boolean = await hTHServices.addHTHDoNotCallService(token, doNotCall, territory, block, face)
         res.json({ success })
     })
 
     // add observation
     .post('/observation/:territory', async (req: Request, res: Response) => {
         const token: string = req.header('Authorization') || ""
-        const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
+        const block: typeBlock = req.body.block as typeBlock
+        const face: typeFace = req.body.face as typeFace
         const observation: typeObservation = req.body.observation as typeObservation
-        const success: boolean = await hTHServices.addHTHObservationService(token, observation, territory)
+        const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
+        const success: boolean = await hTHServices.addHTHObservationService(token, observation, territory, block, face)
         res.json({ success })
     })
 
@@ -61,14 +72,14 @@ export const router = express.Router()
         res.json({ success })
     })
 
-    // // update do not call
-    // .patch('/do-not-call/:territory', async (req: Request, res: Response) => {
-    //     const token: string = req.header('Authorization') || ""
-    //     const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
-    //     const doNotCall: typeDoNotCall = req.body.doNotCall as typeDoNotCall
-    //     const success: boolean = await hTHServices.editHTHDoNotCallService(token, doNotCall, territory)
-    //     res.json({ success })
-    // })
+    // update do not call
+    .patch('/do-not-call/:territory', async (req: Request, res: Response) => {
+        const token: string = req.header('Authorization') || ""
+        const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
+        const doNotCall: typeDoNotCall = req.body.doNotCall as typeDoNotCall
+        const success: boolean = await hTHServices.editHTHDoNotCallService(token, doNotCall, territory)
+        res.json({ success })
+    })
 
     // update observation
     .patch('/observation/:territory', async (req: Request, res: Response) => {
@@ -80,22 +91,31 @@ export const router = express.Router()
     })
 
     // update face state
-    // .patch('/state/:territory', async (req: Request, res: Response) => {
-    //     const token: string = req.header('Authorization') || ""
-    //     const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
-    //     const isFinish: boolean = req.body.isFinish as boolean
-    //     const block: typeBlock = req.body.block as typeBlock
-    //     const face: typeFace = req.body.face as typeFace
-    //     const success: boolean = await hTHServices.setHTHIsFinishedService(token, isFinish, territory, block, face)
-    //     res.json({ success })
-    // })
+    .patch('/state/:territory', async (req: Request, res: Response) => {
+        const token: string = req.header('Authorization') || ""
+        const block: typeBlock = req.body.block as typeBlock
+        const face: typeFace = req.body.face as typeFace
+        const isFinish: boolean = req.body.isFinish as boolean
+        const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
+        const success: boolean = await hTHServices.setHTHIsFinishedService(token, isFinish, territory, block, face)
+        res.json({ success })
+    })
 
     // update territory map
     .patch('/map/:territory', async (req: Request, res: Response) => {
         const token: string = req.header('Authorization') || ""
-        const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
         const hthMap: typeHTHMap = req.body.hthMap as typeHTHMap
-        const success: boolean = await hTHServices.editHTHMapService(token, territory, hthMap)
+        const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
+        const success: boolean = await hTHServices.editViewHTHMapService(token, territory, hthMap)
+        res.json({ success })
+    })
+
+    // add polygon face to hth territory
+    .post('/map/:territory', async (req: Request, res: Response) => {
+        const token: string = req.header('Authorization') || ""
+        const polygon: typePolygon = req.body.polygon as typePolygon
+        const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
+        const success: boolean = await hTHServices.addHTHPolygonFaceService(token, polygon, territory)
         res.json({ success })
     })
 ;

@@ -6,41 +6,11 @@ export type typeFace = 'A' | 'B' | 'C' | 'D' | 'E' | 'F'
 export type typeHTHTerritory = {
     _id?: ObjectId
     blocks: typeBlock[]
-    doNotCalls: typeDoNotCall[]
     faces: typeFace[]
-    typeHTHMap: typeHTHMap
-    observations: typeObservation[]
+    map: typeHTHMap
     streets: string[]
     territory: typeTerritoryNumber
 }
-
-export type typeDoNotCall = {
-    block: typeBlock
-    creator: string
-    date: string
-    doorBell: string
-    face: typeFace
-    id: number
-    street: string
-    streetNumber: number
-}
-
-export type typeObservation = {
-    block: typeBlock
-    creator: string
-    date: string
-    face: typeFace
-    id: number
-    street: string
-    text: string
-}
-
-export type typeFinishedFace = {
-    block: typeBlock
-    face: typeFace
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////
 
 export type typeHTHMap = {
     centerCoords: typeCoords
@@ -48,6 +18,11 @@ export type typeHTHMap = {
     markers: typeMarker[]
     polygons: typePolygon[]
     zoom: number
+}
+
+export type typeCoords = {
+    lat: number
+    lng: number
 }
 
 export type typeMarker = {
@@ -60,13 +35,27 @@ export type typePolygon = {
     coordsPoint1: typeCoords
     coordsPoint2: typeCoords
     coordsPoint3: typeCoords
+    doNotCalls: typeDoNotCall[]
     face: typeFace
     id: number
     isFinished: boolean
+    observations: typeObservation[]
     street: string
 }
 
-export type typeCoords = {
-    lat: number
-    lng: number
+export type typeDoNotCall = {
+    creator: string
+    date: string
+    deleted: boolean
+    doorBell: string
+    id: number
+    streetNumber: number
+}
+
+export type typeObservation = {
+    creator: string
+    date: string
+    deleted: boolean
+    id: number
+    text: string
 }

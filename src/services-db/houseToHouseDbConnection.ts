@@ -200,13 +200,14 @@ export class HouseToHouseDb {
             return null
         }
     }
-    async SetHTHIsFinished(isFinished: boolean, territory: typeTerritoryNumber, block: typeBlock, face: typeFace): Promise<boolean> {
+    async SetHTHIsFinished(isFinished: boolean,
+        territory: typeTerritoryNumber, block: typeBlock, face: typeFace, polygonId: number): Promise<boolean> {
         try {
-            console.log(isFinished);
+            console.log(isFinished, block, face);
             
-            if (!block || !face || !territory || isFinished === undefined) throw new Error("No llegaron datos")
+            if (!block || !face || !territory || isFinished === undefined || !polygonId) throw new Error("No llegaron datos")
             let result: UpdateResult = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollHTH).updateOne(
-                { territory, "map.polygons.block": block, "map.polygons.face": face },
+                { territory, "map.polygons.block": block, "map.polygons.face": face, "map.polygons.id": polygonId },
                 { $set: { "map.polygons.$.isFinished": isFinished } }
             )
             console.log("RESULT:", result)

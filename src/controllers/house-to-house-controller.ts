@@ -87,14 +87,15 @@ export const router = express.Router()
         res.json({ success })
     })
 
-    // edit face state
+    // edit face finished state
     .patch('/state/:territory/:block/:face', async (req: Request, res: Response) => {
         const token: string = req.header('Authorization') || ""
         const block: typeBlock = req.params.block as typeBlock
         const face: typeFace = req.params.face as typeFace
+        const polygonId: number = req.body.polygonId
         const isFinish: boolean = req.body.isFinish as boolean
         const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
-        const success: boolean = await hTHServices.setHTHIsFinishedService(token, isFinish, territory, block, face)
+        const success: boolean = await hTHServices.setHTHIsFinishedService(token, isFinish, territory, block, face, polygonId)
         res.json({ success })
     })
 

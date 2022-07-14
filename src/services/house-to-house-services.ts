@@ -117,10 +117,11 @@ export const getHTHStreetsByTerritoryService = async (token: string, territory: 
     return streets
 }
 
-export const setHTHIsFinishedService = async (token: string, isFinish: boolean, territory: typeTerritoryNumber, block: typeBlock, face: typeFace): Promise<boolean> => {
+export const setHTHIsFinishedService = async (token: string,
+    isFinish: boolean, territory: typeTerritoryNumber, block: typeBlock, face: typeFace, polygonId: number): Promise<boolean> => {
     const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
     if (!user) return false
-    if (!territory || !block || !face || isFinish === undefined) return false
-    const success: boolean = await houseToHouseDbConnection.SetHTHIsFinished(isFinish, territory, block, face)
+    if (!territory || !block || !face || isFinish === undefined || !polygonId) return false
+    const success: boolean = await houseToHouseDbConnection.SetHTHIsFinished(isFinish, territory, block, face, polygonId)
     return success
 }

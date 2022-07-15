@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken'
 import { bcryptSalt, privateKey, string_jwt } from '../env-variables'
 import { UserDb } from '../services-db/userDbConnection'
 import { accessTokensExpiresIn, logger } from '../server'
-import { sendEmailRecoverAccountService } from './email-services/email-services'
+import { sendRecoverAccountEmailService } from './email-services/email-services'
 import { decodedObject, recoveryOption, typeUser } from '../models/user'
 import { generalError, login, territoryChange, userChanges } from './log-services'
 
@@ -213,7 +213,7 @@ export const recoverAccountService = async (email: string): Promise<string> => {
     let success: boolean = await userDbConnection.AddRecoveryOption(email, id)
     if (!success) return ""
     logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} solicitó un email de recuperación de contraseña`, login)
-    success = await sendEmailRecoverAccountService(email, id)
+    success = await sendRecoverAccountEmailService(email, id)
     if (!success) return "not sent"
     return "ok"
 }

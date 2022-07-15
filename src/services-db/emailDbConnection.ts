@@ -1,10 +1,10 @@
 import { dbClient, logger } from '../server'
-import { ObjectId } from 'mongodb'
-import { generalError } from '../services/log-services'
+import { InsertOneResult, ObjectId, UpdateResult } from 'mongodb'
+import { emailError, generalError } from '../services/log-services'
+import { Credentials } from 'google-auth-library'
 
 export class EmailDb {
     private _id: ObjectId = new ObjectId('5fcbdce29382c6966fa4d583')
-
     async GetEmailLastTime(): Promise<number|null> {
         try {
             const lastEmailObj: any|null =
@@ -13,11 +13,27 @@ export class EmailDb {
             return lastEmailTime
         } catch (error) {
             console.log("Get Email Last Time failed", error)
-            logger.Add(`Falló GetEmailLastTime(): ${error}`, generalError)
+            logger.Add(`Falló GetEmailLastTime(): ${error}`, emailError)
             return null
         }
     }
-    
+    async GetGmailTokens(): Promise<Credentials|null> {
+        try {
+            const tokens = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollEmails).findOne()
+            if (!tokens) throw new Error("No se pudo leer documento")
+            return {
+                access_token: tokens.accessToken,
+                expiry_date: 0,
+                id_token: '',
+                refresh_token: tokens.refreshToken,
+                scope: '',
+                token_type: ''
+            }
+        } catch (error) {
+            logger.Add(`Falló GetGmailTokens(): ${error}`, emailError)
+            return null
+        }
+    }
     async UpdateLastEmail(): Promise<boolean> {
         try {
             const newDate = + new Date()
@@ -31,7 +47,40 @@ export class EmailDb {
             return true
         } catch (error) {
             console.log("Update Last Email failed", error)
-            logger.Add(`Falló UpdateLastEmail(): ${error}`, generalError)
+            logger.Add(`Falló UpdateLastEmail(): ${error}`, emailError)
+            return false
+        }
+    }
+    async SaveNewGmailAPITokensToDB(accessToken: string, refreshToken: string): Promise<boolean> {
+        const CreateDocument = async (): Promise<boolean> => {
+            try {
+                const result: InsertOneResult = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollEmails).insertOne({
+                    accessToken, refreshToken
+                })
+                return result && result.insertedId ? true : false
+            } catch (error) {
+                console.log(error)
+                return false
+            }
+        }
+        try {
+            if (!accessToken || !refreshToken) throw new Error("No llegaron los tokens")
+            const tokens = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollEmails).findOne()
+            if (!tokens) {
+                const success: boolean = await CreateDocument()
+                if (!success) throw new Error("No se pudo crear documento")
+            }
+            const result: UpdateResult = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollEmails).updateOne(
+                {  },
+                { $set: { accessToken, refreshToken } }
+            )
+            if (!result || !result.modifiedCount) {
+                throw new Error("No encontró valor a modificar")
+            }
+            return true
+        } catch (error) {
+            console.log("Falló SaveNewGmailAPITokensToDB", error)
+            logger.Add(`Falló SaveNewGmailAPITokensToDB(): ${error}`, emailError)
             return false
         }
     }

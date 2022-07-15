@@ -1,14 +1,14 @@
-import { dbClient, logger } from '../server'
-import { InsertOneResult, ObjectId, UpdateResult } from 'mongodb'
-import { emailError, generalError } from '../services/log-services'
 import { Credentials } from 'google-auth-library'
+import { InsertOneResult, UpdateResult } from 'mongodb'
+import { dbClient, logger } from '../server'
+import { emailError } from '../services/log-services'
 
 export class EmailDb {
-    private _id: ObjectId = new ObjectId('5fcbdce29382c6966fa4d583')
+    //private _id: ObjectId = new ObjectId('5fcbdce29382c6966fa4d583')
     async GetEmailLastTime(): Promise<number|null> {
         try {
-            const lastEmailObj: any|null =
-                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollEmails).findOne({ _id: this._id })
+            const lastEmailObj: any|null = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollEmails).findOne()
+            if (!lastEmailObj) throw new Error("No se pudo leer documento")
             const lastEmailTime: number|null = lastEmailObj.lastEmail
             return lastEmailTime
         } catch (error) {
@@ -38,11 +38,11 @@ export class EmailDb {
         try {
             const newDate = + new Date()
             await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollEmails).updateOne(
-                { _id: this._id },
+                {  },
                 { $set: { lastEmail: newDate } }
             )
             const lastEmailObj: any|null =
-                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollEmails).findOne({ _id: this._id })
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollEmails).findOne()
             if (!lastEmailObj || (lastEmailObj.lastEmail !== newDate)) return false
             return true
         } catch (error) {

@@ -38,8 +38,9 @@ export const router = express.Router()
         const block: typeBlock = req.params.block as typeBlock
         const doNotCall: typeDoNotCall = req.body.doNotCall as typeDoNotCall
         const face: typeFace = req.params.face as typeFace
+        const polygonId: number = req.body.polygonId as number
         const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
-        const success: boolean = await hTHServices.addHTHDoNotCallService(token, doNotCall, territory, block, face)
+        const success: boolean = await hTHServices.addHTHDoNotCallService(token, doNotCall, territory, block, face, polygonId)
         res.json({ success })
     })
 
@@ -49,8 +50,9 @@ export const router = express.Router()
         const block: typeBlock = req.params.block as typeBlock
         const face: typeFace = req.params.face as typeFace
         const observation: typeObservation = req.body.observation as typeObservation
+        const polygonId: number = req.body.polygonId as number
         const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
-        const success: boolean = await hTHServices.addHTHObservationService(token, observation, territory, block, face)
+        const success: boolean = await hTHServices.addHTHObservationService(token, observation, territory, block, face, polygonId)
         res.json({ success })
     })
 

@@ -20,30 +20,34 @@ export class HouseToHouseDb {
             return false
         }
     }
-    async AddHTHDoNotCall(doNotCall: typeDoNotCall, territory: typeTerritoryNumber, block: typeBlock, face: typeFace): Promise<boolean> {
+    async AddHTHDoNotCall(doNotCall: typeDoNotCall,
+        territory: typeTerritoryNumber, block: typeBlock, face: typeFace, polygonId: number): Promise<boolean> {
         try {
             if (!doNotCall || !territory || !block || !face) throw new Error("No llegó no tocar o territorio")
             const result: UpdateResult = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollHTH).updateOne(
-                { territory, "map.polygons.block": block, "map.polygons.face": face },
-                { $addToSet: { "map.polygons.$.doNotCalls": doNotCall } }
+                { territory, "map.polygons.block": block, "map.polygons.face": face, "map.polygons.id": polygonId },
+                { $push: { "map.polygons.$.doNotCalls": doNotCall } }
             )
             console.log("RESULT:", result)
-            return true
+            return result && result.modifiedCount ? true : false
         } catch (error) {
             console.log(error)
             logger.Add(`Falló AddHTHDoNotCall() territorio ${territory}: ${error}`, generalError)
             return false
         }
     }
-    async AddHTHObservation(observation: typeObservation, territory: typeTerritoryNumber, block: typeBlock, face: typeFace): Promise<boolean> {
+    async AddHTHObservation(observation: typeObservation,
+        territory: typeTerritoryNumber, block: typeBlock, face: typeFace, polygonId: number): Promise<boolean> {
         try {
+            console.log(observation, territory, block, face);
+            
             if (!observation || !territory || !block || !face) throw new Error("No llegó observación o territorio")
             const result: UpdateResult = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollHTH).updateOne(
-                { territory, "map.polygons.block": block, "map.polygons.face": face },
-                { $addToSet: { "map.polygons.$.observations": observation } }
+                { territory, "map.polygons.block": block, "map.polygons.face": face, "map.polygons.id": polygonId },
+                { $push: { "map.polygons.$.observations": observation } }
             )
             console.log("RESULT:", result)
-            return true
+            return result && result.modifiedCount ? true : false
         } catch (error) {
             console.log(error)
             logger.Add(`Falló AddHTHObservation() territorio ${territory}: ${error}`, generalError)
@@ -60,7 +64,7 @@ export class HouseToHouseDb {
                 { $push: { "map.polygons": polygon } }
             )
             console.log("RESULT:", result)
-            return true
+            return result && result.modifiedCount ? true : false
         } catch (error) {
             console.log(error)
             logger.Add(`Falló AddHTHObservation() territorio ${territory}: ${error}`, generalError)

@@ -8,24 +8,25 @@ import { typeBlock, typeTerritoryNumber } from '../models/household'
 const houseToHouseDbConnection = new HouseToHouseDb()
 
 export const addHTHDoNotCallService = async (token: string,
-    doNotCall: typeDoNotCall, territory: typeTerritoryNumber, block: typeBlock, face: typeFace): Promise<boolean> => {
+    doNotCall: typeDoNotCall, territory: typeTerritoryNumber, block: typeBlock, face: typeFace, polygonId: number): Promise<boolean> => {
     const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
     if (!user) return false
-    if (!territory || !block || !face || !doNotCall || !doNotCall.date || !doNotCall.id || !doNotCall.streetNumber) return false
+    if (!territory || !block || !face || !doNotCall || !doNotCall.date || !doNotCall.id || !doNotCall.streetNumber || !polygonId) return false
     doNotCall.creator = user.email
     doNotCall.deleted = false
-    const success: boolean = await houseToHouseDbConnection.AddHTHDoNotCall(doNotCall, territory, block, face)
+    const success: boolean = await houseToHouseDbConnection.AddHTHDoNotCall(doNotCall, territory, block, face, polygonId)
     return success
 }
 
 export const addHTHObservationService = async (token: string,
-    observation: typeObservation, territory: typeTerritoryNumber, block: typeBlock, face: typeFace): Promise<boolean> => {
+    observation: typeObservation, territory: typeTerritoryNumber, block: typeBlock, face: typeFace, polygonId: number): Promise<boolean> => {
     const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
     if (!user) return false
-    if (!territory || !block || !face || !observation || !observation.date || !observation.id || !observation.text) return false
+    if (!territory || !block || !face || !observation || !observation.date || !observation.id || !observation.text || !polygonId) return false
+    block = block.toString() as typeBlock
     observation.creator = user.email
     observation.deleted = false
-    const success: boolean = await houseToHouseDbConnection.AddHTHObservation(observation, territory, block, face)
+    const success: boolean = await houseToHouseDbConnection.AddHTHObservation(observation, territory, block, face, polygonId)
     return success
 }
 

@@ -6,6 +6,7 @@ import { port, NODE_ENV } from './env-variables'
 import { router as campaignController } from './controllers/campaign-controller'
 import { router as emailController } from './controllers/email-controller'
 import { router as houseToHouseController } from './controllers/house-to-house-controller'
+import { router as geocodingController } from './controllers/geocoding-controller'
 import { router as logController } from './controllers/log-controller'
 import { router as stateTerritoryController } from './controllers/state-of-territory-controller'
 import { router as statisticsController } from './controllers/statistics-controller'
@@ -35,6 +36,7 @@ app.use('/api/campaign', campaignController)
 app.use('/api/email', emailController)
 app.use('/api/log', logController)
 app.use('/api/house-to-house', houseToHouseController)
+app.use('/api/geocoding', geocodingController)
 app.use('/api/state-territory', stateTerritoryController)
 app.use('/api/statistic', statisticsController)
 app.use('/api/territory', territoryController)

@@ -1,8 +1,7 @@
+import { UpdateResult } from 'mongodb'
 import { dbClient, logger } from '../server'
 import { generalError } from '../services/log-services'
-import { typeCoords, typeDoNotCall, typeFace, typeHTHTerritory, typeObservation, typePolygon } from '../models/houseToHouse'
-import { typeBlock, typeTerritoryNumber } from '../models/household'
-import { UpdateResult } from 'mongodb'
+import { typeBlock, typeCoords, typeDoNotCall, typeFace, typeHTHTerritory, typeObservation, typePolygon, typeTerritoryNumber } from '../models'
 
 export class HouseToHouseDb {
     async AddBlockFaceStreetToHTHTerritory(territory: typeTerritoryNumber, block: typeBlock, face: typeFace, street: string): Promise<boolean> {

@@ -1,7 +1,7 @@
 import express from 'express'
-import * as userServices from '../services/user-services'
-import { typeUser } from '../models/user'
 import { Request, Response } from 'express'
+import * as userServices from '../services/user-services'
+import { authorizationString, typeUser } from '../models'
 
 const unauthenticatedUser: typeUser = {
     isAuth: false,
@@ -16,7 +16,7 @@ export const router = express.Router()
 
     // get my user
     .get('/', async (req: Request, res: Response) => {
-        const token: string = req.header('Authorization') || ""
+        const token: string = req.header(authorizationString) || ""
         let user: typeUser|null = await userServices.getActivatedUserByAccessTokenService(token)
         if (!user) return res.json({
             success: false,
@@ -41,7 +41,7 @@ export const router = express.Router()
 
     // get all users
     .get('/all', async (req: Request, res: Response) => {
-        const token: string = req.header('Authorization') || ""
+        const token: string = req.header(authorizationString) || ""
         const users: typeUser[]|null = await userServices.getUsersService(token)
         if (!users) return res.json({ success: false })
         users.forEach((user: typeUser) => { user = blindUser(user) })
@@ -50,7 +50,7 @@ export const router = express.Router()
 
     // change features for other users
     .put('/', async (req: Request, res: Response) => {
-        const token: string = req.header('Authorization') || ""
+        const token: string = req.header(authorizationString) || ""
         const user_id: string = req.body.user_id
         const estado: boolean = req.body.estado
         const role: number = req.body.role
@@ -63,7 +63,7 @@ export const router = express.Router()
 
     // change my dark mode
     .put('/mode', async (req: Request, res: Response) => {    // suspended
-        const token: string = req.header('Authorization') || ""
+        const token: string = req.header(authorizationString) || ""
         const darkMode: boolean = req.body.darkMode
         const success: boolean = await userServices.changeModeService(token, darkMode)
         res.json({ success })
@@ -71,7 +71,7 @@ export const router = express.Router()
 
     // change assignations for other users
     .put('/assignment', async (req: Request, res: Response) => {
-        const token: string = req.header('Authorization') || ""
+        const token: string = req.header(authorizationString) || ""
         const user_id: string = req.body.user_id
         const asignar: number = req.body.asignar
         const desasignar: number = req.body.desasignar

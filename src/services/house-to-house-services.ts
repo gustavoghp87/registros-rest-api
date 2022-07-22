@@ -1,9 +1,7 @@
-import { HouseToHouseDb } from '../services-db/houseToHouseDbConnection'
 import { getTerritoryStreetsService } from './territory-services'
 import { getActivatedAdminByAccessTokenService, getActivatedUserByAccessTokenService } from './user-services'
-import { typeCoords, typeDoNotCall, typeFace, typeHTHMap, typeHTHTerritory, typeObservation, typePolygon } from '../models/houseToHouse'
-import { typeUser } from '../models/user'
-import { typeBlock, typeTerritoryNumber } from '../models/household'
+import { HouseToHouseDb } from '../services-db/houseToHouseDbConnection'
+import { typeBlock, typeCoords, typeDoNotCall, typeFace, typeHTHMap, typeHTHTerritory, typeObservation, typePolygon, typeTerritoryNumber, typeUser } from '../models'
 
 const houseToHouseDbConnection = new HouseToHouseDb()
 

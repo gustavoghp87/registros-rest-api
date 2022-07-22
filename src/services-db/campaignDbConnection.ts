@@ -1,6 +1,6 @@
 import { dbClient, logger } from '../server'
-import { nadie, noAsignado, typeCampaignPack } from '../models/campaign'
 import { generalError } from '../services/log-services'
+import { nadie, noAsignado, typeCampaignPack } from '../models'
 
 export class CampaignDb {
     async GetCampaignPacks(): Promise<typeCampaignPack[]|null> {

@@ -1,9 +1,8 @@
-import { HouseholdDb } from '../services-db/householdDbConnection'
 import { getActivatedAdminByAccessTokenService, getActivatedUserByAccessTokenService } from './user-services'
 import { getAllHouseholdsService, isTerritoryAssignedToUser } from './territory-services'
+import { HouseholdDb } from '../services-db/householdDbConnection'
 import * as types from '../models/household'
-import { statistic, localStatistic } from '../models/statistic'
-import { typeUser } from '../models/user'
+import { statistic, localStatistic, typeUser } from '../models'
 
 const householdDbConnection: HouseholdDb = new HouseholdDb()
 

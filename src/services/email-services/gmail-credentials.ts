@@ -1,7 +1,7 @@
 import { Credentials } from 'google-auth-library'
-import { access_token, client_id, client_secret, project_id, refresh_token } from '../../env-variables'
+import { client_id, client_secret, project_id } from '../../env-variables'
 import { domain, testingDomain } from '../../server'
-import { GetGmailTokensService } from './email-services'
+import { GetGmailTokensService } from './'
 
 type gmailObject = {
     auth_provider_x509_cert_url: string

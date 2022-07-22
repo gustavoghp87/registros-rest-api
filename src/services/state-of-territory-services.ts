@@ -1,9 +1,8 @@
 import { logger } from '../server'
-import { StateOfTerritoryDb } from '../services-db/stateOfTerritoryDbConnection'
 import { deallocateMyTerritoryService, getActivatedAdminByAccessTokenService, getActivatedUserByAccessTokenService } from './user-services'
 import { stateOfTerritoryChange } from './log-services'
-import { stateOfTerritory } from '../models/stateOfTerritory'
-import { typeUser } from '../models/user'
+import { StateOfTerritoryDb } from '../services-db/stateOfTerritoryDbConnection'
+import { stateOfTerritory, typeUser } from '../models'
 
 const stateOfTerritoryDbConnection: StateOfTerritoryDb = new StateOfTerritoryDb()
 

@@ -1,7 +1,7 @@
 import { dbClient, logger } from '../server'
 import { generalError } from '../services/log-services'
 import * as types from '../models/household'
-import { localStatistic, statistic } from '../models/statistic'
+import { localStatistic, statistic } from '../models'
 
 export class HouseholdDb {
 

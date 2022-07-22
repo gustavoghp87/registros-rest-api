@@ -1,8 +1,8 @@
 import express from 'express'
+import { Request, Response } from 'express'
 import * as userServices from '../services/user-services'
 import { sendNewPswEmailService } from '../services/email-services/email-services'
-import { typeUser } from '../models/user'
-import { Request, Response } from 'express'
+import { authorizationString, typeUser } from '../models'
 
 export const router = express.Router()
 
@@ -22,14 +22,14 @@ export const router = express.Router()
 
     // logout all devices
     .delete('/', async (req: Request, res: Response) => {
-        const token: string = req.header('Authorization') || ""
+        const token: string = req.header(authorizationString) || ""
         const newToken: string|null = await userServices.logoutAllService(token)
         res.json({ success: newToken !== null, newToken })
     })
 
     // change my password
     .put('/', async (req: Request, res: Response) => {
-        const token: string = req.header('Authorization') || ""
+        const token: string = req.header(authorizationString) || ""
         const { psw, newPsw, id } = req.body
         if (psw && newPsw) {
             // change my psw
@@ -51,7 +51,7 @@ export const router = express.Router()
 
     // change the password of other user by admin
     .patch('/', async (req: Request, res: Response) => {
-        const token: string = req.header('Authorization') || ""
+        const token: string = req.header(authorizationString) || ""
         const email: string = req.body.email
         const newPassword: string|null = await userServices.changePswOtherUserService(token, email)
         if (!newPassword) return res.json({ success: false })

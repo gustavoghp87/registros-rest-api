@@ -7,10 +7,8 @@ import { getActivatedUserByAccessTokenService, getUsersNotAuthService } from '..
 import { getAllHouseholdsService } from '../territory-services'
 import { EmailDb } from '../../services-db/emailDbConnection'
 import { emailError } from '../log-services'
-import { sendEmail } from './send-email-service'
-import { gmailCredentials, sendScope } from './gmail-credentials'
-import { noPredicado, typeHousehold } from '../../models/household'
-import { typeUser } from '../../models/user'
+import { gmailCredentials, sendEmail, sendScope } from './'
+import { noPredicado, typeHousehold, typeUser } from '../../models'
 
 const emailDbConnection: EmailDb = new EmailDb()
 

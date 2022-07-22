@@ -1,11 +1,11 @@
-import { HouseholdDb } from '../services-db/householdDbConnection'
 import { logger } from '../server'
 import { changeStateOfTerritoryService, setResetDate } from './state-of-territory-services'
 import { getActivatedAdminByAccessTokenService, getActivatedUserByAccessTokenService } from './user-services'
-import { sendAlertOfTerritoriesEmailService } from './email-services/email-services'
+import { sendAlertOfTerritoriesEmailService } from './email-services'
 import { generalError, stateOfTerritoryChange, territoryChange } from './log-services'
+import { HouseholdDb } from '../services-db/householdDbConnection'
 import * as types from '../models/household'
-import { typeUser } from '../models/user'
+import { typeUser } from '../models'
 
 const householdDbConnection: HouseholdDb = new HouseholdDb()
 

@@ -1,9 +1,8 @@
 import { dbClient, isProduction } from '../server'
-import { LogDb } from '../services-db/logDbConnection'
 import { getActivatedAdminByAccessTokenService } from './user-services'
+import { LogDb } from '../services-db/logDbConnection'
 import { typeCollection } from '../services-db/_dbConnection'
-import { typeLogObj, typeLogsObj } from '../models/log'
-import { typeUser } from '../models/user'
+import { typeLogObj, typeLogsObj, typeUser } from '../models'
 
 type typeLog = 'login' | 'territoryChange' | 'stateOfTerritoryChange' | 'campaignAssignment' | 'campaignFinishing' | 'emailError' | 'error' | 'socketError' | 'userChanges' | 'app'
 export const login: typeLog = 'login'

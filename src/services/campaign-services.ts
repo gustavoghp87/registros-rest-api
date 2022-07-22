@@ -1,9 +1,8 @@
-import { typeCampaignPack } from '../models/campaign'
-import { typeUser } from '../models/user'
 import { logger } from '../server'
 import { CampaignDb } from '../services-db/campaignDbConnection'
 import { campaignAssignment, campaignFinishing } from './log-services'
 import { getActivatedAdminByAccessTokenService, getActivatedUserByAccessTokenService } from './user-services'
+import { typeCampaignPack, typeUser } from '../models'
 
 const campaignDbConnection: CampaignDb = new CampaignDb()
 

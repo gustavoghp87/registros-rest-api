@@ -4,7 +4,7 @@ import { gmail_v1, google } from 'googleapis'
 import { Credentials } from 'google-auth-library'
 import { GaxiosResponse } from 'gaxios'
 import { logger } from '../../server'
-import { getGmailCredentialsService, gmailCredentials } from './gmail-credentials'
+import { getGmailCredentialsService, gmailCredentials } from './'
 import { emailError } from '../log-services'
 
 export const sendEmail = async (to: string, subject: string, text: string, html: string): Promise<boolean> => {

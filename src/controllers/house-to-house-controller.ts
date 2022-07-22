@@ -1,22 +1,20 @@
 import express from 'express'
 import { Request, Response } from 'express'
 import * as hTHServices from '../services/house-to-house-services'
-import { getHTHStreetsByTerritoryService } from '../services/house-to-house-services'
-import { typeDoNotCall, typeFace, typeHTHMap, typeHTHTerritory, typeObservation, typePolygon } from '../models/houseToHouse'
-import { typeBlock, typeTerritoryNumber } from '../models/household'
+import { typeBlock, typeDoNotCall, typeFace, typeHTHMap, typeHTHTerritory, typeObservation, typePolygon, typeTerritoryNumber } from '../models'
 
 export const router = express.Router()
 
     // create hth territories
     .post('/genesys', async (req: Request, res: Response) => {
-        const token: string = req.header('Authorization') || ""
+        const token: string = req.header(authorizationString) || ""
         const success: boolean = await hTHServices.createHTHTerritoriesService(token)
         res.json({ success })
     })
 
     // get hth territory
     .get('/:territory', async (req: Request, res: Response) => {
-        const token: string = req.header('Authorization') || ""
+        const token: string = req.header(authorizationString) || ""
         const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
         const hthTerritory: typeHTHTerritory|null = await hTHServices.getHTHTerritoryService(token, territory)
         if (!hthTerritory) return res.json({ success: false })
@@ -25,16 +23,16 @@ export const router = express.Router()
 
     // get territory streets
     .get('/street/:territory', async (req: Request, res: Response) => {
-        const token: string = req.header('Authorization') || ""
+        const token: string = req.header(authorizationString) || ""
         const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
-        const streets: string[]|null = await getHTHStreetsByTerritoryService(token, territory)
+        const streets: string[]|null = await hTHServices.getHTHStreetsByTerritoryService(token, territory)
         if (!streets) return res.json({ success: false })
         res.json({ success: true, streets })
     })
 
     // add do not call
     .post('/do-not-call/:territory/:block/:face', async (req: Request, res: Response) => {
-        const token: string = req.header('Authorization') || ""
+        const token: string = req.header(authorizationString) || ""
         const block: typeBlock = req.params.block as typeBlock
         const doNotCall: typeDoNotCall = req.body.doNotCall as typeDoNotCall
         const face: typeFace = req.params.face as typeFace
@@ -46,7 +44,7 @@ export const router = express.Router()
 
     // add observation
     .post('/observation/:territory/:block/:face', async (req: Request, res: Response) => {
-        const token: string = req.header('Authorization') || ""
+        const token: string = req.header(authorizationString) || ""
         const block: typeBlock = req.params.block as typeBlock
         const face: typeFace = req.params.face as typeFace
         const observation: typeObservation = req.body.observation as typeObservation
@@ -58,7 +56,7 @@ export const router = express.Router()
 
     // delete do not call
     .delete('/do-not-call/:territory/:block/:face', async (req: Request, res: Response) => {
-        const token: string = req.header('Authorization') || ""
+        const token: string = req.header(authorizationString) || ""
         const block: typeBlock = req.params.block as typeBlock
         const doNotCallId: number = req.body.doNotCallId as number
         const face: typeFace = req.params.face as typeFace
@@ -69,7 +67,7 @@ export const router = express.Router()
 
     // delete observation
     .delete('/observation/:territory/:block/:face', async (req: Request, res: Response) => {
-        const token: string = req.header('Authorization') || ""
+        const token: string = req.header(authorizationString) || ""
         const block: typeBlock = req.params.block as typeBlock
         const face: typeFace = req.params.face as typeFace
         const observationId: number = req.body.observationId as number
@@ -80,7 +78,7 @@ export const router = express.Router()
 
     // edit observation
     .patch('/observation/:territory/:block/:face', async (req: Request, res: Response) => {
-        const token: string = req.header('Authorization') || ""
+        const token: string = req.header(authorizationString) || ""
         const block: typeBlock = req.params.block as typeBlock
         const face: typeFace = req.params.face as typeFace
         const observation: typeObservation = req.body.observation as typeObservation
@@ -91,7 +89,7 @@ export const router = express.Router()
 
     // edit face finished state
     .patch('/state/:territory/:block/:face', async (req: Request, res: Response) => {
-        const token: string = req.header('Authorization') || ""
+        const token: string = req.header(authorizationString) || ""
         const block: typeBlock = req.params.block as typeBlock
         const face: typeFace = req.params.face as typeFace
         const polygonId: number = req.body.polygonId
@@ -103,7 +101,7 @@ export const router = express.Router()
 
     // edit territory map
     .patch('/map/:territory', async (req: Request, res: Response) => {
-        const token: string = req.header('Authorization') || ""
+        const token: string = req.header(authorizationString) || ""
         const editedHTHMap: typeHTHMap = req.body.editedHTHMap as typeHTHMap
         const editedHTHPolygons: typePolygon[] = req.body.editedHTHPolygons as typePolygon[]
         const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
@@ -113,7 +111,7 @@ export const router = express.Router()
 
     // add polygon face to hth territorys
     .post('/map/:territory', async (req: Request, res: Response) => {
-        const token: string = req.header('Authorization') || ""
+        const token: string = req.header(authorizationString) || ""
         const polygon: typePolygon = req.body.polygon as typePolygon
         const territory: typeTerritoryNumber = req.params.territory as unknown as typeTerritoryNumber
         const success: boolean = await hTHServices.addHTHPolygonFaceService(token, polygon, territory)

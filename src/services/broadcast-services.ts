@@ -1,8 +1,7 @@
 import { Server, Socket } from 'socket.io'
 import { domain, logger, server, testingDomain } from '../server'
 import { socketError } from './log-services'
-import { typeUser } from '../models/user'
-import { typeHousehold } from '../models/household'
+import { typeHousehold, typeUser } from '../models'
 
 type householdChangeObjectPackage = {
     households: typeHousehold[]
@@ -14,7 +13,7 @@ type householdChangeObjectPackage = {
 type socketConnection = 'user: change' | 'household: change' | 'hth: change' | 'connection'
 const userChange: socketConnection = 'user: change'
 const householdChange: socketConnection = 'household: change'
-const hthChange: socketConnection = 'hth: change'
+//const hthChange: socketConnection = 'hth: change'
 const connection: socketConnection = 'connection'
 
 export const socketConnection = (production: boolean): void => {

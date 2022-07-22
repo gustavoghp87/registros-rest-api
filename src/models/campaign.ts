@@ -9,4 +9,5 @@ export type typeCampaignPack = {
 }
 
 export const noAsignado: string = "No asignado"
+
 export const nadie: string = "Nadie"

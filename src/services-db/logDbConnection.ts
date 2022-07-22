@@ -1,7 +1,7 @@
 import { dbClient, logger } from '../server'
 import { generalError } from '../services/log-services'
 import { typeCollection } from './_dbConnection'
-import { typeLogObj, typeLogsObj } from '../models/log'
+import { typeLogObj, typeLogsObj } from '../models'
 
 export class LogDb {
 

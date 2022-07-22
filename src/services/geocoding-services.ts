@@ -1,8 +1,7 @@
 import NodeGeocoder from 'node-geocoder'
 import { googleGeocodingAPIKey } from '../env-variables'
 import { getActivatedUserByAccessTokenService } from './user-services'
-import { typeCoords } from '../models/houseToHouse'
-import { typeUser } from '../models/user'
+import { typeCoords, typeUser } from '../models'
 
 export const getGeocodingFromAddressService = async (token: string, address: string): Promise<typeCoords|null> => {
     const user: typeUser|null = await getActivatedUserByAccessTokenService(token)

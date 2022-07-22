@@ -1,5 +1,5 @@
-import { typeBlock, typeTerritoryNumber } from './household'
 import { ObjectId } from 'mongodb'
+import { typeBlock, typeTerritoryNumber } from './'
 
 export type typeFace = 'A' | 'B' | 'C' | 'D' | 'E' | 'F'
 

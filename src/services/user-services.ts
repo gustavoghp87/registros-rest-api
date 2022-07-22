@@ -2,11 +2,11 @@ import Axios from 'axios'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { bcryptSalt, privateKey, string_jwt } from '../env-variables'
-import { UserDb } from '../services-db/userDbConnection'
 import { accessTokensExpiresIn, logger } from '../server'
-import { sendRecoverAccountEmailService } from './email-services/email-services'
-import { decodedObject, recoveryOption, typeUser } from '../models/user'
+import { sendRecoverAccountEmailService } from './email-services'
 import { generalError, login, territoryChange, userChanges } from './log-services'
+import { UserDb } from '../services-db/userDbConnection'
+import { decodedObject, recoveryOption, typeUser } from '../models'
 
 const userDbConnection: UserDb = new UserDb()
 

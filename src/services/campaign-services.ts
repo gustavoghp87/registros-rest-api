@@ -87,7 +87,7 @@ export const askForANewCampaignPackService = async (token: string): Promise<bool
     if (!user) return false
     const id: number|null = await campaignDbConnection.AskForANewCampaignPack(user.email)
     if (id) logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} recibió el paquete ${id} por solicitud automática`, campaignAssignment)
-    return id ? true : false
+    return !!id
 }
 
 export const enableAccesibilityModeService = async (token: string, id: number, accessible: boolean): Promise<boolean> => {
@@ -99,5 +99,5 @@ export const enableAccesibilityModeService = async (token: string, id: number, a
         logger.Add(`Admin ${user.email} ${accessible ? "habilitó" : "deshabilitó"} el modo de accesibilidad para el paquete ${id} ${accessible}`, campaignAssignment)
     else
         logger.Add(`Admin ${user.email} no pudo habilitar el modo de accesibilidad para el paquete ${id} ${accessible}`, campaignAssignment)
-    return id ? true : false
+    return !!id
 }

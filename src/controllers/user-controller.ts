@@ -23,7 +23,7 @@ export const router = express.Router()
             user: unauthenticatedUser
         })
         user.isAuth = true
-        user.isAdmin = user.role == 1 ? true : false
+        user.isAdmin = user.role == 1
         user = blindUser(user)
         res.json({ success: true, user })
     })

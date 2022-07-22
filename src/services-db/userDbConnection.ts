@@ -77,7 +77,7 @@ export class UserDb {
                 $set: { tokenId }
             })
             const user: typeUser|null = await this.GetUserById(_id)
-            return user && user.tokenId === tokenId ? true : false
+            return !!user && user.tokenId === tokenId
         } catch (error) {
             console.log(error)
             logger.Add(`Falló UpdateTokenId() ${_id}: ${error}`, generalError)
@@ -90,7 +90,7 @@ export class UserDb {
                 $set: { darkMode }
             })
             const user: typeUser|null = await this.GetUserByEmail(email)
-            return user && user.darkMode === darkMode ? true : false
+            return !!user && user.darkMode === darkMode
         } catch (error) {
             console.log(error)
             logger.Add(`Falló ChangeMode() ${email} ${darkMode}: ${error}`, generalError)
@@ -104,7 +104,7 @@ export class UserDb {
                 { $set: { password: encryptedPassword } }
             )
             const user: typeUser|null = await this.GetUserByEmail(email)
-            return user && user.password === encryptedPassword ? true : false
+            return !!user && user.password === encryptedPassword
         } catch (error) {
             console.log(error)
             logger.Add(`Falló ChangePsw() ${email}: ${error}`, generalError)

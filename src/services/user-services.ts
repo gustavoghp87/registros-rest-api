@@ -268,5 +268,5 @@ export const deallocateMyTerritoryService = async (token: string, territory: str
     }
     const updatedUser: typeUser|null = await userDbConnection.AssignTerritory(user._id.toString(), 0, territoryNumber, false)
     if (!updatedUser) logger.Add(`Usuario ${user.email} no pudo ser desasignado de ${territory}`, territoryChange)
-    return updatedUser ? true : false
+    return !!updatedUser
 }

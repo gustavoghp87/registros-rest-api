@@ -57,7 +57,7 @@ export class EmailDb {
                 const result: InsertOneResult = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollEmails).insertOne({
                     accessToken, refreshToken
                 })
-                return result && result.insertedId ? true : false
+                return !!result && !!result.insertedId
             } catch (error) {
                 console.log(error)
                 return false

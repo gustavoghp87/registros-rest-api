@@ -29,7 +29,7 @@ export const router = express.Router()
         const token: string = req.header(authorizationString) || ""
         const { inner_id, estado, noAbonado, asignado } = req.body
         const household: typeHousehold|null = await territoryServices.modifyHouseholdService(token, inner_id, estado, noAbonado, asignado)
-        res.json({ success: household !== null, household })
+        res.json({ success: !!household, household })
     })
     
     // reset territory

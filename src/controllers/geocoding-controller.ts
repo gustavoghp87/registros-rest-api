@@ -1,7 +1,7 @@
 import express from 'express'
 import { Request, Response } from 'express'
 import { getGeocodingFromAddressService, getGeocodingFromCoordinatesService } from '../services/geocoding-services'
-import { typeCoords } from '../models'
+import { authorizationString, typeCoords } from '../models'
 
 export const router = express.Router()
 

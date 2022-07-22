@@ -10,7 +10,7 @@ export const router = express.Router()
     .get('/', async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const url: string|null = await getGmailUrlService(token)
-        res.json({ success: url ? true : false, url })
+        res.json({ success: !!url, url })
     })
 
     // step 2
@@ -18,7 +18,7 @@ export const router = express.Router()
         const token: string = req.header(authorizationString) || ""
         const code: string = req.body.code
         const gmailKeys: Credentials|null = await getGmailRequestService(token, code)
-        res.json({ success: gmailKeys ? true : false, gmailKeys })
+        res.json({ success: !!gmailKeys, gmailKeys })
     })
 
     // save new Gmail API token

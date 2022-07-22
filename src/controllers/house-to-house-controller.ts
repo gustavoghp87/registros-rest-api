@@ -1,7 +1,7 @@
 import express from 'express'
 import { Request, Response } from 'express'
 import * as hTHServices from '../services/house-to-house-services'
-import { typeBlock, typeDoNotCall, typeFace, typeHTHMap, typeHTHTerritory, typeObservation, typePolygon, typeTerritoryNumber } from '../models'
+import { authorizationString, typeBlock, typeDoNotCall, typeFace, typeHTHMap, typeHTHTerritory, typeObservation, typePolygon, typeTerritoryNumber } from '../models'
 
 export const router = express.Router()
 

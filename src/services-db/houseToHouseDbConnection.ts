@@ -28,7 +28,7 @@ export class HouseToHouseDb {
                 { $push: { "map.polygons.$.doNotCalls": doNotCall } }
             )
             console.log("RESULT:", result)
-            return result && result.modifiedCount ? true : false
+            return !!result && !!result.modifiedCount
         } catch (error) {
             console.log(error)
             logger.Add(`Falló AddHTHDoNotCall() territorio ${territory}: ${error}`, generalError)
@@ -46,7 +46,7 @@ export class HouseToHouseDb {
                 { $push: { "map.polygons.$.observations": observation } }
             )
             console.log("RESULT:", result)
-            return result && result.modifiedCount ? true : false
+            return !!result && !!result.modifiedCount
         } catch (error) {
             console.log(error)
             logger.Add(`Falló AddHTHObservation() territorio ${territory}: ${error}`, generalError)
@@ -63,7 +63,7 @@ export class HouseToHouseDb {
                 { $push: { "map.polygons": polygon } }
             )
             console.log("RESULT:", result)
-            return result && result.modifiedCount ? true : false
+            return !!result && !!result.modifiedCount
         } catch (error) {
             console.log(error)
             logger.Add(`Falló AddHTHObservation() territorio ${territory}: ${error}`, generalError)

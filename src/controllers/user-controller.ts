@@ -3,14 +3,14 @@ import { Request, Response } from 'express'
 import * as userServices from '../services/user-services'
 import { authorizationString, typeUser } from '../models'
 
-const unauthenticatedUser: typeUser = {
-    isAuth: false,
-    isAdmin: false,
-    role: 0,
-    email: "",
-    estado: false,
-    group: 0
-}
+// const unauthenticatedUser: typeUser = {
+//     isAuth: false,
+//     isAdmin: false,
+//     role: 0,
+//     email: "",
+//     estado: false,
+//     group: 0
+// }
 
 export const router = express.Router()
 
@@ -18,10 +18,7 @@ export const router = express.Router()
     .get('/', async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         let user: typeUser|null = await userServices.getActivatedUserByAccessTokenService(token)
-        if (!user) return res.json({
-            success: false,
-            user: unauthenticatedUser
-        })
+        if (!user) return res.json({ success: false })
         user.isAuth = true
         user.isAdmin = user.role == 1
         user = blindUser(user)
@@ -55,7 +52,7 @@ export const router = express.Router()
         const estado: boolean = req.body.estado
         const role: number = req.body.role
         const group: number = req.body.group
-        let user: typeUser|null = await userServices.modifyUserService(token, user_id, estado, role, group)
+        let user: typeUser|null = await userServices.editUserService(token, user_id, estado, role, group)
         if (!user) return res.json({ success: false })
         user = blindUser(user)
         res.json({ success: true, user })

@@ -1,27 +1,25 @@
 import express from 'express'
 import { Request, Response } from 'express'
 import * as territoryServices from '../services/territory-services'
-import { authorizationString, typeHousehold } from '../models'
+import { authorizationString, typeStateOfTerritory, typeHousehold, typeTerritoryNumber } from '../models'
 
 export const router = express.Router()
 
     // get blocks
-    .get('/blocks/:territory', async (req: Request, res: Response) => {
-        const token: string = req.header(authorizationString) || ""
-        const territory: string = req.params.territory
-        const blocks: string[]|null = await territoryServices.getBlocksService(token, territory)
-        res.json({ success: blocks !== null, blocks })
-    })
+    // .get('/blocks/:territory', async (req: Request, res: Response) => {
+    //     const token: string = req.header(authorizationString) || ""
+    //     const territory: string = req.params.territory
+    //     const blocks: string[]|null = await territoryServices.getBlocksService(token, territory)
+    //     res.json({ success: blocks !== null, blocks })
+    // })
 
     // get households
-    .post('/', async (req: Request, res: Response) => {
+    .get('/:territory', async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
-        const { territory, manzana, aTraer, traerTodos } = req.body
-        const response: [typeHousehold[], boolean] | null =
-            await territoryServices.getHouseholdsByTerritoryService(token, territory, manzana, aTraer, traerTodos)
-        if (!response || !response[0]) return res.json({ success: false })
-        const households: typeHousehold[]|null = response[0]
-        res.json({ success: true, households, isAll: response[1] })
+        const territory: typeTerritoryNumber = req.params.territory as typeTerritoryNumber
+        const response: [typeHousehold[], typeStateOfTerritory]|null = await territoryServices.getHouseholdsByTerritoryService(token, territory)
+        if (!response || !response.length) return res.json({ success: false })
+        res.json({ success: true, households: response[0], stateOfTerritory: response[1] })
     })
 
     // edit household

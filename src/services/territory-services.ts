@@ -1,11 +1,11 @@
 import { logger } from '../server'
-import { changeStateOfTerritoryService, setResetDate } from './state-of-territory-services'
+import { changeStateOfTerritoryService, getStateOfTerritoryService, setResetDate } from './state-of-territory-services'
 import { getActivatedAdminByAccessTokenService, getActivatedUserByAccessTokenService } from './user-services'
 import { sendAlertOfTerritoriesEmailService } from './email-services'
 import { generalError, stateOfTerritoryChange, territoryChange } from './log-services'
 import { HouseholdDb } from '../services-db/householdDbConnection'
 import * as types from '../models/household'
-import { typeUser } from '../models'
+import { typeStateOfTerritory, typeUser } from '../models'
 
 const householdDbConnection: HouseholdDb = new HouseholdDb()
 
@@ -32,42 +32,23 @@ export const resetTerritoryService = async (token: string, territory: string, op
     return success
 }
 
-export const getBlocksService = async (token: string, territory: string): Promise<string[]|null> => {
+// export const getBlocksService = async (token: string, territory: string): Promise<string[]|null> => {
+//     const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
+//     if (!user || !territory) return null
+//     if (!isTerritoryAssignedToUser(user, territory)) return null
+//     const blocks: string[]|null = await householdDbConnection.GetBlocks(territory)
+//     return blocks
+// }
+
+export const getHouseholdsByTerritoryService = async (token: string,
+    territory: types.typeTerritoryNumber): Promise<[types.typeHousehold[], typeStateOfTerritory]|null> => {
     const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
     if (!user || !territory) return null
     if (!isTerritoryAssignedToUser(user, territory)) return null
-    const blocks: string[]|null = await householdDbConnection.GetBlocks(territory)
-    return blocks
-}
-
-export const getHouseholdsByTerritoryService =
- async (token: string, territory: string, manzana: string, aTraer: number, traerTodos: boolean): Promise<[types.typeHousehold[], boolean]|null> => {
-    const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
-    traerTodos = !traerTodos ? false : true
-    if (!user || !territory || !manzana|| !aTraer) return null
-    if (!isTerritoryAssignedToUser(user, territory)) return null
-    let households: types.typeHousehold[]|null = null
-    let isAll: boolean = false    
-    if (traerTodos) {
-        const allHouseholds: types.typeHousehold[]|null = await householdDbConnection.GetTerritoryByNumberAndBlock(territory, manzana)
-        const allHouseholdsAmount: number|undefined = allHouseholds?.length
-        if (!allHouseholdsAmount) return null
-        households= allHouseholds
-        if (households) {
-            households = households.slice(0, aTraer)
-            isAll = households.length === allHouseholdsAmount
-        }
-    } else {
-        const allFreeHouseholds: types.typeHousehold[]|null = await householdDbConnection.GetFreePhonesOfTerritoryByNumberAndBlock(territory, manzana)
-        const allFreeHouseholdsAmount: number|undefined = allFreeHouseholds?.length
-        if (allFreeHouseholdsAmount === undefined) return null
-        households = allFreeHouseholds
-        if (households) {
-            households = households.slice(0, aTraer)
-            isAll = households.length === allFreeHouseholdsAmount
-        }
-    }
-    return households ? [households, isAll] : null
+    const households: types.typeHousehold[]|null = await householdDbConnection.GetTerritory(territory)
+    const stateOfTerritory: typeStateOfTerritory|null = await getStateOfTerritoryService(token, territory)  // token <==
+    if (!households || !stateOfTerritory) return null
+    return [households, stateOfTerritory]
 }
 
 export const getAllHouseholdsService = async (): Promise<types.typeHousehold[]|null> => {

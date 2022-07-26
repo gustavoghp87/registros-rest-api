@@ -1,7 +1,7 @@
 import express from 'express'
 import { Request, Response } from 'express'
 import * as stateTerritoryServices from '../services/state-of-territory-services'
-import { authorizationString, stateOfTerritory } from '../models'
+import { authorizationString, typeStateOfTerritory } from '../models'
 
 export const router = express.Router()
 
@@ -9,14 +9,14 @@ export const router = express.Router()
     .get('/:territory', async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const territory: string = req.params.territory
-        const stateOfTerritory: stateOfTerritory|null = await stateTerritoryServices.getStateOfTerritoryService(token, territory)
+        const stateOfTerritory: typeStateOfTerritory|null = await stateTerritoryServices.getStateOfTerritoryService(token, territory)
         res.json({ success: stateOfTerritory !== null, stateOfTerritory })
     })
 
     // get state of territories
     .get('/', async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
-        const stateOfTerritories: stateOfTerritory[]|null = await stateTerritoryServices.getStateOfTerritoriesService(token)
+        const stateOfTerritories: typeStateOfTerritory[]|null = await stateTerritoryServices.getStateOfTerritoriesService(token)
         res.json({ success: stateOfTerritories !== null, stateOfTerritories })
     })
 

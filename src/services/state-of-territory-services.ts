@@ -2,22 +2,22 @@ import { logger } from '../server'
 import { deallocateMyTerritoryService, getActivatedAdminByAccessTokenService, getActivatedUserByAccessTokenService } from './user-services'
 import { stateOfTerritoryChange } from './log-services'
 import { StateOfTerritoryDb } from '../services-db/stateOfTerritoryDbConnection'
-import { stateOfTerritory, typeUser } from '../models'
+import { typeStateOfTerritory, typeUser } from '../models'
 
 const stateOfTerritoryDbConnection: StateOfTerritoryDb = new StateOfTerritoryDb()
 
-export const getStateOfTerritoryService = async (token: string, territory: string): Promise<stateOfTerritory|null> => {
+export const getStateOfTerritoryService = async (token: string, territory: string): Promise<typeStateOfTerritory|null> => {
     const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
     if (!user || !territory) return null
     // assigned ?
-    const stateOfTerritory: stateOfTerritory|null = await stateOfTerritoryDbConnection.GetStateOfTerritory(territory)
+    const stateOfTerritory: typeStateOfTerritory|null = await stateOfTerritoryDbConnection.GetStateOfTerritory(territory)
     return stateOfTerritory
 }
 
-export const getStateOfTerritoriesService = async (token: string): Promise<stateOfTerritory[]|null> => {
+export const getStateOfTerritoriesService = async (token: string): Promise<typeStateOfTerritory[]|null> => {
     const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
     if (!user) return null
-    const stateOfTerritories: stateOfTerritory[]|null = await stateOfTerritoryDbConnection.GetStateOfTerritories()
+    const stateOfTerritories: typeStateOfTerritory[]|null = await stateOfTerritoryDbConnection.GetStateOfTerritories()
     return stateOfTerritories
 }
 

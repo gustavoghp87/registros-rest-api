@@ -1,13 +1,13 @@
 import { UpdateResult } from 'mongodb'
 import { dbClient, logger } from '../server'
 import { generalError } from '../services/log-services'
-import { stateOfTerritory } from '../models'
+import { typeStateOfTerritory } from '../models'
 
 export class StateOfTerritoryDb {
-    async GetStateOfTerritory(territory: string): Promise<stateOfTerritory|null> {
+    async GetStateOfTerritory(territory: string): Promise<typeStateOfTerritory|null> {
         try {
-            const obj: stateOfTerritory =
-                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollTerr).findOne({ territorio: territory }) as stateOfTerritory
+            const obj: typeStateOfTerritory =
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollTerr).findOne({ territorio: territory }) as typeStateOfTerritory
             return obj
         } catch (error) {
             console.log("Territory Db SearchStateOfTerritory", error)
@@ -15,10 +15,10 @@ export class StateOfTerritoryDb {
             return null
         }
     }
-    async GetStateOfTerritories(): Promise<stateOfTerritory[]|null> {
+    async GetStateOfTerritories(): Promise<typeStateOfTerritory[]|null> {
         try {
-            const obj: stateOfTerritory[]|null =
-                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollTerr).find().toArray() as stateOfTerritory[]
+            const obj: typeStateOfTerritory[]|null =
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollTerr).find().toArray() as typeStateOfTerritory[]
             return obj
         } catch (error) {
             console.log("Territory Db SearchStatesOfTerritories", error)

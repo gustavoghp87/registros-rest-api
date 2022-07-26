@@ -4,33 +4,31 @@ import * as types from '../models/household'
 import { localStatistic, statistic } from '../models'
 
 export class HouseholdDb {
-
-    async GetBlocks(territory: string): Promise<string[]|null> {
-        try {
-            let blocks: string[] = []
-            let i = 1
-            while (i < 9) {
-                try {
-                    let busq: types.typeHousehold|null =
-                        await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).findOne({
-                            territorio: { $in: [territory] },
-                            manzana: { $in: [i.toString()] }
-                        }) as types.typeHousehold|null
-                    if (busq) blocks.push(i.toString())
-                } catch (error) {
-                    console.log(error)
-                    logger.Add(`Falló GetBlocks() territorio ${territory} manzana ${i}: ${error}`, generalError)
-                }
-                i++
-            }
-            return blocks
-        } catch (error) {
-            console.log(error)
-            logger.Add(`Falló GetBlocks() territorio ${territory}: ${error}`, generalError)
-            return null
-        }
-    }
-
+    // async GetBlocks(territory: string): Promise<string[]|null> {
+    //     try {
+    //         let blocks: string[] = []
+    //         let i = 1
+    //         while (i < 9) {
+    //             try {
+    //                 let busq: types.typeHousehold|null =
+    //                     await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).findOne({
+    //                         territorio: { $in: [territory] },
+    //                         manzana: { $in: [i.toString()] }
+    //                     }) as types.typeHousehold|null
+    //                 if (busq) blocks.push(i.toString())
+    //             } catch (error) {
+    //                 console.log(error)
+    //                 logger.Add(`Falló GetBlocks() territorio ${territory} manzana ${i}: ${error}`, generalError)
+    //             }
+    //             i++
+    //         }
+    //         return blocks
+    //     } catch (error) {
+    //         console.log(error)
+    //         logger.Add(`Falló GetBlocks() territorio ${territory}: ${error}`, generalError)
+    //         return null
+    //     }
+    // }
     async GetTerritory(territory: string): Promise<types.typeHousehold[]|null> {
         try {
             const territories: types.typeHousehold[]|null =
@@ -43,7 +41,6 @@ export class HouseholdDb {
             return null
         }
     }
-
     async GetTerritoryByNumberAndBlock(territory: string, block: string): Promise<types.typeHousehold[]|null> {
             try {
             const households: types.typeHousehold[] = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({
@@ -57,7 +54,6 @@ export class HouseholdDb {
             return null
         }
     }
-
     async GetFreePhonesOfTerritoryByNumberAndBlock(territory: string, block: string): Promise<types.typeHousehold[]|null> {
         try {
             let households: types.typeHousehold[] = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({
@@ -75,7 +71,6 @@ export class HouseholdDb {
             return null
         }
     }
-
     async GetNumbreOfFreePhonesOfTerritoryByNumber(territory: string): Promise<number|null> {
         try {
             const getNumberOfFreePhones: number = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).find({
@@ -93,7 +88,6 @@ export class HouseholdDb {
             return null
         }
     }
-
     async GetHouseholdById(inner_id: string): Promise<types.typeHousehold|null> {
         try {
             const household: types.typeHousehold = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).findOne({ inner_id }) as types.typeHousehold
@@ -103,7 +97,6 @@ export class HouseholdDb {
             return null
         }
     }
-
     async GetAllHouseholds(): Promise<types.typeHousehold[]|null> {
         try {
             const territories: types.typeHousehold[]|null =
@@ -116,11 +109,8 @@ export class HouseholdDb {
             return null
         }
     }
-
     async ResetTerritory(territorio: string, option: number): Promise<boolean> {
-        const time = Date.now()        // milliseconds
-        const sixMonths = 15778458000
-        const timeSixMonths = time - sixMonths
+        const timeSixMonths = Date.now() - 15778458000    // milliseconds
         try {
             if (option === 1) {
                 console.log("Option 1 // clean more than 6 months")
@@ -133,9 +123,7 @@ export class HouseholdDb {
                 }, {
                     $set: { estado: types.noPredicado, asignado: false }
                 })
-            }
-            
-            if (option === 2) {
+            } else if (option === 2) {
                 console.log("Option 2  // clean all")
                 await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).updateMany({
                     $and: [
@@ -145,9 +133,7 @@ export class HouseholdDb {
                 }, {
                     $set: { estado: types.noPredicado, asignado: false }
                 })
-            }
-            
-            if (option === 3) {
+            } else if (option === 3) {
                 console.log("Option 3  // clean more than 6 months even 'noAbonado'")
                 await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).updateMany({
                     $and: [
@@ -157,9 +143,7 @@ export class HouseholdDb {
                 }, {
                     $set: { estado: types.noPredicado, asignado: false, noAbonado: false }
                 })
-            }
-            
-            if (option === 4) {
+            } else if (option === 4) {
                 console.log("Option 4  // clean all even 'noAbonado'")
                 await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).updateMany({
                     $and: [
@@ -169,7 +153,6 @@ export class HouseholdDb {
                     $set: { estado: types.noPredicado, asignado: false, noAbonado: false }
                 })
             }
-
             return true
         } catch (error) {
             console.log(error)
@@ -177,7 +160,6 @@ export class HouseholdDb {
             return false
         }
     }
-
     async UpdateHouseholdState(inner_id: string, estado?: string, noAbonado?: boolean, asignado?: boolean): Promise<boolean> {
         try {
             await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUnit).updateOne({ inner_id },
@@ -190,7 +172,6 @@ export class HouseholdDb {
             return false
         }
     }
-
     async GetGlobalStatistics(): Promise<statistic|null> {
         try {
             const count: number =
@@ -226,7 +207,6 @@ export class HouseholdDb {
             return null
         }
     }
-
     async GetLocalStatistics(territorio: string): Promise<localStatistic|null> {
         try {
             const count: number =

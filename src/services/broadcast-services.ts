@@ -4,17 +4,16 @@ import { socketError } from './log-services'
 import { typeHousehold, typeUser } from '../models'
 
 type householdChangeObjectPackage = {
-    households: typeHousehold[]
     updatedHousehold: typeHousehold
-    indexOfHousehold: number
     userEmail: string
 }
 
 type socketConnection = 'user: change' | 'household: change' | 'hth: change' | 'connection'
-const userChange: socketConnection = 'user: change'
-const householdChange: socketConnection = 'household: change'
-//const hthChange: socketConnection = 'hth: change'
+
 const connection: socketConnection = 'connection'
+const householdChange: socketConnection = 'household: change'
+const userChange: socketConnection = 'user: change'
+//const hthChange: socketConnection = 'hth: change'
 
 export const socketConnection = (production: boolean): void => {
     new Server(server, {
@@ -24,21 +23,17 @@ export const socketConnection = (production: boolean): void => {
             credentials: true
         }
     }).on(connection, (socket: Socket): void => {
-        // console.log("NEW SOCKET CONNECTION -", socket.id)
-        socket.emit(connection, null);
+        socket.emit(connection, null)
         socket.on(householdChange, (objPackage: householdChangeObjectPackage): void => {
             if (!objPackage) return
-            let households: typeHousehold[] = objPackage.households
             const updatedHousehold: typeHousehold = objPackage.updatedHousehold
-            const indexOfHousehold: number = objPackage.indexOfHousehold
             const userEmail: string = objPackage.userEmail
-            if (!households || !updatedHousehold || indexOfHousehold === null) {
-                logger.Add(`Error en socket household change: ${userEmail} ${households?.length} ${indexOfHousehold} ${JSON.stringify(updatedHousehold)}`, socketError)
+            if (!updatedHousehold || !userEmail) {
+                logger.Add(`Error en socket household change: ${userEmail} ${JSON.stringify(updatedHousehold)}`, socketError)
                 return
             }
-            households[indexOfHousehold] = updatedHousehold
-            socket.emit(householdChange, households, userEmail)
-            socket.broadcast.emit(householdChange, households, userEmail)
+            socket.emit(householdChange, updatedHousehold, userEmail)
+            socket.broadcast.emit(householdChange, updatedHousehold, userEmail)
         })
         socket.on(userChange, (updatedUser: typeUser): void => {
             socket.emit(userChange, updatedUser)

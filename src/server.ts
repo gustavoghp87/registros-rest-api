@@ -4,6 +4,7 @@ import morgan from 'morgan'
 import cors from 'cors'
 import { port, NODE_ENV } from './env-variables'
 import { router as campaignController } from './controllers/campaign-controller'
+import { router as congregationController } from './controllers/congregation-controller'
 import { router as emailController } from './controllers/email-controller'
 import { router as houseToHouseController } from './controllers/house-to-house-controller'
 import { router as geocodingController } from './controllers/geocoding-controller'
@@ -33,6 +34,7 @@ app.use(morgan('dev') as RequestHandler)
 app.use(express.static(path.join(__dirname, 'frontend-src')))
 app.use(express.static(path.join(__dirname, 'build')))
 app.use('/api/campaign', campaignController)
+app.use('/api/congregation', congregationController)
 app.use('/api/email', emailController)
 app.use('/api/log', logController)
 app.use('/api/house-to-house', houseToHouseController)

@@ -113,11 +113,7 @@ export const getActivatedAdminByAccessTokenService = async (token: string): Prom
 }
 
 export const getActivatedUserByAccessTokenService = async (token: string): Promise<typeUser|null> => {
-    console.log("token:",token);
-    
     const user: typeUser|null = await getUserByAccessToken(token)
-    console.log(user);
-    
     if (!user) return null
     return user && user.estado ? user : null
 }

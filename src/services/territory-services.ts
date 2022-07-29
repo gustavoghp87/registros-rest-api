@@ -44,7 +44,7 @@ export const getHouseholdsByTerritoryService = async (token: string,
     territory: types.typeTerritoryNumber): Promise<[types.typeHousehold[], typeStateOfTerritory]|null> => {
     const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
     if (!user || !territory) return null
-    if (!isTerritoryAssignedToUser(user, territory)) return null
+    if (user.role !== 1 && !isTerritoryAssignedToUser(user, territory)) return null
     const households: types.typeHousehold[]|null = await householdDbConnection.GetTerritory(territory)
     const stateOfTerritory: typeStateOfTerritory|null = await getStateOfTerritoryService(token, territory)  // token <==
     if (!households || !stateOfTerritory) return null
@@ -81,7 +81,7 @@ const isHouseholdAssignedToUser = async (user: typeUser, inner_id: string): Prom
         const success: boolean = user.asign.includes(territoryNumber)
         return success
     } catch (error) {
-        logger.Add(`Falló isTerritoryAssignedToUser(): ${error}`, generalError)
+        logger.Add(`Falló isHouseholdAssignedToUser(): ${error}`, generalError)
         return false
     }
 }

@@ -1,19 +1,19 @@
 import { dbClient, logger } from '../server'
 import { ObjectId, UpdateResult } from 'mongodb'
 import { generalError } from '../services/log-services';
-import { recoveryOption, typeUser } from '../models/user'
+import { typeRecoveryOption, typeUser } from '../models/user'
 
 export class UserDb {
     async AddRecoveryOption(email: string, id: string): Promise<boolean> {
         try {
             const user: typeUser|null = await this.GetUserByEmail(email)
             if (!user) return false
-            const newRecoveryOption: recoveryOption = {
+            const newRecoveryOption: typeRecoveryOption = {
                 id,
                 expiration: + new Date() + 24*60*60*1000,       // 24 hs
                 used: false
             }
-            let recoveryOptions: recoveryOption[]|undefined = user.recoveryOptions
+            let recoveryOptions: typeRecoveryOption[]|undefined = user.recoveryOptions
             if (!recoveryOptions) recoveryOptions = []
             recoveryOptions.push(newRecoveryOption)
             const result: UpdateResult = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUsers).updateOne({ email }, {
@@ -140,7 +140,7 @@ export class UserDb {
             if (!users) return null
             let user0: typeUser|null = null
             users.forEach((user: typeUser) => {
-                if (user && user.recoveryOptions) user.recoveryOptions.forEach((recoveryOption: recoveryOption) => {
+                if (user && user.recoveryOptions) user.recoveryOptions.forEach((recoveryOption: typeRecoveryOption) => {
                     if (recoveryOption.id === id) user0 = user 
                 })
             })
@@ -165,7 +165,7 @@ export class UserDb {
     async SetRecoveryOptionAsUsed(user: typeUser, id: string): Promise<boolean> {
         try {
             if (!id || !user || !user.recoveryOptions || !user.email) return false
-            user.recoveryOptions?.forEach((recoveryOption: recoveryOption) => {
+            user.recoveryOptions?.forEach((recoveryOption: typeRecoveryOption) => {
                 if (recoveryOption.id === id) recoveryOption.used = true
             })
             const result: UpdateResult = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollUsers).updateOne({ email: user.email }, {

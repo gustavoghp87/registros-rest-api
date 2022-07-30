@@ -24,8 +24,9 @@ export const getStateOfTerritoriesService = async (token: string): Promise<typeS
 export const changeStateOfTerritoryService = async (token: string, territory: string, isFinished: boolean): Promise<boolean> => {
     const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
     // check this user is allowed to change this territory
-    if (!user || !territory || typeof isFinished !== 'boolean') return false
-    let success: boolean = await stateOfTerritoryDbConnection.ChangeStateOfTerritory(territory, isFinished)
+    if (!user || !territory) return false
+    isFinished = !!isFinished
+    const success: boolean = await stateOfTerritoryDbConnection.ChangeStateOfTerritory(territory, isFinished)
     if (success) {
         logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cambia territorio ${territory} a ${isFinished ? 'terminado' : 'abierto'}`, stateOfTerritoryChange)
         // if I am not an Admin

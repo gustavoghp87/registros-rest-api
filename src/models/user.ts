@@ -11,17 +11,17 @@ export type typeUser = {
     asign?: number[]
     darkMode?: boolean
     tokenId?: number
-    recoveryOptions?: recoveryOption[]
+    recoveryOptions?: typeRecoveryOption[]
 }
 
-export type decodedObject = {
+export type typeDecodedObject = {
     userId: string
     tokenId?: number
     iat: number
     exp: number
 }
 
-export type recoveryOption = {
+export type typeRecoveryOption = {
     id: string
     expiration: number
     used: boolean

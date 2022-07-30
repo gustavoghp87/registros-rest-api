@@ -6,7 +6,7 @@ import { accessTokensExpiresIn, logger } from '../server'
 import { sendRecoverAccountEmailService } from './email-services'
 import { generalError, login, territoryChange, userChanges } from './log-services'
 import { UserDb } from '../services-db/userDbConnection'
-import { decodedObject, recoveryOption, typeUser } from '../models'
+import { typeDecodedObject, typeRecoveryOption, typeUser } from '../models'
 
 const userDbConnection: UserDb = new UserDb()
 
@@ -118,19 +118,37 @@ export const getActivatedUserByAccessTokenService = async (token: string): Promi
     return user && user.estado ? user : null
 }
 
+// interface jwtPayloadMW extends jwt.JwtPayload {
+//     userId: Object|string
+// }
+
 const getUserByAccessToken = async (token: string): Promise<typeUser|null> => {
     if (!token) return null 
-    let decoded: decodedObject|null
-    let tokenId: number|null
-    const timeNow: number = Date.now() / 1000
+    let decoded: typeDecodedObject|null
     try {
-        decoded = jwt.verify(token, string_jwt) as decodedObject
+        decoded = jwt.verify(token, string_jwt) as typeDecodedObject
     } catch (error) {
         console.log(error)
-        logger.Add(`Falló retrieveUserIdByAccessToken(): ${error}`, generalError)
+        try {
+            const decoded1: jwt.JwtPayload|null = jwt.decode(token, { complete: true, json: true })
+            console.log(decoded1)
+            if (decoded1 && decoded1.userId) {
+                const user: typeUser|null = await userDbConnection.GetUserById(decoded1.userId)
+                logger.Add(`Falló retrieveUserIdByAccessToken() para ${user?.email}: ${error}`, generalError)
+            } else {
+                logger.Add(`Falló retrieveUserIdByAccessToken() para usuario desconocido 1: ${error}`, generalError)
+            }
+        } catch (error) {
+            
+            logger.Add(`Falló retrieveUserIdByAccessToken() para usuario desconocido 2: ${error}`, generalError)
+        }
         return null
     }
-    const userId: string|null = decoded && decoded.iat && decoded.exp && decoded.iat < timeNow && decoded.exp > timeNow ? decoded?.userId : null
+    let tokenId: number|null
+    const timeNow: number = Date.now() / 1000
+    const userId: string|null = decoded && decoded.iat && decoded.exp && decoded.iat < timeNow && decoded.exp > timeNow
+        ? decoded?.userId
+        : null
     tokenId = decoded && decoded.tokenId ? decoded.tokenId : 1
     if (!userId || !tokenId) return null
     const user: typeUser|null = await userDbConnection.GetUserById(userId)
@@ -145,6 +163,10 @@ export const generateAccessTokenService = (user: typeUser, tokenId: number): str
     if (!tokenId) tokenId = 1
     try { if (typeof tokenId !== 'number') tokenId = parseInt(tokenId) } catch { return null }
     try {
+        // const payload: typeDecodedObject = {
+        //     userId: user._id.toString(),
+        //     tokenId
+        // }
         const newToken: string = jwt.sign({ userId: user._id, tokenId }, string_jwt, { expiresIn: accessTokensExpiresIn })
         if (newToken) logger.Add(`Se logueó el usuario ${user.email}`, login)
         return newToken
@@ -227,7 +249,7 @@ export const changePswByEmailLinkService = async (id: string, newPsw: string): P
     if (!newPsw || typeof newPsw !== 'string' || newPsw.length < 8) return null
     const user: typeUser|null = await userDbConnection.GetUserByEmailLink(id)
     if (!user || !user._id || !user.recoveryOptions) return null
-    let recoveryOption: recoveryOption|null = null
+    let recoveryOption: typeRecoveryOption|null = null
     for (let i = 0; i < user.recoveryOptions.length; i++) {
         if (user.recoveryOptions[i].id === id) recoveryOption = user.recoveryOptions[i]
     }

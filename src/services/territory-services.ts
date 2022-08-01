@@ -10,7 +10,7 @@ import { typeStateOfTerritory, typeUser } from '../models'
 const householdDbConnection: HouseholdDb = new HouseholdDb()
 
 export const isTerritoryAssignedToUser = (user: typeUser, territory: string): boolean => {
-    if (user.asign?.find(assignedTerritory => assignedTerritory.toString() === territory)) return true
+    if (user.asign?.some(assignedTerritory => assignedTerritory.toString() === territory)) return true
     return false
 }
 

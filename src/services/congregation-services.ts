@@ -17,25 +17,28 @@ export const getCongregationItems = async (token: string): Promise<typeCongregat
             if (item !== 'inicio' && !items.includes(item)) items.push(item)
         })
         let congregationItems: typeCongregationItem[] = []
-        try {
-            for (let i = 0; i < items.length; i++) {
-                const { data } = await Axios.get(siteUrl + items[i])
-                const titleElements: string[] = data.split('</h2>')[0].split('>')
-                const title: string = titleElements[titleElements.length - 1]
-                const idsElements: string[] = data.split('data-embed-doc-id="')
-                idsElements.shift()
-                const ids: string[] = []
-                idsElements.forEach(x => ids.push(x.split('"')[0]))
-                congregationItems.push({
-                    ids,
-                    title
-                })
-            }
-            return congregationItems
-        } catch (error) {
-            console.log(error)
-            return null
+        const promisesArray: any[] = []
+        for (let i = 0; i < items.length; i++) {
+            promisesArray.push(new Promise(async (resolve, reject) => {
+                try {
+                    const { data } = await Axios.get(siteUrl + items[i])
+                    const titleElements: string[] = data.split('</h2>')[0].split('>')
+                    const title: string = titleElements[titleElements.length - 1]
+                    let ids: string[] = data.split('data-embed-doc-id="')
+                    ids.shift()
+                    ids = ids.map(x => x.split('"')[0])
+                    resolve({
+                        ids,
+                        title
+                    })
+                } catch (error) {
+                    console.log(error)
+                    reject()
+                }
+            }))
         }
+        congregationItems = await Promise.all(promisesArray)
+        return congregationItems
     } catch (error) {
         console.log(error)
         return null

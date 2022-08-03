@@ -1,16 +1,17 @@
+import Axios from 'axios'
 import { typeCongregationItem } from '../controllers/congregation-controller'
 import { getActivatedUserByAccessTokenService } from './user-services'
+import { googleSiteUrl } from '../env-variables'
 import { typeUser } from '../models'
-import Axios from 'axios'
 
 export const getCongregationItems = async (token: string): Promise<typeCongregationItem[]|null> => {
     const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
     if (!user) return null
-    const siteUrl: string = 'https://sites.google.com/view/tablerocongpm/'
+    const siteUrl: string = 'https://sites.google.com' + googleSiteUrl
     try {
         const { data } = await Axios.get(siteUrl)
         const items: string[] = []
-        const urlElements: string[] = data.split('href="/view/tablerocongpm/')
+        const urlElements: string[] = data.split('href="' + googleSiteUrl)
         urlElements.shift()
         urlElements.forEach(x => {
             const item: string = x.split('"')[0]

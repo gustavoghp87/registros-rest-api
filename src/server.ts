@@ -18,7 +18,7 @@ import { DbConnection } from './services-db/_dbConnection'
 import { socketConnection } from './services/broadcast-services'
 import { Logger, app as appType } from './services/log-services'
 
-export const isProduction: boolean = NODE_ENV !== "dev"
+export const isProduction: boolean = NODE_ENV === 'prod'
 export const testingDb: boolean = !isProduction
 export const accessTokensExpiresIn: string = '2160h'  // 90 days
 export const domain: string = "https://www.misericordiaweb.com"

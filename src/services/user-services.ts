@@ -70,8 +70,8 @@ export const checkRecaptchaTokenService = async (recaptchaToken: string): Promis
     const url: string = 'https://www.google.com/recaptcha/api/siteverify'
     const verifyURL: string = `${url}?secret=${privateKey}&response=${recaptchaToken}`
     try {
-        const response: any|null = await Axios.post(verifyURL)
-        if (!response || !response.data || !response.data.success) return false
+        const { data } = await Axios.post(verifyURL)
+        if (!data || !data.success) return false
         return true
     } catch (error) {
         console.log(error)

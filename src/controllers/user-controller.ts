@@ -1,7 +1,7 @@
-import express from 'express'
+import express, { NextFunction } from 'express'
 import { Request, Response } from 'express'
 import * as userServices from '../services/user-services'
-import { authorizationString, typeUser } from '../models'
+import { authorizationString, recaptchaTokenString, typeUser } from '../models'
 
 // const unauthenticatedUser: typeUser = {
 //     isAuth: false,
@@ -12,10 +12,32 @@ import { authorizationString, typeUser } from '../models'
 //     group: 0
 // }
 
+const blindUser = (user: typeUser): typeUser => {
+    user.password = undefined
+    user.tokenId = undefined
+    user.recoveryOptions = undefined
+    user.darkMode = undefined
+    return user
+}
+
+export const validateRecaptchaToken = async (req: Request, res: Response, next: NextFunction) => {
+    const recaptchaToken: string = req.header(recaptchaTokenString) || ""
+    console.log(recaptchaToken);
+    
+    // const success: boolean = await userServices.checkRecaptchaTokenService(recaptchaToken)
+
+    // if (!success) console.log("\n\n FALLÓ recaptcha  -------- \n\n");
+    
+    // if (!success) return res.json({ success })
+    // console.log("\n\n Pasó recaptcha \n\n");
+    
+    next()
+}
+
 export const router = express.Router()
 
     // get my user
-    .get('/', async (req: Request, res: Response) => {
+    .get('/', validateRecaptchaToken, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         let user: typeUser|null = await userServices.getActivatedUserByAccessTokenService(token)
         if (!user) return res.json({ success: false })
@@ -26,7 +48,7 @@ export const router = express.Router()
     })
     
     // sign up user
-    .post('/', async (req: Request, res: Response) => {
+    .post('/', validateRecaptchaToken, async (req: Request, res: Response) => {
         const { email, password, group, recaptchaToken } = req.body
         const checkRecaptch: boolean = await userServices.checkRecaptchaTokenService(recaptchaToken)
         if (!checkRecaptch) return res.json({ success: false, recaptchaFails: true })
@@ -37,7 +59,7 @@ export const router = express.Router()
     })
 
     // get all users
-    .get('/all', async (req: Request, res: Response) => {
+    .get('/all', validateRecaptchaToken, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const users: typeUser[]|null = await userServices.getUsersService(token)
         if (!users) return res.json({ success: false })
@@ -46,7 +68,7 @@ export const router = express.Router()
     })
 
     // change features for other users
-    .put('/', async (req: Request, res: Response) => {
+    .put('/', validateRecaptchaToken, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const user_id: string = req.body.user_id
         const estado: boolean = req.body.estado
@@ -59,7 +81,7 @@ export const router = express.Router()
     })
 
     // change my dark mode
-    .put('/mode', async (req: Request, res: Response) => {    // suspended
+    .put('/mode', validateRecaptchaToken, async (req: Request, res: Response) => {    // suspended
         const token: string = req.header(authorizationString) || ""
         const darkMode: boolean = req.body.darkMode
         const success: boolean = await userServices.changeModeService(token, darkMode)
@@ -67,7 +89,7 @@ export const router = express.Router()
     })
 
     // change assignations for other users
-    .put('/assignment', async (req: Request, res: Response) => {
+    .put('/assignment', validateRecaptchaToken, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const user_id: string = req.body.user_id
         const asignar: number = req.body.asignar
@@ -80,7 +102,7 @@ export const router = express.Router()
     })
     
     // get email from email link id
-    .get('/recovery/:id', async (req: Request, res: Response) => {
+    .get('/recovery/:id', validateRecaptchaToken, async (req: Request, res: Response) => {
         const id: string = req.params.id
         const user: typeUser|null = await userServices.getUserByEmailLinkService(id)
         if (!user || !user.email) return res.json({ success: false })
@@ -88,7 +110,7 @@ export const router = express.Router()
     })
 
     // recover account by a link in email box
-    .patch('/', async (req: Request, res: Response) => {
+    .patch('/', validateRecaptchaToken, async (req: Request, res: Response) => {
         const email: string = req.body.email || ""
         const response: string = await userServices.recoverAccountService(email)
         if (response === "no user") res.json({ success: false, noUser: true })
@@ -96,12 +118,4 @@ export const router = express.Router()
         else if (response === "ok") res.json({ success: true })
         else res.json({ success: false })
     })
-
-    const blindUser = (user: typeUser): typeUser => {
-        user.password = undefined
-        user.tokenId = undefined
-        user.recoveryOptions = undefined
-        user.darkMode = undefined
-        return user
-    }
 ;

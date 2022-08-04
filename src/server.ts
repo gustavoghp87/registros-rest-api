@@ -2,7 +2,7 @@ import express, { RequestHandler } from 'express'
 import path from 'path'
 import morgan from 'morgan'
 import cors from 'cors'
-import { port, NODE_ENV } from './env-variables'
+import { port, environment } from './env-variables'
 import { router as campaignController } from './controllers/campaign-controller'
 import { router as congregationController } from './controllers/congregation-controller'
 import { router as emailController } from './controllers/email-controller'
@@ -18,7 +18,7 @@ import { DbConnection } from './services-db/_dbConnection'
 import { socketConnection } from './services/broadcast-services'
 import { Logger, app as appType } from './services/log-services'
 
-export const isProduction: boolean = NODE_ENV === 'prod'
+export const isProduction: boolean = environment === 'prod'
 export const testingDb: boolean = !isProduction
 export const accessTokensExpiresIn: string = '2160h'  // 90 days
 export const domain: string = "https://www.misericordiaweb.com"

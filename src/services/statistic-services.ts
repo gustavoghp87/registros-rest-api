@@ -9,7 +9,7 @@ const householdDbConnection: HouseholdDb = new HouseholdDb()
 export const getNumberOfFreePhonesService = async (token: string, territory: string): Promise<number|null> => {
     const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
     if (!user || !territory) return null
-    if (!isTerritoryAssignedToUser(user, territory)) return null
+    if (user.role !== 1 && !isTerritoryAssignedToUser(user, territory)) return null
     const numberOfFreePhones: number|null = await householdDbConnection.GetNumbreOfFreePhonesOfTerritoryByNumber(territory)
     return numberOfFreePhones
 }

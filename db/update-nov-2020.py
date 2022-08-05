@@ -27,7 +27,7 @@ for i in data.index:
 	if (noAbonado=="True" or noAbonado=="true" or noAbonado==True):
 		noAbonado = True
 	else:
-	 	noAbonado = False
+		noAbonado = False
 
 	timestamp = 1604232000000
 	if (estado=="No predicado"):

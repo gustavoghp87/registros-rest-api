@@ -1,9 +1,9 @@
 import jwt from 'jsonwebtoken'
 import { jwtString } from '../env-variables'
-import { typeUser } from '../models'
 import { accessTokensExpiresIn, logger } from '../server'
 import { errorLogs } from './log-services'
 import { getUserById } from './user-services'
+import { typeUser } from '../models'
 
 export const decodeVerifiedService = (token: string): jwt.JwtPayload|null => {
     if (!token) return null
@@ -34,9 +34,9 @@ export const decodeService = (token: string): jwt.JwtPayload|null => {
     }
 }
 
-export const signUserService = (userId: string, tokenId: number, id: number): string|null => {
+export const signUserService = (id: number, tokenId: number): string|null => {
     try {
-        const token: string = jwt.sign({ userId, tokenId, id }, jwtString, { expiresIn: accessTokensExpiresIn })  // change to id
+        const token: string = jwt.sign({ id, tokenId }, jwtString, { expiresIn: accessTokensExpiresIn })
         return token
     } catch (error) {
         logger.Add(`No se pudo crear token de usuario: ${error}`, errorLogs)

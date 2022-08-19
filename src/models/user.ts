@@ -1,8 +1,4 @@
-import { ObjectId } from 'mongodb'
-
 export type typeUser = {
-    __v?: number
-    _id?: ObjectId       // to remove
     email: string
     group: number
     id: number
@@ -24,5 +20,5 @@ export type typeJWTObjectForUser = {
     exp: number
     iat: number
     tokenId: number
-    userId: string
+    userId: number
 }

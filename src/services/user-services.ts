@@ -31,7 +31,7 @@ export const assignTLPTerritoryService = async (token: string, email: string, to
 export const changePswByEmailLinkService = async (id: string, newPsw: string): Promise<string|null> => {
     if (!newPsw || typeof newPsw !== 'string' || newPsw.length < 8) return null
     const user: typeUser|null = await getUserByEmailLinkService(id)
-    if (!user || !user._id || !user.recoveryOptions || !user.tokenId) return null
+    if (!user || !user.id || !user.recoveryOptions || !user.tokenId) return null
     const recoveryOption: typeRecoveryOption|undefined = user.recoveryOptions.find(x => x.id === id)
     if (!recoveryOption) return null
     if (recoveryOption.expiration < + new Date()) return 'expired'
@@ -61,7 +61,7 @@ export const changePswOtherUserService = async (token: string, email: string): P
 
 export const changePswService = async (token: string, psw: string, newPsw: string): Promise<string|null> => {
     let user: typeUser|null = await getActivatedUserByAccessTokenService(token)
-    if (!user || !user.password || !user._id || !psw || !newPsw || newPsw.length < 8) return null
+    if (!user || !user.password || !user.id || !psw || !newPsw || newPsw.length < 8) return null
     let compare: boolean = await comparePasswordsService(psw, user.password)
     if (!compare) return "wrongPassword"
     const encryptedPassword: string|null = await generatePasswordHash(newPsw)
@@ -103,10 +103,10 @@ export const editUserService = async (token: string, email: string, isActive: bo
 }
 
 export const generateAccessTokenService = (user: typeUser, tokenId: number): string|null => {
-    if (!user || !user._id || !tokenId) return null   // change to id
-    const newToken: string|null = signUserService(user._id.toString(), tokenId, user.id)  // change to id
+    if (!user || !user.id || !tokenId) return null   // change to id
+    const newToken: string|null = signUserService(user.id, tokenId)  // change to id
     if (!newToken) {
-        logger.Add(`Falló generateAccessTokenService() ${user.email} ${tokenId}`, errorLogs)
+        logger.Add(`Falló generateAccessTokenService() ${user.email} ${user.id} ${tokenId}`, errorLogs)
         return null
     }
     logger.Add(`Se logueó el usuario ${user.email}`, loginLogs)
@@ -122,7 +122,7 @@ export const getActivatedUserByAccessTokenService = async (token: string): Promi
     if (!token) return null
     let decoded: typeJWTObjectForUser|null = decodeVerifiedService(token) as typeJWTObjectForUser
     if (!decoded || !decoded.userId || !decoded.tokenId) return null       // change to id
-    const user: typeUser|null = await userDbConnection.GetUserByMongoId(decoded.userId)
+    const user: typeUser|null = await userDbConnection.GetUserById(decoded.userId)
     if (!user || user.tokenId !== decoded.tokenId) return null
     return user && user.isActive ? user : null
 }
@@ -146,8 +146,8 @@ export const getUserByEmailService = async (email: string): Promise<typeUser|nul
     return user
 }
 
-export const getUserById = async (_id: string): Promise<typeUser|null> => {  // change to id
-    const user: typeUser|null = await userDbConnection.GetUserByMongoId(_id)
+export const getUserById = async (id: number): Promise<typeUser|null> => {
+    const user: typeUser|null = await userDbConnection.GetUserById(id)
     return user
 }
 
@@ -172,7 +172,7 @@ export const loginUserService = async (email: string, password: string, recaptch
     const checkRecaptch: boolean = await checkRecaptchaTokenService(recaptchaToken)
     if (!checkRecaptch) return 'recaptchaFailed'
     const user: typeUser|null = await getUserByEmailService(email)
-    if (!user || !user.password || !user.tokenId || !user._id) return null             // change to id
+    if (!user || !user.password || !user.tokenId || !user.id) return null
     if (!user.isActive) return 'isDisabled'
     const match: boolean = await comparePasswordsService(password, user.password)
     if (!match) return null
@@ -182,8 +182,8 @@ export const loginUserService = async (email: string, password: string, recaptch
 
 export const logoutAllService = async (token: string): Promise<string|null> => {
     const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
-    if (!user || !user.tokenId || !user._id) return null  // change to id
-    const success: boolean = await userDbConnection.UpdateTokenId(user._id.toString(), user.tokenId + 1)   // change to id
+    if (!user || !user.tokenId || !user.id) return null
+    const success: boolean = await userDbConnection.UpdateTokenId(user.id, user.tokenId + 1)
     if (!success) return null
     logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cerró todas las sesiones`, loginLogs)
     const newToken: string|null = generateAccessTokenService(user, user.tokenId + 1)

@@ -1,4 +1,4 @@
-import { ObjectId, UpdateResult } from 'mongodb'
+import { UpdateResult } from 'mongodb'
 import { dbClient, logger } from '../server'
 import { errorLogs } from '../services/log-services'
 import { typeRecoveryOption, typeUser } from '../models'
@@ -115,27 +115,16 @@ export class UserDb {
             return null
         }
     }
-    async GetUserByMongoId(_id: string): Promise<typeUser|null> {   // change to id
+    async GetUserById(id: number): Promise<typeUser|null> {
         try {
-            const user: typeUser|null = await getCollection().findOne({ _id: new ObjectId(_id) }) as typeUser
-            if (!user) return null
+            const user: typeUser|null = await getCollection().findOne({ id }) as typeUser
             return user
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló GetUserByMongoId() ${_id}: ${error}`, errorLogs)
+            logger.Add(`Falló GetUserById() ${id}: ${error}`, errorLogs)
             return null
         }
     }
-    // async GetUserById(id: number): Promise<typeUser|null> {
-    //     try {
-    //         const user: typeUser|null = await getCollection().findOne({ id }) as typeUser
-    //         return user
-    //     } catch (error) {
-    //         console.log(error)
-    //         logger.Add(`Falló GetUserById() ${id}: ${error}`, errorLogs)
-    //         return null
-    //     }
-    // }
     async RegisterUser(newUser: typeUser): Promise<boolean> {
         try {
             await getCollection().insertOne(newUser as unknown as Document)
@@ -162,17 +151,17 @@ export class UserDb {
             return false
         }
     }
-    async UpdateTokenId(_id: string, tokenId: number): Promise<boolean> {   // change to id
+    async UpdateTokenId(id: number, tokenId: number): Promise<boolean> {   // change to id
         try {
             await getCollection().updateOne(
-                { _id: new ObjectId(_id) },
+                { id },
                 { $set: { tokenId } }
             )
-            const user: typeUser|null = await this.GetUserByMongoId(_id)
+            const user: typeUser|null = await this.GetUserById(id)
             return !!user && user.tokenId === tokenId
         } catch (error) {
             console.log(error)
-            logger.Add(`Falló UpdateTokenId() ${_id}: ${error}`, errorLogs)
+            logger.Add(`Falló UpdateTokenId() ${id}: ${error}`, errorLogs)
             return false
         }
     }

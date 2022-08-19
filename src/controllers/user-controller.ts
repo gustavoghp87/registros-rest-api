@@ -14,6 +14,7 @@ import { authorizationString, recaptchaTokenString, typeUser } from '../models'
 // }
 
 const blindUser = (user: typeUser): typeUser => {
+    if (!user) return user
     user.password = undefined
     user.tokenId = 0
     user.recoveryOptions = []

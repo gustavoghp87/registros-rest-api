@@ -1,8 +1,6 @@
-import { ObjectId } from 'mongodb'
 import { typeBlock, typeFace, typeTerritoryNumber } from '.'
 
 export type typeHTHTerritory = {
-    _id?: ObjectId
     map: typeHTHMap
     territoryNumber: typeTerritoryNumber
 }

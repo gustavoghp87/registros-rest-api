@@ -24,7 +24,7 @@ export class LogDb {
             // }
             await getCollection().updateOne(
                 { type },
-                { $push: { log } })
+                { $push: { logs: log } })
             return true
         } catch (error) {
             console.log("Failed adding logs to db:", error)

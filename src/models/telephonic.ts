@@ -1,10 +1,8 @@
-import { ObjectId } from 'mongodb'
 import { typeBlock, typeTerritoryNumber } from '.'
 
 export type typeCallingState = "No predicado" | "No contestó" | "Contestó" | "No llamar" | "A dejar carta"
 
 export type typeTelephonicTerritory = {
-    _id?: ObjectId
     households: typeHousehold[]
     stateOfTerritory: typeStateOfTerritory
     territoryNumber: typeTerritoryNumber

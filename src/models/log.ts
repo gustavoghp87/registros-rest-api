@@ -1,7 +1,4 @@
-import { ObjectId } from 'mongodb'
-
 export type typeLogsPackage = {
-    _id?: ObjectId
     logs: typeLogObj[]
     type: typeLogType
 }

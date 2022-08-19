@@ -1,7 +1,4 @@
-import { ObjectId } from 'mongodb'
-
 export type typeCampaignPack = {
-    _id?: ObjectId
     assignedTo: string
     calledPhones: number[]
     from: number

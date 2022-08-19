@@ -36,7 +36,7 @@ export const decodeService = (token: string): jwt.JwtPayload|null => {
 
 export const signUserService = (id: number, tokenId: number): string|null => {
     try {
-        const token: string = jwt.sign({ id, tokenId }, jwtString, { expiresIn: accessTokensExpiresIn })
+        const token: string = jwt.sign({ userId: id, tokenId }, jwtString, { expiresIn: accessTokensExpiresIn })
         return token
     } catch (error) {
         logger.Add(`No se pudo crear token de usuario: ${error}`, errorLogs)

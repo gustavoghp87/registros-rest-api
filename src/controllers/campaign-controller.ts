@@ -7,26 +7,22 @@ export const campaignController: Router = express.Router()
     // get campaign packs for admins
     .get('/all', async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
-        const packs: typeCampaignPack[]|null = await campaignServices.getCampaignPacksService(token)
-        if (!packs) return res.json({ success: false })
-        res.json({ success: true, packs })
+        const campaignPacks: typeCampaignPack[]|null = await campaignServices.getCampaignPacksService(token)
+        res.json({ success: !!campaignPacks, campaignPacks })
     })
 
-    // get campaign packs for user
-    .get('/', async (req: Request, res: Response) => {
+    .get('/assignment', async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
-        const packs: typeCampaignPack[]|null = await campaignServices.getCampaignPacksByUserService(token)
-        if (!packs) return res.json({ success: false })
-        res.json({ success: true, packs })
+        const campaignAssignments: number[]|null = await campaignServices.getCampaignPacksByUserService(token)
+        res.json({ success: !!campaignAssignments, campaignAssignments })
     })
 
     // get campaign pack
     .get('/:id', async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const id: string = req.params.id
-        const pack: typeCampaignPack|null = await campaignServices.getCampaignPackService(token, id)
-        if (!pack) return res.json({ success: false })
-        res.json({ success: true, pack })
+        const campaignPack: typeCampaignPack|null = await campaignServices.getCampaignPackService(token, id)
+        res.json({ success: !!campaignPack, campaignPack })
     })
 
     // edit checkbox
@@ -35,8 +31,8 @@ export const campaignController: Router = express.Router()
         const id: number = req.body.id
         const phoneNumber: number = req.body.phoneNumber
         const checked: boolean = req.body.checked
-        const success: boolean = await campaignServices.editCampaignPackService(token, id, phoneNumber, checked)
-        res.json({ success })
+        const campaignPack: typeCampaignPack|null = await campaignServices.editCampaignPackService(token, id, phoneNumber, checked)
+        res.json({ success: !!campaignPack, campaignPack })
     })
 
     // close pack

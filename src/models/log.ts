@@ -1,17 +1,34 @@
+import { ObjectId } from 'mongodb'
+
+export type typeLogsPackage = {
+    _id?: ObjectId
+    logs: typeLogObj[]
+    type: typeLogType
+}
+
 export type typeLogObj = {
     timestamp: number
     logText: string
 }
 
-export type typeLogsObj = {
-    loginLogs: typeLogObj[]
-    campaignAssignmentLogs: typeLogObj[]
-    campaignFinishingLogs: typeLogObj[]
-    territoryChangeLogs: typeLogObj[]
-    socketErrorLogs: typeLogObj[]
-    stateOfTerritoryChangeLogs: typeLogObj[]
-    emailErrorLogs: typeLogObj[]
-    errorLogs: typeLogObj[]
-    userChangesLogs: typeLogObj[]
-    appLogs: typeLogObj[]
+export type typeAllLogsObj = {
+    campaignLogs: typeLogsPackage
+    errorLogs: typeLogsPackage
+    houseToHouseAdminLogs: typeLogsPackage
+    houseToHouseLogs: typeLogsPackage
+    loginLogs: typeLogsPackage
+    telephonicStateLogs: typeLogsPackage
+    telephonicLogs: typeLogsPackage
+    userLogs: typeLogsPackage
 }
+
+export type typeLogType =
+    'CampaignLogs' |
+    'ErrorLogs' |
+    'HouseToHouseAdminLogs' |
+    'HouseToHouseLogs' |
+    'LoginLogs' |
+    'TelephonicStateLogs' |
+    'TelephonicLogs' |
+    'UserLogs'
+;

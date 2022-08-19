@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
 import { jwtString } from '../env-variables'
-import { typeUser } from '../models1'
-import { accessTokensExpiresIn, logger } from '../server1'
+import { typeUser } from '../models'
+import { accessTokensExpiresIn, logger } from '../server'
 import { errorLogs } from './log-services'
 import { getUserById } from './user-services'
 

@@ -1,37 +1,38 @@
-import { Credentials } from 'google-auth-library'
 import { InsertOneResult, UpdateResult } from 'mongodb'
+import { Credentials } from 'google-auth-library'
 import { dbClient, logger } from '../server'
-import { emailError } from '../services/log-services'
+import { errorLogs } from '../services/log-services'
 import { typeEmailObj } from '../models'
 
+const getCollection = () => dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollEmails)
+
 export class EmailDb {
-    //private _id: ObjectId = new ObjectId('5fcbdce29382c6966fa4d583')
     async GetEmailLastTime(): Promise<number|null> {
         try {
-            const lastEmailObj: any|null = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollEmails).findOne()
+            const lastEmailObj: any|null = await getCollection().findOne()
             if (!lastEmailObj) throw new Error("No se pudo leer documento")
             const lastEmailTime: number|null = lastEmailObj.lastEmail
             return lastEmailTime
         } catch (error) {
             console.log("Get Email Last Time failed", error)
-            logger.Add(`Falló GetEmailLastTime(): ${error}`, emailError)
+            logger.Add(`Falló GetEmailLastTime(): ${error}`, errorLogs)
             return null
         }
     }
     async GetEmailObject(): Promise<typeEmailObj|null> {
         try {
-            const lastEmailObj: any|null = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollEmails).findOne()
+            const lastEmailObj: any|null = await getCollection().findOne()
             if (!lastEmailObj) throw new Error("No se pudo leer documento")
             return lastEmailObj
         } catch (error) {
             console.log("Get Email Last Time failed", error)
-            logger.Add(`Falló GetEmailLastTime(): ${error}`, emailError)
+            logger.Add(`Falló GetEmailLastTime(): ${error}`, errorLogs)
             return null
         }
     }
     async GetGmailTokens(): Promise<Credentials|null> {
         try {
-            const tokens = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollEmails).findOne()
+            const tokens = await getCollection().findOne()
             if (!tokens) throw new Error("No se pudo leer documento")
             return {
                 access_token: tokens.accessToken,
@@ -42,31 +43,31 @@ export class EmailDb {
                 token_type: ''
             }
         } catch (error) {
-            logger.Add(`Falló GetGmailTokens(): ${error}`, emailError)
+            logger.Add(`Falló GetGmailTokens(): ${error}`, errorLogs)
             return null
         }
     }
     async UpdateLastEmail(): Promise<boolean> {
         try {
             const newDate = + new Date()
-            await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollEmails).updateOne(
+            await getCollection().updateOne(
                 {  },
                 { $set: { lastEmail: newDate } }
             )
             const lastEmailObj: any|null =
-                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollEmails).findOne()
+                await getCollection().findOne()
             if (!lastEmailObj || (lastEmailObj.lastEmail !== newDate)) return false
             return true
         } catch (error) {
             console.log("Update Last Email failed", error)
-            logger.Add(`Falló UpdateLastEmail(): ${error}`, emailError)
+            logger.Add(`Falló UpdateLastEmail(): ${error}`, errorLogs)
             return false
         }
     }
     async SaveNewGmailAPITokensToDB(accessToken: string, refreshToken: string): Promise<boolean> {
         const CreateDocument = async (): Promise<boolean> => {
             try {
-                const result: InsertOneResult = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollEmails).insertOne({
+                const result: InsertOneResult = await getCollection().insertOne({
                     accessToken, refreshToken
                 })
                 return !!result && !!result.insertedId
@@ -77,22 +78,22 @@ export class EmailDb {
         }
         try {
             if (!accessToken || !refreshToken) throw new Error("No llegaron los tokens")
-            const tokens = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollEmails).findOne()
+            const tokens = await getCollection().findOne()
             if (!tokens) {
                 const success: boolean = await CreateDocument()
                 if (!success) throw new Error("No se pudo crear documento")
             }
-            const result: UpdateResult = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollEmails).updateOne(
+            const result: UpdateResult = await getCollection().updateOne(
                 {  },
                 { $set: { accessToken, refreshToken } }
             )
             if (!result || !result.modifiedCount) {
                 throw new Error("No encontró valor a modificar")
             }
-            return true
+            return !!result.modifiedCount
         } catch (error) {
             console.log("Falló SaveNewGmailAPITokensToDB", error)
-            logger.Add(`Falló SaveNewGmailAPITokensToDB(): ${error}`, emailError)
+            logger.Add(`Falló SaveNewGmailAPITokensToDB(): ${error}`, errorLogs)
             return false
         }
     }

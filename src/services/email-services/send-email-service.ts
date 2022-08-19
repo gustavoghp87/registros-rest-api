@@ -4,8 +4,8 @@ import { gmail_v1, google } from 'googleapis'
 import { Credentials } from 'google-auth-library'
 import { GaxiosResponse } from 'gaxios'
 import { logger } from '../../server'
-import { getGmailCredentialsService, gmailCredentials } from './'
-import { emailError } from '../log-services'
+import { getGmailCredentialsService, gmailCredentials } from '.'
+import { errorLogs } from '../log-services'
 
 export const sendEmail = async (to: string, subject: string, text: string, html: string): Promise<boolean> => {
     try {
@@ -51,7 +51,7 @@ export const sendEmail = async (to: string, subject: string, text: string, html:
                 }
             })
             if (!response || response.status !== 200 || response.statusText !== 'OK') {
-                logger.Add(`Falló sendEmail() ${to} "${subject}":`, emailError)
+                logger.Add(`Falló sendEmail() ${to} "${subject}":`, errorLogs)
                 return false
             }
         } catch (error) {
@@ -61,11 +61,10 @@ export const sendEmail = async (to: string, subject: string, text: string, html:
         return true
     } catch (error) {
         console.error(error)
-        logger.Add(`Falló sendEmail() ${to} "${subject}" en excepción: ${error}`, emailError)
+        logger.Add(`Falló sendEmail() ${to} "${subject}" en excepción: ${error}`, errorLogs)
         return false
     }
 }
-
 
 // const fileAttachments = [
 //     {

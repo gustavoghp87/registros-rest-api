@@ -2,7 +2,7 @@ import { ObjectId } from 'mongodb'
 
 export type typeEmailObj = {
     _id?: ObjectId
-    lastEmail: string
+    lastEmailDate: number
     accessToken: string
     refreshToken: string
 }

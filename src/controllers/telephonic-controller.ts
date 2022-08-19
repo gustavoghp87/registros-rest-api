@@ -1,6 +1,6 @@
 import express, { Request, Response, Router } from 'express'
-import * as territoryServices from '../services1/telephonic-services'
-import { authorizationString, typeHousehold, typeTerritoryNumber, typeTelephonicTerritory, typeLocalTelephonicStatistic, typeTelephonicStatistic } from '../models1'
+import * as territoryServices from '../services/telephonic-services'
+import { authorizationString, typeHousehold, typeTerritoryNumber, typeTelephonicTerritory, typeLocalTelephonicStatistic, typeTelephonicStatistic } from '../models'
 
 export const telephonicController: Router = express.Router()
 

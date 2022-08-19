@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt'
-import { logger } from '../server1'
+import { logger } from '../server'
 import { bcryptSalt } from '../env-variables'
 import { errorLogs } from './log-services'
 

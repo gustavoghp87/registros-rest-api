@@ -1,5 +1,5 @@
 import Axios from 'axios'
-import { logger } from '../server1'
+import { logger } from '../server'
 import { privateKey } from '../env-variables'
 import { errorLogs } from './log-services'
 

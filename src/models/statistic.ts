@@ -9,5 +9,5 @@ export interface statistic {
 }
 
 export interface localStatistic extends statistic {
-    territorio: string
+    territory: string
 }

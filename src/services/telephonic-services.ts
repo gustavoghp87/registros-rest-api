@@ -1,8 +1,8 @@
-import { logger } from '../server1'
+import { logger } from '../server'
 import { deallocateMyTLPTerritoryService, getActivatedAdminByAccessTokenService, getActivatedUserByAccessTokenService } from './user-services'
 import { errorLogs, telephonicLogs, telephonicStateLogs } from './log-services'
-import { TelephonicDb } from '../services-db1/telephonicDbConnection'
-import { typeCallingState, typeHousehold, typeLocalTelephonicStatistic, typeTelephonicStatistic, typeTelephonicTerritory, typeTerritoryNumber, typeUser } from '../models1'
+import { TelephonicDb } from '../services-db/telephonicDbConnection'
+import { typeCallingState, typeHousehold, typeLocalTelephonicStatistic, typeTelephonicStatistic, typeTelephonicTerritory, typeTerritoryNumber, typeUser } from '../models'
 
 const telephonicDbConnection: TelephonicDb = new TelephonicDb()
 

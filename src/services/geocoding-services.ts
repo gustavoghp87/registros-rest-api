@@ -1,5 +1,7 @@
 import NodeGeocoder from 'node-geocoder'
 import { googleGeocodingAPIKey } from '../env-variables'
+import { logger } from '../server'
+import { errorLogs } from './log-services'
 import { getActivatedUserByAccessTokenService } from './user-services'
 import { typeCoords, typeUser } from '../models'
 
@@ -13,7 +15,8 @@ export const getGeocodingFromAddressService = async (token: string, address: str
             apiKey: googleGeocodingAPIKey,
             formatter: null
         }).geocode({
-            address, country: 'Argentine'
+            address,
+            country: 'Argentine'
         })
         if (!response || !response[0] || !response[0].latitude || !response[0].longitude) return null
         return {
@@ -22,7 +25,7 @@ export const getGeocodingFromAddressService = async (token: string, address: str
         }
     } catch (error) {
         console.log(error)
-        // logger
+        logger.Add(`No se pudo geolocalizar desde dirección ${address}: ${error}`, errorLogs)
         return null
     }
 }
@@ -44,7 +47,7 @@ export const getGeocodingFromCoordinatesService = async (token: string, coordina
         return response[0].formattedAddress
     } catch (error) {
         console.log(error)
-        // logger
+        logger.Add(`No se pudo geolocalizar desde coordenadas ${coordinates?.lat} ${coordinates?.lng}: ${error}`, errorLogs)
         return null
     }
 }

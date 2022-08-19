@@ -1,5 +1,7 @@
 import express, { NextFunction, Request, Response, Router } from 'express'
 import * as userServices from '../services/user-services'
+import { sendNewPswEmailService } from '../services/email-services'
+import { checkRecaptchaTokenService } from '../services/recaptcha-services'
 import { authorizationString, recaptchaTokenString, typeUser } from '../models'
 
 // const unauthenticatedUser: typeUser = {
@@ -13,23 +15,15 @@ import { authorizationString, recaptchaTokenString, typeUser } from '../models'
 
 const blindUser = (user: typeUser): typeUser => {
     user.password = undefined
-    user.tokenId = undefined
-    user.recoveryOptions = undefined
-    user.darkMode = undefined
+    user.tokenId = 0
+    user.recoveryOptions = []
     return user
 }
 
 export const validateRecaptchaToken = async (req: Request, res: Response, next: NextFunction) => {
     const recaptchaToken: string = req.header(recaptchaTokenString) || ""
-    //console.log(recaptchaToken);
-    
     // const success: boolean = await userServices.checkRecaptchaTokenService(recaptchaToken)
-
-    // if (!success) console.log("\n\n FALLÓ recaptcha  -------- \n\n");
-    
     // if (!success) return res.json({ success })
-    // console.log("\n\n Pasó recaptcha \n\n");
-    
     next()
 }
 
@@ -40,8 +34,6 @@ export const userController: Router = express.Router()
         const token: string = req.header(authorizationString) || ""
         let user: typeUser|null = await userServices.getActivatedUserByAccessTokenService(token)
         if (!user) return res.json({ success: false })
-        user.isAuth = true
-        user.isAdmin = user.role == 1
         user = blindUser(user)
         res.json({ success: true, user })
     })
@@ -49,7 +41,7 @@ export const userController: Router = express.Router()
     // sign up user
     .post('/', validateRecaptchaToken, async (req: Request, res: Response) => {
         const { email, password, group, recaptchaToken } = req.body
-        const checkRecaptch: boolean = await userServices.checkRecaptchaTokenService(recaptchaToken)
+        const checkRecaptch: boolean = await checkRecaptchaTokenService(recaptchaToken)
         if (!checkRecaptch) return res.json({ success: false, recaptchaFails: true })
         const user: typeUser|null = await userServices.getUserByEmailService(email)
         if (user) return res.json({ success: false, userExists: true })
@@ -69,32 +61,24 @@ export const userController: Router = express.Router()
     // change features for other users
     .put('/', validateRecaptchaToken, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
-        const user_id: string = req.body.user_id
-        const estado: boolean = req.body.estado
+        const email: string = req.body.email
+        const isActive: boolean = req.body.isActive
         const role: number = req.body.role
         const group: number = req.body.group
-        let user: typeUser|null = await userServices.editUserService(token, user_id, estado, role, group)
+        let user: typeUser|null = await userServices.editUserService(token, email, isActive, role, group)
         if (!user) return res.json({ success: false })
         user = blindUser(user)
         res.json({ success: true, user })
     })
 
-    // change my dark mode    -    suspended
-    .put('/mode', validateRecaptchaToken, async (req: Request, res: Response) => {
-        const token: string = req.header(authorizationString) || ""
-        const darkMode: boolean = req.body.darkMode
-        const success: boolean = await userServices.changeModeService(token, darkMode)
-        res.json({ success })
-    })
-
     // change assignations for other users
     .put('/assignment', validateRecaptchaToken, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
-        const user_id: string = req.body.user_id
-        const asignar: number = req.body.asignar
-        const desasignar: number = req.body.desasignar
+        const email: string = req.body.email
+        const toAssign: number = req.body.toAssign
+        const toUnassign: number = req.body.toUnassign
         const all: boolean = req.body.all
-        let user: typeUser|null = await userServices.assignTerritoryService(token, user_id, asignar, desasignar, all)
+        let user: typeUser|null = await userServices.assignTLPTerritoryService(token, email, toAssign, toUnassign, all)
         if (!user) return res.json({ success: false })
         user = blindUser(user)
         res.json({ success: true, user })
@@ -116,5 +100,56 @@ export const userController: Router = express.Router()
         else if (response === "not sent") res.json({ success: false, notSent: true })
         else if (response === "ok") res.json({ success: true })
         else res.json({ success: false })
+    })
+    
+    // new login
+    .post('/token', async (req: Request, res: Response) => {
+        const { email, password, recaptchaToken } = req.body
+        const newToken: string|null = await userServices.loginUserService(email, password, recaptchaToken)
+        if (!newToken)
+            return res.json({ success: false })
+        if (newToken === 'recaptchaFailed')
+            return res.json({ success: false, recaptchaFails: true })
+        if (newToken === 'isDisabled')
+            return res.json({ success: false, isDisabled: true })
+        res.json({ success: true, newToken })
+    })
+
+    // logout all devices
+    .delete('/token', async (req: Request, res: Response) => {
+        const token: string = req.header(authorizationString) || ""
+        const newToken: string|null = await userServices.logoutAllService(token)
+        res.json({ success: !!newToken, newToken })
+    })
+
+    // change my password
+    .put('/token', async (req: Request, res: Response) => {
+        const token: string = req.header(authorizationString) || ""
+        const { psw, newPsw, id } = req.body
+        if (psw && newPsw) {
+            // change my psw
+            const newToken: string|null = await userServices.changePswService(token, psw, newPsw)
+            if (newToken === "wrongPassword") return res.json({ success: false, wrongPassword: true })
+            res.json({ success: !!newToken, newToken })
+        } else if (id && newPsw) {
+            // change my psw by recovery option
+            const newToken: string|null = await userServices.changePswByEmailLinkService(id, newPsw)
+            if (!newToken) return res.json({ success: false })
+            if (newToken === "expired") return res.json({ success: false, expired: true })
+            if (newToken === "used") return res.json({ success: false, used: true })
+            res.json({ success: true, newToken })
+        } else {
+            res.json({ success: false })
+        }
+    })
+
+    // change the password of other user by admin
+    .patch('/token', async (req: Request, res: Response) => {
+        const token: string = req.header(authorizationString) || ""
+        const email: string = req.body.email
+        const newPassword: string|null = await userServices.changePswOtherUserService(token, email)
+        if (!newPassword) return res.json({ success: false })
+        const emailSuccess: boolean = await sendNewPswEmailService(email, newPassword)
+        res.json({ success: !!newPassword, newPassword, emailSuccess })
     })
 ;

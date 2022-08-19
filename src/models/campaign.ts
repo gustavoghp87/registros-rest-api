@@ -1,11 +1,12 @@
 import { ObjectId } from 'mongodb'
 
 export type typeCampaignPack = {
+    _id?: ObjectId
+    assignedTo: string
+    calledPhones: number[]
+    from: number
     id: number
-    desde: number
-    al: number
-    asignado?: string
-    terminado?: boolean
-    llamados?: number[]
-    accessible?: boolean
+    isAccessible: boolean
+    isFinished: boolean
+    to: number
 }

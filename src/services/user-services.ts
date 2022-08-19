@@ -1,50 +1,61 @@
-import Axios from 'axios'
-import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
-import { bcryptSalt, privateKey, jwtString } from '../env-variables'
-import { accessTokensExpiresIn, logger } from '../server'
+import { logger } from '../server'
 import { sendRecoverAccountEmailService } from './email-services'
-import { generalError, login, territoryChange, userChanges } from './log-services'
+import { errorLogs, loginLogs, userLogs } from './log-services'
+import { getRandomId12, getRandomId24 } from './helpers'
+import { checkRecaptchaTokenService } from './recaptcha-services'
+import { comparePasswordsService, generatePasswordHash } from './bcrypt-services'
+import { decodeVerifiedService, signUserService } from './jwt-services'
 import { UserDb } from '../services-db/userDbConnection'
-import { typeDecodedObject, typeRecoveryOption, typeUser } from '../models'
+import { typeJWTObjectForUser, typeRecoveryOption, typeTerritoryNumber, typeUser } from '../models'
 
 const userDbConnection: UserDb = new UserDb()
 
-export const assignTerritoryService = async (token: string, user_id: string, asignar: number, desasignar: number, all: boolean): Promise<typeUser|null> => {
-    all = !all ? false : true
-    if (!all)
-        try {
-            asignar = parseInt(asignar.toString())
-        } catch {
-            try {
-                desasignar = parseInt(desasignar.toString())
-            } catch { return null }
-        }
+export const assignTLPTerritoryService = async (token: string, email: string, toAssign: number, toUnassign: number, all: boolean): Promise<typeUser|null> => {
+    all = !!all
+    if (toAssign) {
+        toAssign = parseInt(toAssign.toString())
+        if (isNaN(toAssign)) return null
+    }
+    if (toUnassign) {
+        toUnassign = parseInt(toUnassign.toString())
+        if (isNaN(toUnassign)) return null
+    }
     const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
-    const userToEdit :typeUser|null = await userDbConnection.GetUserById(user_id)
-    if (!user || !userToEdit || (!asignar && !desasignar && !all)) return null
-    const updatedUser: typeUser|null = await userDbConnection.AssignTerritory(user_id, asignar, desasignar, all)
-    if (updatedUser) logger.Add(`Admin ${user.email} modificó las asignaciones de ${updatedUser?.email}: asignados antes ${userToEdit.asign?.length ? userToEdit.asign : "ninguno"}, ahora ${updatedUser.asign?.length ? updatedUser.asign : "ninguno"}`, userChanges)
+    const userToEdit: typeUser|null = await userDbConnection.GetUserByEmail(email)
+    if (!user || !userToEdit || (!toAssign && !toUnassign && !all)) return null
+    const updatedUser: typeUser|null = await userDbConnection.AssignTLPTerritory(email, toAssign, toUnassign, all)
+    if (updatedUser) logger.Add(`Admin ${user.email} modificó las asignaciones de ${updatedUser?.email}: asignados antes ${userToEdit.phoneAssignments?.length ? userToEdit.phoneAssignments : "ninguno"}, ahora ${updatedUser.phoneAssignments?.length ? updatedUser.phoneAssignments : "ninguno"}`, userLogs)
     return updatedUser
 }
 
-export const changeModeService = async (token: string, darkMode: boolean): Promise<boolean> => {    // suspended
-    darkMode = !darkMode ? false : true
-    const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
-    if (!user || !user.email) return false
-    const success: boolean = await userDbConnection.ChangeMode(user.email, darkMode)
-    return success
+export const changePswByEmailLinkService = async (id: string, newPsw: string): Promise<string|null> => {
+    if (!newPsw || typeof newPsw !== 'string' || newPsw.length < 8) return null
+    const user: typeUser|null = await getUserByEmailLinkService(id)
+    if (!user || !user._id || !user.recoveryOptions || !user.tokenId) return null
+    const recoveryOption: typeRecoveryOption|undefined = user.recoveryOptions.find(x => x.id === id)
+    if (!recoveryOption) return null
+    if (recoveryOption.expiration < + new Date()) return 'expired'
+    if (recoveryOption.used) return 'used'
+    const encryptedPassword: string|null = await generatePasswordHash(newPsw)
+    if (!encryptedPassword) return null
+    const success: boolean = await userDbConnection.ChangePsw(user.email, encryptedPassword)
+    if (!success) return null
+    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cambió su contraseña por link de email`, loginLogs)
+    const successSetAsUsed: boolean = await userDbConnection.SetRecoveryOptionAsUsed(user.email, id)
+    if (!successSetAsUsed) logger.Add(`No se pudo setear como usada la opción de recuperación para ${user.email} ${id}`, errorLogs)
+    const newToken: string|null = generateAccessTokenService(user, user.tokenId)
+    return newToken
 }
 
 export const changePswOtherUserService = async (token: string, email: string): Promise<string|null> => {
     const myUser: typeUser|null = await getActivatedAdminByAccessTokenService(token)
     const user: typeUser|null = await getUserByEmailService(email)
     if (!myUser || !user) return null
-    const newPsw: string = getRandomCharacter(3) + "-" + getRandomCharacter(3) + "-" + getRandomCharacter(4);
+    const newPsw: string = getRandomId12()
     const encryptedPassword: string|null = await generatePasswordHash(newPsw)
     if (!encryptedPassword) return null
     const success: boolean = await userDbConnection.ChangePsw(email, encryptedPassword)
-    if (success) logger.Add(`${myUser.role === 1 ? 'Admin' : 'Usuario'} ${myUser.email} cambió la contraseña de ${email}`, login)
+    if (success) logger.Add(`Admin ${myUser.email} cambió la contraseña de ${email}`, loginLogs)
     return success ? newPsw : null
 }
 
@@ -57,128 +68,86 @@ export const changePswService = async (token: string, psw: string, newPsw: strin
     if (!encryptedPassword) return null
     const success: boolean = await userDbConnection.ChangePsw(user.email, encryptedPassword)
     if (!success) {
-        console.log("Fail trying to change password for", user.email)
+        logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} no pudo cambiar su contraseña usando la que tenía`, loginLogs)
         return null
     }
-    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cambió su contraseña usando la que tenía`, login)
+    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cambió su contraseña usando la que tenía`, loginLogs)
     const newToken: string|null = generateAccessTokenService(user, user.tokenId || 1)
     return newToken
 }
 
-export const checkRecaptchaTokenService = async (recaptchaToken: string): Promise<boolean> => {
-    if (!recaptchaToken || !privateKey) return false
-    const url: string = 'https://www.google.com/recaptcha/api/siteverify'
-    const verifyURL: string = `${url}?secret=${privateKey}&response=${recaptchaToken}`
-    try {
-        const { data } = await Axios.post(verifyURL)
-        if (!data || !data.success) return false
-        return true
-    } catch (error) {
-        console.log(error)
-        logger.Add(`Falló checkRecaptchaTokenService(): ${error}`, generalError)
-        return false
-    }
-}
-
-export const comparePasswordsService = async (password0: string, password1: string): Promise<boolean> => {
-    try {
-        const success: boolean = await bcrypt.compare(password0, password1)
-        return success
-    } catch (error) {
-        console.log(error)
-        logger.Add(`Falló comparePasswordsService(): ${error}`, generalError)
-        return false
-    }
-}
-
-export const deallocateMyTerritoryService = async (token: string, territory: string): Promise<boolean> => {
+export const deallocateMyTLPTerritoryService = async (token: string, territoryNumber: typeTerritoryNumber): Promise<boolean> => {
     const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
-    if (!user || !user._id) return false
-    let territoryNumber: number = 0
-    try {
-        territoryNumber = parseInt(territory)
-    } catch (error) {
-       console.log(error)
-       logger.Add(`Falló deallocateMyTerritoryService(): ${error}`, generalError)
-       return false
+    if (!user) return false
+    const toUnassign: number = parseInt(territoryNumber)
+    if (!toUnassign || isNaN(toUnassign)) {
+        logger.Add(`Falló deallocateMyTLPTerritoryService(): ${toUnassign}`, errorLogs)
+        return false
     }
-    const updatedUser: typeUser|null = await userDbConnection.AssignTerritory(user._id.toString(), 0, territoryNumber, false)
-    if (!updatedUser) logger.Add(`Usuario ${user.email} no pudo ser desasignado de ${territory}`, territoryChange)
+    const updatedUser: typeUser|null = await userDbConnection.AssignTLPTerritory(user.email, 0, toUnassign, false)
+    if (updatedUser) logger.Add(`Se desasignó el territorio de telefónica ${toUnassign} a ${user.email} porque lo cerró`, userLogs)
+    else logger.Add(`El ${user.role === 1 ? 'admin' : 'usuario'} ${user.email} no pudo ser desasignado del territorio de telefónica ${toUnassign} después de cerrarlo`, errorLogs)
     return !!updatedUser
 }
 
-export const getActivatedAdminByAccessTokenService = async (token: string): Promise<typeUser|null> => {
-    const user: typeUser|null = await getUserByAccessToken(token)
-    return user && user.estado && user.role == 1 ? user : null
-}
-
-export const getActivatedUserByAccessTokenService = async (token: string): Promise<typeUser|null> => {
-    const user: typeUser|null = await getUserByAccessToken(token)
-    if (!user) return null
-    return user && user.estado ? user : null
-}
-
-// interface jwtPayloadMW extends jwt.JwtPayload {
-//     userId: Object|string
-// }
-
-const getUserByAccessToken = async (token: string): Promise<typeUser|null> => {
-    if (!token) return null 
-    let decoded: typeDecodedObject|null
-    try {
-        decoded = jwt.verify(token, jwtString) as typeDecodedObject
-    } catch (error) {
-        console.log(error)
-        try {
-            const decoded1: jwt.JwtPayload|null = jwt.decode(token, { complete: true, json: true })
-            console.log(decoded1)
-            if (decoded1 && decoded1.userId) {
-                const user: typeUser|null = await userDbConnection.GetUserById(decoded1.userId)
-                logger.Add(`Falló retrieveUserIdByAccessToken() para ${user?.email}: ${error}`, generalError)
-            } else {
-                logger.Add(`Falló retrieveUserIdByAccessToken() para usuario desconocido 1: ${error}`, generalError)
-            }
-        } catch (error) {
-            
-            logger.Add(`Falló retrieveUserIdByAccessToken() para usuario desconocido 2: ${error}`, generalError)
-        }
-        return null
-    }
-    let tokenId: number|null
-    const timeNow: number = Date.now() / 1000
-    const userId: string|null = decoded && decoded.iat && decoded.exp && decoded.iat < timeNow && decoded.exp > timeNow
-        ? decoded?.userId
-        : null
-    tokenId = decoded && decoded.tokenId ? decoded.tokenId : 1
-    if (!userId || !tokenId) return null
-    const user: typeUser|null = await userDbConnection.GetUserById(userId)
-    if (!user) return null
-    user.tokenId = user.tokenId ?? 1
-    if (tokenId < user.tokenId) return null
-    return user
+export const editUserService = async (token: string, email: string, isActive: boolean, role: number, group: number): Promise<typeUser|null> => {
+    const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
+    isActive = !!isActive
+    role = parseInt(role.toString())
+    group = parseInt(group.toString())
+    if (isNaN(role) || isNaN(group)) return null
+    if (!user || !email || typeof role !== 'number' || typeof group !== 'number') return null
+    const updatedUser: typeUser|null = await userDbConnection.EditUserState(email, isActive, role, group)
+    if (updatedUser) logger.Add(`Admin ${user.email} modificó al usuario ${updatedUser.email}: activado ${updatedUser.isActive}, rol ${updatedUser.role}, grupo ${updatedUser.group}`, userLogs)
+    return updatedUser
 }
 
 export const generateAccessTokenService = (user: typeUser, tokenId: number): string|null => {
-    if (!user || !user._id) return null
-    if (!tokenId) tokenId = 1
-    try { if (typeof tokenId !== 'number') tokenId = parseInt(tokenId) } catch { return null }
-    try {
-        // const payload: typeDecodedObject = {
-        //     userId: user._id.toString(),
-        //     tokenId
-        // }
-        const newToken: string = jwt.sign({ userId: user._id, tokenId }, jwtString, { expiresIn: accessTokensExpiresIn })
-        if (newToken) logger.Add(`Se logueó el usuario ${user.email}`, login)
-        return newToken
-    } catch (error) {
-        logger.Add(`Falló generateAccessTokenService() ${user.email} ${tokenId}`, generalError)
+    if (!user || !user._id || !tokenId) return null   // change to id
+    const newToken: string|null = signUserService(user._id.toString(), tokenId, user.id)  // change to id
+    if (!newToken) {
+        logger.Add(`Falló generateAccessTokenService() ${user.email} ${tokenId}`, errorLogs)
         return null
     }
+    logger.Add(`Se logueó el usuario ${user.email}`, loginLogs)
+    return newToken
+}
+
+export const getActivatedAdminByAccessTokenService = async (token: string): Promise<typeUser|null> => {
+    const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
+    return user && user.role === 1 ? user : null
+}
+
+export const getActivatedUserByAccessTokenService = async (token: string): Promise<typeUser|null> => {
+    if (!token) return null
+    let decoded: typeJWTObjectForUser|null = decodeVerifiedService(token) as typeJWTObjectForUser
+    if (!decoded || !decoded.userId || !decoded.tokenId) return null       // change to id
+    const user: typeUser|null = await userDbConnection.GetUserByMongoId(decoded.userId)
+    if (!user || user.tokenId !== decoded.tokenId) return null
+    return user && user.isActive ? user : null
+}
+
+export const getUserByEmailLinkService = async (id: string): Promise<typeUser|null> => {
+    if (!id) return null
+    const users: typeUser[]|null = await userDbConnection.GetAllUsers()
+    if (!users) return null
+    let user0: typeUser|undefined = users.find(x => x.recoveryOptions.find(y => y.id === id) !== undefined)
+    // users.forEach((user: typeUser) => {
+    //     if (user && user.recoveryOptions) user.recoveryOptions.forEach((recoveryOption: typeRecoveryOption) => {
+    //         if (recoveryOption.id === id) user0 = user 
+    //     })
+    // })
+    return user0 ?? null
 }
 
 export const getUserByEmailService = async (email: string): Promise<typeUser|null> => {
     if (!email) return null
     const user = await userDbConnection.GetUserByEmail(email)
+    return user
+}
+
+export const getUserById = async (_id: string): Promise<typeUser|null> => {  // change to id
+    const user: typeUser|null = await userDbConnection.GetUserByMongoId(_id)
     return user
 }
 
@@ -191,76 +160,33 @@ export const getUsersNotAuthService = async (): Promise<typeUser[]|null> => {
 }
 
 export const getUsersService = async (token: string): Promise<typeUser[]|null> => {
-    // const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
-    // if (!user) return null
+    const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
+    if (!user) return null
     let users: typeUser[]|null = await userDbConnection.GetAllUsers()
     if (!users) return null
     users = users.reverse()
     return users
 }
 
-
-
-
-
-
-
-
-
-
-
-const generatePasswordHash = async (password: string): Promise<string|null> => {
-    try {
-        const passwordHash: string = await bcrypt.hash(password, parseInt(bcryptSalt))
-        return passwordHash
-    } catch (error) {
-        console.log(error)
-        logger.Add(`Falló generatePasswordHash(): ${error}`, generalError)
-        return null
-    }
-}
-
-
-export const logoutAllService = async (token: string): Promise<string|null> => {
-    const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
-    if (!user || !user._id) return null
-    const tokenId = user.tokenId || 1
-    const success: boolean = await userDbConnection.UpdateTokenId(user._id.toString(), tokenId + 1)
-    if (!success) return null
-    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cerró todas las sesiones`, login)
-    const newToken: string|null = generateAccessTokenService(user, tokenId + 1 || 2)
+export const loginUserService = async (email: string, password: string, recaptchaToken: string): Promise<string|null> => {
+    const checkRecaptch: boolean = await checkRecaptchaTokenService(recaptchaToken)
+    if (!checkRecaptch) return 'recaptchaFailed'
+    const user: typeUser|null = await getUserByEmailService(email)
+    if (!user || !user.password || !user.tokenId || !user._id) return null             // change to id
+    if (!user.isActive) return 'isDisabled'
+    const match: boolean = await comparePasswordsService(password, user.password)
+    if (!match) return null
+    const newToken: string|null = generateAccessTokenService(user, user.tokenId)
     return newToken
 }
 
-
-const getRandomCharacter = (i: number): string => Math.random().toString(36).slice(i*-1)
-
-
-
-export const getUserByEmailLinkService = async (id: string): Promise<typeUser|null> => {
-    if (!id) return null
-    const user: typeUser|null = await userDbConnection.GetUserByEmailLink(id)
-    return user
-}
-
-export const changePswByEmailLinkService = async (id: string, newPsw: string): Promise<string|null> => {
-    if (!newPsw || typeof newPsw !== 'string' || newPsw.length < 8) return null
-    const user: typeUser|null = await userDbConnection.GetUserByEmailLink(id)
-    if (!user || !user._id || !user.recoveryOptions) return null
-    let recoveryOption: typeRecoveryOption|null = null
-    for (let i = 0; i < user.recoveryOptions.length; i++) {
-        if (user.recoveryOptions[i].id === id) recoveryOption = user.recoveryOptions[i]
-    }
-    if (!recoveryOption) return null
-    if (recoveryOption.expiration < + new Date()) return "expired"
-    if (recoveryOption.used) return "used"
-    const encryptedPassword: string|null = await generatePasswordHash(newPsw)
-    if (!encryptedPassword) return null
-    const success: boolean = await userDbConnection.ChangePsw(user.email, encryptedPassword)
+export const logoutAllService = async (token: string): Promise<string|null> => {
+    const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
+    if (!user || !user.tokenId || !user._id) return null  // change to id
+    const success: boolean = await userDbConnection.UpdateTokenId(user._id.toString(), user.tokenId + 1)   // change to id
     if (!success) return null
-    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} recuperó su contraseña por link de email`, login)
-    await userDbConnection.SetRecoveryOptionAsUsed(user, id)
-    const newToken: string|null = generateAccessTokenService(user, user.tokenId || 1)
+    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cerró todas las sesiones`, loginLogs)
+    const newToken: string|null = generateAccessTokenService(user, user.tokenId + 1)
     return newToken
 }
 
@@ -268,41 +194,32 @@ export const recoverAccountService = async (email: string): Promise<string> => {
     if (!email) return "no user"
     const user: typeUser|null = await getUserByEmailService(email)
     if (!user) return "no user"
-    const id: string = getRandomCharacter(4) + "-" + getRandomCharacter(4) + "-" + getRandomCharacter(4) + "-" + getRandomCharacter(4) + "-" + getRandomCharacter(4)
+    const id: string = getRandomId24()
     let success: boolean = await userDbConnection.AddRecoveryOption(email, id)
     if (!success) return ""
-    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} solicitó un email de recuperación de contraseña`, login)
+    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} solicitó un email de recuperación de contraseña`, loginLogs)
     success = await sendRecoverAccountEmailService(email, id)
     if (!success) return "not sent"
     return "ok"
 }
 
 export const registerUserService = async (email: string, password: string, groupString: string): Promise<boolean> => {
-    let group: number
-    try { group = parseInt(groupString) } catch { return false }
+    const group: number = parseInt(groupString)
     if (!email || !email.includes("@") || !password || password.length < 8 || !group || isNaN(group)) return false
     const encryptedPassword: string|null = await generatePasswordHash(password)
     if (!encryptedPassword) return false
     const newUser: typeUser = {
-        role: 0,
-        estado: false,
         email,
-        password: encryptedPassword,
         group,
+        id: +new Date(),
+        isActive: false,
+        password: encryptedPassword,
+        phoneAssignments: [],
+        recoveryOptions: [],
+        role: 0,
         tokenId: 1
     }
     const success: boolean = await userDbConnection.RegisterUser(newUser)
-    if (success) logger.Add(`Se registró un usuario con email ${email} y grupo ${group}`, login)
+    if (success) logger.Add(`Se registró un usuario con email ${email} y grupo ${group}`, loginLogs)
     return success
-}
-
-export const editUserService = async (token: string, user_id: string, estado: boolean, role: number, group: number): Promise<typeUser|null> => {
-    const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
-    estado = !estado ? false : true
-    try { role = parseInt(role.toString()) } catch { return null }
-    try { group = parseInt(group.toString()) } catch { return null }
-    if (!user || !user_id || typeof role !== 'number' || typeof group !== 'number') return null
-    const updatedUser: typeUser|null = await userDbConnection.EditUserState(user_id, estado, role, group)
-    if (updatedUser) logger.Add(`Admin ${user.email} modificó al usuario ${updatedUser.email}: activado ${updatedUser.estado}, rol ${updatedUser.role}, grupo ${updatedUser.group}`, userChanges)
-    return updatedUser
 }

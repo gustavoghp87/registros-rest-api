@@ -1,15 +1,10 @@
 import { ObjectId } from 'mongodb'
-import { typeBlock, typeTerritoryNumber } from './'
-
-export type typeFace = 'A' | 'B' | 'C' | 'D' | 'E' | 'F'
+import { typeBlock, typeFace, typeTerritoryNumber } from '.'
 
 export type typeHTHTerritory = {
     _id?: ObjectId
-    blocks: typeBlock[]
-    faces: typeFace[]
     map: typeHTHMap
-    streets: string[]
-    territory: typeTerritoryNumber
+    territoryNumber: typeTerritoryNumber
 }
 
 export type typeHTHMap = {

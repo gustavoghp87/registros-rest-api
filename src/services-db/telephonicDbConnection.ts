@@ -1,7 +1,7 @@
 import { UpdateResult } from 'mongodb'
-import { dbClient, logger } from '../server1'
-import { errorLogs } from '../services1/log-services'
-import { typeCallingState, typeHousehold, typeTelephonicTerritory, typeTerritoryNumber } from '../models1'
+import { dbClient, logger } from '../server'
+import { errorLogs } from '../services/log-services'
+import { typeCallingState, typeHousehold, typeTelephonicTerritory, typeTerritoryNumber } from '../models'
 
 const getCollection = () => dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollTelephonicTerritories)
 

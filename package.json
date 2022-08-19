@@ -7,7 +7,6 @@
     "tsc": "tsc",
     "start": "node build/server.js",
     "dev": "concurrently \"tsc -w\" \"nodemon build/server.js\"",
-    "dev1": "concurrently \"tsc -w\" \"nodemon build/server1.js\"",
     "postinstall": "npm run tsc"
   },
   "engines": {

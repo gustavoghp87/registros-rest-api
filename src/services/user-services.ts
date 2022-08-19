@@ -1,7 +1,7 @@
 import Axios from 'axios'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { bcryptSalt, privateKey, string_jwt } from '../env-variables'
+import { bcryptSalt, privateKey, jwtString } from '../env-variables'
 import { accessTokensExpiresIn, logger } from '../server'
 import { sendRecoverAccountEmailService } from './email-services'
 import { generalError, login, territoryChange, userChanges } from './log-services'
@@ -126,7 +126,7 @@ const getUserByAccessToken = async (token: string): Promise<typeUser|null> => {
     if (!token) return null 
     let decoded: typeDecodedObject|null
     try {
-        decoded = jwt.verify(token, string_jwt) as typeDecodedObject
+        decoded = jwt.verify(token, jwtString) as typeDecodedObject
     } catch (error) {
         console.log(error)
         try {
@@ -167,7 +167,7 @@ export const generateAccessTokenService = (user: typeUser, tokenId: number): str
         //     userId: user._id.toString(),
         //     tokenId
         // }
-        const newToken: string = jwt.sign({ userId: user._id, tokenId }, string_jwt, { expiresIn: accessTokensExpiresIn })
+        const newToken: string = jwt.sign({ userId: user._id, tokenId }, jwtString, { expiresIn: accessTokensExpiresIn })
         if (newToken) logger.Add(`Se logueó el usuario ${user.email}`, login)
         return newToken
     } catch (error) {
@@ -178,8 +178,6 @@ export const generateAccessTokenService = (user: typeUser, tokenId: number): str
 
 export const getUserByEmailService = async (email: string): Promise<typeUser|null> => {
     if (!email) return null
-    console.log(email);
-    
     const user = await userDbConnection.GetUserByEmail(email)
     return user
 }
@@ -193,8 +191,8 @@ export const getUsersNotAuthService = async (): Promise<typeUser[]|null> => {
 }
 
 export const getUsersService = async (token: string): Promise<typeUser[]|null> => {
-    const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
-    if (!user) return null
+    // const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
+    // if (!user) return null
     let users: typeUser[]|null = await userDbConnection.GetAllUsers()
     if (!users) return null
     users = users.reverse()

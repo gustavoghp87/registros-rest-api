@@ -1,10 +1,9 @@
-import express from 'express'
-import { Request, Response } from 'express'
+import express, { Request, Response, Router } from 'express'
 import * as userServices from '../services/user-services'
 import { sendNewPswEmailService } from '../services/email-services/email-services'
 import { authorizationString, typeUser } from '../models'
 
-export const router = express.Router()
+export const tokenController: Router = express.Router()
 
     // new login
     .post('/', async (req: Request, res: Response) => {

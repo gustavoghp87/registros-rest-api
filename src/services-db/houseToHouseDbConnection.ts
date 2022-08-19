@@ -191,6 +191,17 @@ export class HouseToHouseDb {
             return false
         }
     }
+    async GetHTHTerritories(): Promise<typeHTHTerritory[]|null> {
+        try {
+            const hthTerritories: typeHTHTerritory[] =
+                await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollHTH).find()?.toArray() as typeHTHTerritory[]
+            return hthTerritories
+        } catch (error) {
+            console.log(error)
+            logger.Add(`Falló GetHTHTerritories()`, generalError)
+            return null
+        }
+    }
     async GetHTHTerritory(territory: typeTerritoryNumber): Promise<typeHTHTerritory|null> {
         try {
             if (!territory) throw new Error("No llegó territorio")

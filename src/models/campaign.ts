@@ -1,3 +1,5 @@
+import { ObjectId } from 'mongodb'
+
 export type typeCampaignPack = {
     id: number
     desde: number
@@ -7,7 +9,3 @@ export type typeCampaignPack = {
     llamados?: number[]
     accessible?: boolean
 }
-
-export const noAsignado: string = "No asignado"
-
-export const nadie: string = "Nadie"

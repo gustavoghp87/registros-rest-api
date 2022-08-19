@@ -1,9 +1,8 @@
-import express from 'express'
-import { Request, Response } from 'express'
+import express, { Request, Response, Router } from 'express'
 import { getGeocodingFromAddressService, getGeocodingFromCoordinatesService } from '../services/geocoding-services'
 import { authorizationString, typeCoords } from '../models'
 
-export const router = express.Router()
+export const geocodingController: Router = express.Router()
 
     // get geocoding from address
     .post('/address', async (req: Request, res: Response) => {

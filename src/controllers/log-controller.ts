@@ -1,9 +1,8 @@
-import express from 'express'
-import { Request, Response } from 'express'
+import express, { Request, Response, Router } from 'express'
 import { logger } from '../server'
 import { authorizationString, typeLogsObj } from '../models'
 
-export const router = express.Router()
+export const logController: Router = express.Router()
 
     // get all logs
     .get('/', async (req: Request, res: Response) => {

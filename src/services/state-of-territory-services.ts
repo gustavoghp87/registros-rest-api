@@ -1,6 +1,6 @@
 import { logger } from '../server'
 import { deallocateMyTerritoryService, getActivatedAdminByAccessTokenService, getActivatedUserByAccessTokenService } from './user-services'
-import { stateOfTerritoryChange } from './log-services'
+import { generalError, stateOfTerritoryChange, userChanges } from './log-services'
 import { StateOfTerritoryDb } from '../services-db/stateOfTerritoryDbConnection'
 import { isTerritoryAssignedToUser } from './territory-services'
 import { typeStateOfTerritory, typeUser } from '../models'
@@ -16,8 +16,8 @@ export const getStateOfTerritoryService = async (token: string, territory: strin
 }
 
 export const getStateOfTerritoriesService = async (token: string): Promise<typeStateOfTerritory[]|null> => {
-    const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
-    if (!user) return null
+    //const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
+    //if (!user) return null
     const stateOfTerritories: typeStateOfTerritory[]|null = await stateOfTerritoryDbConnection.GetStateOfTerritories()
     return stateOfTerritories
 }
@@ -28,16 +28,17 @@ export const changeStateOfTerritoryService = async (token: string, territory: st
     if (user.role !== 1 && !isTerritoryAssignedToUser(user, territory)) return false
     isFinished = !!isFinished
     const success: boolean = await stateOfTerritoryDbConnection.ChangeStateOfTerritory(territory, isFinished)
-    if (success) {
-        logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cambia territorio ${territory} a ${isFinished ? 'terminado' : 'abierto'}`, stateOfTerritoryChange)
-        if (isFinished) {
-            const success1: boolean = await deallocateMyTerritoryService(token, territory)
-            if (!success1) logger.Add(`No se pudo desasignar territorio ${territory} a ${user.email} luego de cerrarlo`, stateOfTerritoryChange)
-        }
-    } else {
+    if (!success) {
         logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} no pudo cambiar territorio ${territory} a ${isFinished ? 'terminado' : 'abierto'}`, stateOfTerritoryChange)
+        return false
     }
-    return success
+    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cambia territorio ${territory} a ${isFinished ? 'terminado' : 'abierto'}`, stateOfTerritoryChange)
+    if (isFinished) {
+        const success1: boolean = await deallocateMyTerritoryService(token, territory)
+        if (!success1) logger.Add(`No se pudo desasignar territorio ${territory} a ${user.email} luego de cerrarlo`, generalError)
+        else logger.Add(`Se desasignó el territorio ${territory} a ${user.email} porque lo cerró`, userChanges)
+    }
+    return true
 }
 
 export const setResetDate = async (territory: string, option: number): Promise<boolean> => {

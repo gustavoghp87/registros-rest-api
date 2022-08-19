@@ -1,5 +1,7 @@
+import { ObjectId } from 'mongodb'
+
 export type typeUser = {
-    _id?: Object
+    _id?: ObjectId
     role: number
     estado: boolean
     email: string

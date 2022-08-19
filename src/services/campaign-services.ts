@@ -1,14 +1,14 @@
 import { logger } from '../server'
 import { CampaignDb } from '../services-db/campaignDbConnection'
-import { campaignAssignment, campaignFinishing } from './log-services'
+import { campaignAssignment, campaignFinishing, generalError } from './log-services'
 import { getActivatedAdminByAccessTokenService, getActivatedUserByAccessTokenService } from './user-services'
 import { typeCampaignPack, typeUser } from '../models'
 
 const campaignDbConnection: CampaignDb = new CampaignDb()
 
 export const getCampaignPacksService = async (token: string): Promise<typeCampaignPack[]|null> => {
-    const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
-    if (!user) return null
+    //const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
+    //if (!user) return null
     const packs: typeCampaignPack[]|null = await campaignDbConnection.GetCampaignPacks()
     return packs
 }
@@ -79,6 +79,7 @@ export const assignCampaignPackService = async (token: string, idString: string,
     if (!user || !token || !id || !email) return false
     const success: boolean = await campaignDbConnection.AssignCampaignPackByEmail(id, email)
     if (success) logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} asignó el paquete ${id} a ${email}`, campaignAssignment)
+    else logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} no pudo asignar el paquete ${id} a ${email}`, generalError)
     return success
 }
 

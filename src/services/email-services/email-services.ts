@@ -8,9 +8,14 @@ import { getAllHouseholdsService } from '../territory-services'
 import { EmailDb } from '../../services-db/emailDbConnection'
 import { emailError } from '../log-services'
 import { gmailCredentials, sendEmail, sendScope } from './'
-import { noPredicado, typeHousehold, typeUser } from '../../models'
+import { noPredicado, typeEmailObj, typeHousehold, typeUser } from '../../models'
 
 const emailDbConnection: EmailDb = new EmailDb()
+
+export const getEmailObject = async (): Promise<typeEmailObj|null> => {
+    // no auth filter
+    return await emailDbConnection.GetEmailObject()
+}
 
 export const getGmailUrlService = async (token: string): Promise<string|null> => {
     const user: typeUser|null = await getActivatedUserByAccessTokenService(token)

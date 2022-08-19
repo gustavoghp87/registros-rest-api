@@ -1,5 +1,4 @@
-import express, { NextFunction } from 'express'
-import { Request, Response } from 'express'
+import express, { NextFunction, Request, Response, Router } from 'express'
 import * as userServices from '../services/user-services'
 import { authorizationString, recaptchaTokenString, typeUser } from '../models'
 
@@ -22,7 +21,7 @@ const blindUser = (user: typeUser): typeUser => {
 
 export const validateRecaptchaToken = async (req: Request, res: Response, next: NextFunction) => {
     const recaptchaToken: string = req.header(recaptchaTokenString) || ""
-    console.log(recaptchaToken);
+    //console.log(recaptchaToken);
     
     // const success: boolean = await userServices.checkRecaptchaTokenService(recaptchaToken)
 
@@ -34,7 +33,7 @@ export const validateRecaptchaToken = async (req: Request, res: Response, next: 
     next()
 }
 
-export const router = express.Router()
+export const userController: Router = express.Router()
 
     // get my user
     .get('/', validateRecaptchaToken, async (req: Request, res: Response) => {
@@ -80,8 +79,8 @@ export const router = express.Router()
         res.json({ success: true, user })
     })
 
-    // change my dark mode
-    .put('/mode', validateRecaptchaToken, async (req: Request, res: Response) => {    // suspended
+    // change my dark mode    -    suspended
+    .put('/mode', validateRecaptchaToken, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const darkMode: boolean = req.body.darkMode
         const success: boolean = await userServices.changeModeService(token, darkMode)

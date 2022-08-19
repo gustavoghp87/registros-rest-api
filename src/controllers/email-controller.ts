@@ -1,10 +1,9 @@
-import express from 'express'
-import { Request, Response } from 'express'
+import express, { Request, Response, Router } from 'express'
 import { Credentials } from 'google-auth-library'
 import { authorizationString } from '../models';
 import { getGmailRequestService, getGmailUrlService, saveNewGmailAPITokenToDBService } from '../services/email-services/email-services'
 
-export const router = express.Router()
+export const emailController: Router = express.Router()
 
     // step 1
     .get('/', async (req: Request, res: Response) => {

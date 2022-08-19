@@ -1,9 +1,8 @@
-import express from 'express'
-import { Request, Response } from 'express'
+import express, { Request, Response, Router } from 'express'
 import * as campaignServices from '../services/campaign-services'
 import { authorizationString, typeCampaignPack } from '../models'
 
-export const router = express.Router()
+export const campaignController: Router = express.Router()
 
     // get campaign packs for admins
     .get('/all', async (req: Request, res: Response) => {

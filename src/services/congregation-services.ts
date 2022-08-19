@@ -1,8 +1,7 @@
 import Axios from 'axios'
-import { typeCongregationItem } from '../controllers/congregation-controller'
-import { getActivatedUserByAccessTokenService } from './user-services'
 import { googleSiteUrl } from '../env-variables'
-import { typeUser } from '../models'
+import { getActivatedUserByAccessTokenService } from './user-services'
+import { typeCongregationItem, typeUser } from '../models'
 
 export const getCongregationItems = async (token: string): Promise<typeCongregationItem[]|null> => {
     const user: typeUser|null = await getActivatedUserByAccessTokenService(token)

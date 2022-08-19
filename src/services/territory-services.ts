@@ -4,7 +4,7 @@ import { getActivatedAdminByAccessTokenService, getActivatedUserByAccessTokenSer
 import { sendAlertOfTerritoriesEmailService } from './email-services'
 import { generalError, stateOfTerritoryChange, territoryChange } from './log-services'
 import { HouseholdDb } from '../services-db/householdDbConnection'
-import * as types from '../models/household'
+import * as types from '../models'
 import { typeStateOfTerritory, typeUser } from '../models'
 
 const householdDbConnection: HouseholdDb = new HouseholdDb()
@@ -63,7 +63,7 @@ export const modifyHouseholdService = async (token: string,
     noAbonado = !noAbonado ? false : true
     asignado = !asignado ? false : true
     if (!user || !inner_id || !estado) return null
-    if (!isHouseholdAssignedToUser) return null
+    if (!await isHouseholdAssignedToUser(user, inner_id)) return null
     const success: boolean = await householdDbConnection.UpdateHouseholdState(inner_id, estado, noAbonado, asignado)
     if (!success) return null
     const updatedHousehold: types.typeHousehold|null = await householdDbConnection.GetHouseholdById(inner_id)

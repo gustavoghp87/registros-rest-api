@@ -2,6 +2,7 @@ import { Credentials } from 'google-auth-library'
 import { InsertOneResult, UpdateResult } from 'mongodb'
 import { dbClient, logger } from '../server'
 import { emailError } from '../services/log-services'
+import { typeEmailObj } from '../models'
 
 export class EmailDb {
     //private _id: ObjectId = new ObjectId('5fcbdce29382c6966fa4d583')
@@ -11,6 +12,17 @@ export class EmailDb {
             if (!lastEmailObj) throw new Error("No se pudo leer documento")
             const lastEmailTime: number|null = lastEmailObj.lastEmail
             return lastEmailTime
+        } catch (error) {
+            console.log("Get Email Last Time failed", error)
+            logger.Add(`Falló GetEmailLastTime(): ${error}`, emailError)
+            return null
+        }
+    }
+    async GetEmailObject(): Promise<typeEmailObj|null> {
+        try {
+            const lastEmailObj: any|null = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollEmails).findOne()
+            if (!lastEmailObj) throw new Error("No se pudo leer documento")
+            return lastEmailObj
         } catch (error) {
             console.log("Get Email Last Time failed", error)
             logger.Add(`Falló GetEmailLastTime(): ${error}`, emailError)

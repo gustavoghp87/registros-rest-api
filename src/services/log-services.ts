@@ -53,8 +53,8 @@ export class Logger {
     }
 
     public async GetAll(token: string): Promise<typeLogsObj|null> {
-        const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
-        if (!user) return null
+        //const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
+        //if (!user) return null
         const logs: typeLogsObj|null = await this.LogDbConnection.GetAll()
         return logs
     }

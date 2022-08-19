@@ -1,9 +1,8 @@
-import express from 'express'
-import { Request, Response } from 'express'
+import express, { Request, Response, Router } from 'express'
 import * as statisticServices from '../services/statistic-services'
 import { authorizationString, localStatistic, statistic } from '../models'
 
-export const router = express.Router()
+export const statisticsController: Router = express.Router()
 
     // get the number of free phone numbers
     .get('/free/:territory', async (req: Request, res: Response) => {

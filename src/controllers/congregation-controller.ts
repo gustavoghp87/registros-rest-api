@@ -1,14 +1,8 @@
-import express from 'express'
-import { Request, Response } from 'express'
-import { authorizationString } from '../models'
+import express, { Request, Response, Router } from 'express'
 import { getCongregationItems } from '../services/congregation-services'
+import { authorizationString, typeCongregationItem } from '../models'
 
-export type typeCongregationItem = {
-    title: string
-    ids: string[]
-}
-
-export const router = express.Router()
+export const congregationController: Router = express.Router()
 
     // get congregation items
     .get('/', async (req: Request, res: Response) => {

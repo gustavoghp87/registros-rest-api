@@ -83,14 +83,28 @@ export const editHTHMapService = async (token: string,
     const zoom: number = editedHTHMap.zoom
     let success: boolean = await houseToHouseDbConnection.EditViewHTHMap(territory, centerCoords, zoom, user.email)
     if (success && editedHTHPolygons && editedHTHPolygons.length) {
-        console.log(editedHTHPolygons);
-        
         editedHTHPolygons.forEach(async x => {
             success = await houseToHouseDbConnection.EditHTHPolygon(x, territory)
             if (!success) return false
         })
     }
     return success
+}
+
+export const getHTHTerritoriesService = async (token: string): Promise<typeHTHTerritory[]|null> => {
+    // const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
+    // if (!user) return null
+    const hthTerritories: typeHTHTerritory[]|null = await houseToHouseDbConnection.GetHTHTerritories()
+    // if (hthTerritories && hthTerritories.length) {
+    //     hthTerritories.forEach(hthTerritory =>
+    //         hthTerritory.map.polygons = hthTerritory.map.polygons.map(x => {
+    //             if (x.doNotCalls && x.doNotCalls.length) x.doNotCalls = x.doNotCalls.filter(y => y.deleted !== true)
+    //             if (x.observations && x.observations.length) x.observations = x.observations.filter(y => y.deleted !== true)
+    //             return x
+    //         })
+    //     )
+    // }
+    return hthTerritories
 }
 
 export const getHTHTerritoryService = async (token: string, territory: typeTerritoryNumber): Promise<typeHTHTerritory|null> => {

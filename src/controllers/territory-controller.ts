@@ -1,9 +1,8 @@
-import express from 'express'
-import { Request, Response } from 'express'
+import express, { Request, Response, Router } from 'express'
 import * as territoryServices from '../services/territory-services'
 import { authorizationString, typeStateOfTerritory, typeHousehold, typeTerritoryNumber } from '../models'
 
-export const router = express.Router()
+export const territoryController: Router = express.Router()
 
     // get blocks
     // .get('/blocks/:territory', async (req: Request, res: Response) => {

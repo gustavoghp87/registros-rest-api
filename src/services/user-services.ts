@@ -24,7 +24,7 @@ export const assignHTHTerritoryService = async (token: string, email: string, to
     const userToEdit: typeUser|null = await userDbConnection.GetUserByEmail(email)
     if (!user || !userToEdit || (!toAssign && !toUnassign && !all)) return null
     const updatedUser: typeUser|null = await userDbConnection.AssignHTHTerritory(email, toAssign, toUnassign, all)
-    if (updatedUser) logger.Add(`Admin ${user.email} modificó las asignaciones de Casa en Casa de ${updatedUser?.email}: asignados antes ${userToEdit.phoneAssignments?.length ? userToEdit.phoneAssignments : "ninguno"}, ahora ${updatedUser.phoneAssignments?.length ? updatedUser.phoneAssignments : "ninguno"}`, userLogs)
+    if (updatedUser) logger.Add(`Admin ${user.email} modificó las asignaciones de Casa en Casa de ${updatedUser?.email}: asignados antes ${userToEdit.phoneAssignments?.length ? userToEdit.phoneAssignments : "ninguno"}, ahora ${updatedUser.hthAssignments?.length ? updatedUser.hthAssignments : "ninguno"}`, userLogs)
     return updatedUser
 }
 

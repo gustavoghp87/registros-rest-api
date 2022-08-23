@@ -23,7 +23,6 @@ export const getGmailUrlService = async (token: string): Promise<string|null> =>
             scope: [sendScope],
             redirect_uri: "https://www.misericordiaweb.com"
         })
-        console.log('\n\n', url, '\n\n')
         return url
     } catch (error) {
         logger.Add("No se pudo generar URL para Gmail", errorLogs)

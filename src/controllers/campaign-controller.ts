@@ -1,24 +1,25 @@
 import express, { Request, Response, Router } from 'express'
+import { setUpUser } from './filter-controller'
 import * as campaignServices from '../services/campaign-services'
 import { authorizationString, typeCampaignPack } from '../models'
 
 export const campaignController: Router = express.Router()
 
     // get campaign packs for admins
-    .get('/all', async (req: Request, res: Response) => {
+    .get('/all', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const campaignPacks: typeCampaignPack[]|null = await campaignServices.getCampaignPacksService(token)
         res.json({ success: !!campaignPacks, campaignPacks })
     })
 
-    .get('/assignment', async (req: Request, res: Response) => {
+    .get('/assignment', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const campaignAssignments: number[]|null = await campaignServices.getCampaignPacksByUserService(token)
         res.json({ success: !!campaignAssignments, campaignAssignments })
     })
 
     // get campaign pack
-    .get('/:id', async (req: Request, res: Response) => {
+    .get('/:id', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const id: string = req.params.id
         const campaignPack: typeCampaignPack|null = await campaignServices.getCampaignPackService(token, id)
@@ -26,7 +27,7 @@ export const campaignController: Router = express.Router()
     })
 
     // edit checkbox
-    .patch('/', async (req: Request, res: Response) => {
+    .patch('/', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const id: number = req.body.id
         const phoneNumber: number = req.body.phoneNumber
@@ -36,7 +37,7 @@ export const campaignController: Router = express.Router()
     })
 
     // close pack
-    .patch('/all', async (req: Request, res: Response) => {
+    .patch('/all', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const id: number = req.body.id
         const success: boolean = await campaignServices.closeCampaignPackService(token, id)
@@ -44,7 +45,7 @@ export const campaignController: Router = express.Router()
     })
 
     // assign campaign pack to user by email
-    .put('/:id', async (req: Request, res: Response) => {
+    .put('/:id', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const email: string = req.body.email
         const id: string = req.params.id
@@ -53,14 +54,14 @@ export const campaignController: Router = express.Router()
     })
 
     // get campaign packs for user
-    .post('/new-pack', async (req: Request, res: Response) => {
+    .post('/new-pack', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const success: boolean = await campaignServices.askForANewCampaignPackService(token)
         res.json({ success })
     })
 
     // change accessibility mode
-    .patch('/accessibility', async (req: Request, res: Response) => {
+    .patch('/accessibility', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const id: number = req.body.id
         const accessible: boolean = req.body.accessible

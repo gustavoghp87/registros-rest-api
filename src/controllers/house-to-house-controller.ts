@@ -1,18 +1,19 @@
 import express, { Request, Response, Router } from 'express'
+import { setUpUser } from './filter-controller'
 import * as hTHServices from '../services/house-to-house-services'
 import { authorizationString, typeBlock, typeDoNotCall, typeFace, typeHTHMap, typeHTHTerritory, typeObservation, typePolygon, typeTerritoryNumber } from '../models'
 
 export const houseToHouseController: Router = express.Router()
 
     // create hth territories
-    .post('/genesys', async (req: Request, res: Response) => {
+    .post('/genesys', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const success: boolean = await hTHServices.createHTHTerritoriesService(token)
         res.json({ success })
     })
 
     // get hth territory
-    .get('/:territoryNumber', async (req: Request, res: Response) => {
+    .get('/:territoryNumber', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const territoryNumber: typeTerritoryNumber = req.params.territoryNumber as unknown as typeTerritoryNumber
         const hthTerritory: typeHTHTerritory|null = await hTHServices.getHTHTerritoryService(token, territoryNumber)
@@ -20,7 +21,7 @@ export const houseToHouseController: Router = express.Router()
     })
 
     // get territory streets
-    .get('/street/:territoryNumber', async (req: Request, res: Response) => {
+    .get('/street/:territoryNumber', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const territoryNumber: typeTerritoryNumber = req.params.territoryNumber as unknown as typeTerritoryNumber
         const streets: string[]|null = await hTHServices.getHTHStreetsByTerritoryService(token, territoryNumber)
@@ -28,7 +29,7 @@ export const houseToHouseController: Router = express.Router()
     })
 
     // add do not call
-    .post('/do-not-call/:territoryNumber/:block/:face', async (req: Request, res: Response) => {
+    .post('/do-not-call/:territoryNumber/:block/:face', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const block: typeBlock = req.params.block as typeBlock
         const doNotCall: typeDoNotCall = req.body.doNotCall as typeDoNotCall
@@ -40,7 +41,7 @@ export const houseToHouseController: Router = express.Router()
     })
 
     // add observation
-    .post('/observation/:territoryNumber/:block/:face', async (req: Request, res: Response) => {
+    .post('/observation/:territoryNumber/:block/:face', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const block: typeBlock = req.params.block as typeBlock
         const face: typeFace = req.params.face as typeFace
@@ -52,7 +53,7 @@ export const houseToHouseController: Router = express.Router()
     })
 
     // delete do not call
-    .delete('/do-not-call/:territoryNumber/:block/:face', async (req: Request, res: Response) => {
+    .delete('/do-not-call/:territoryNumber/:block/:face', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const block: typeBlock = req.params.block as typeBlock
         const doNotCallId: number = req.body.doNotCallId as number
@@ -63,7 +64,7 @@ export const houseToHouseController: Router = express.Router()
     })
 
     // delete observation
-    .delete('/observation/:territoryNumber/:block/:face', async (req: Request, res: Response) => {
+    .delete('/observation/:territoryNumber/:block/:face', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const block: typeBlock = req.params.block as typeBlock
         const face: typeFace = req.params.face as typeFace
@@ -74,7 +75,7 @@ export const houseToHouseController: Router = express.Router()
     })
 
     // edit observation
-    .patch('/observation/:territoryNumber/:block/:face', async (req: Request, res: Response) => {
+    .patch('/observation/:territoryNumber/:block/:face', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const block: typeBlock = req.params.block as typeBlock
         const face: typeFace = req.params.face as typeFace
@@ -85,7 +86,7 @@ export const houseToHouseController: Router = express.Router()
     })
 
     // edit face finished state
-    .patch('/state/:territoryNumber/:block/:face', async (req: Request, res: Response) => {
+    .patch('/state/:territoryNumber/:block/:face', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const block: typeBlock = req.params.block as typeBlock
         const face: typeFace = req.params.face as typeFace
@@ -97,7 +98,7 @@ export const houseToHouseController: Router = express.Router()
     })
 
     // edit territory map
-    .patch('/map/:territoryNumber', async (req: Request, res: Response) => {
+    .patch('/map/:territoryNumber', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const editedHTHMap: typeHTHMap = req.body.editedHTHMap as typeHTHMap
         const editedHTHPolygons: typePolygon[] = req.body.editedHTHPolygons as typePolygon[]
@@ -107,7 +108,7 @@ export const houseToHouseController: Router = express.Router()
     })
 
     // add polygon face to hth territorys
-    .post('/map/:territoryNumber', async (req: Request, res: Response) => {
+    .post('/map/:territoryNumber', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const polygon: typePolygon = req.body.polygon as typePolygon
         const territoryNumber: typeTerritoryNumber = req.params.territoryNumber as unknown as typeTerritoryNumber

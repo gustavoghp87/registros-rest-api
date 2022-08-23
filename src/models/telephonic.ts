@@ -13,10 +13,13 @@ export type typeHousehold = {
     block: typeBlock
     callingState: typeCallingState
     dateOfLastCall: number
+    doorBell: string
     householdId: number
     isAssigned: boolean
     notSubscribed: boolean
     phoneNumber: string
+    street: string
+    streetNumber: number
 }
 
 type typeStateOfTerritory = {

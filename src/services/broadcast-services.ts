@@ -21,10 +21,10 @@ const householdChange: socketConnection = 'telephonic-household: change'
 const userChange: socketConnection = 'user: change'
 const hthChange: socketConnection = 'hth: change'
 
-export const socketConnection = (production: boolean): void => {
+export const socketConnection = (isProduction: boolean): void => {
     new Server(server, {
         cors: {
-            origin: production ? [domain] : [domain, testingDomain],
+            origin: isProduction ? [domain] : [domain, testingDomain],
             methods: ["GET", "POST"],
             credentials: true
         }

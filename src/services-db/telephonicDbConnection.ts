@@ -6,7 +6,9 @@ import { typeCallingState, typeHousehold, typeTelephonicTerritory, typeTerritory
 const getCollection = () => dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollTelephonicTerritories)
 
 export class TelephonicDb {
+
     private noPredicado: typeCallingState = 'No predicado'
+    
     async ChangeStateOfTerritory(territoryNumber: string, isFinished: boolean): Promise<boolean> {
         try {
             if (!territoryNumber) throw new Error("No llegó el territorio")
@@ -33,8 +35,10 @@ export class TelephonicDb {
     }
     async GetHouseholdById(territoryNumber: typeTerritoryNumber, householdId: number): Promise<typeHousehold|null> {
         try {
-            const telephonicTerritory = await getCollection().findOne({ territoryNumber, 'households.householdId': householdId }) as typeTelephonicTerritory
-            return telephonicTerritory.households.find(x => x.householdId === householdId) || null
+            const telephonicTerritory = await getCollection().findOne(
+                { territoryNumber }
+            ) as typeTelephonicTerritory
+            return telephonicTerritory.households.find(x => x.householdId === householdId) || null    // ...
         } catch (error) {
             logger.Add(`Falló GetHouseholdById(): ${error}`, errorLogs)
             return null

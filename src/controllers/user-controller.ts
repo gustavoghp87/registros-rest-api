@@ -1,8 +1,9 @@
-import express, { NextFunction, Request, Response, Router } from 'express'
+import express, { Request, Response, Router } from 'express'
 import * as userServices from '../services/user-services'
 import { sendNewPswEmailService } from '../services/email-services'
 import { checkRecaptchaTokenService } from '../services/recaptcha-services'
-import { authorizationString, recaptchaTokenString, typeUser } from '../models'
+import { setUpUser } from './filter-controller'
+import { authorizationString, typeUser } from '../models'
 
 // const unauthenticatedUser: typeUser = {
 //     isAuth: false,
@@ -21,17 +22,10 @@ const blindUser = (user: typeUser): typeUser => {
     return user
 }
 
-export const validateRecaptchaToken = async (req: Request, res: Response, next: NextFunction) => {
-    const recaptchaToken: string = req.header(recaptchaTokenString) || ""
-    // const success: boolean = await userServices.checkRecaptchaTokenService(recaptchaToken)
-    // if (!success) return res.json({ success })
-    next()
-}
-
 export const userController: Router = express.Router()
 
     // get my user
-    .get('/', validateRecaptchaToken, async (req: Request, res: Response) => {
+    .get('/', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         let user: typeUser|null = await userServices.getActivatedUserByAccessTokenService(token)
         if (!user) return res.json({ success: false })
@@ -40,7 +34,7 @@ export const userController: Router = express.Router()
     })
     
     // sign up user
-    .post('/', validateRecaptchaToken, async (req: Request, res: Response) => {
+    .post('/', setUpUser, async (req: Request, res: Response) => {
         const { email, password, group, recaptchaToken } = req.body
         const checkRecaptch: boolean = await checkRecaptchaTokenService(recaptchaToken)
         if (!checkRecaptch) return res.json({ success: false, recaptchaFails: true })
@@ -51,7 +45,7 @@ export const userController: Router = express.Router()
     })
 
     // get all users
-    .get('/all', validateRecaptchaToken, async (req: Request, res: Response) => {
+    .get('/all', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const users: typeUser[]|null = await userServices.getUsersService(token)
         if (!users) return res.json({ success: false })
@@ -60,7 +54,7 @@ export const userController: Router = express.Router()
     })
 
     // change features for other users
-    .put('/', validateRecaptchaToken, async (req: Request, res: Response) => {
+    .put('/', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const email: string = req.body.email
         const isActive: boolean = req.body.isActive
@@ -72,8 +66,21 @@ export const userController: Router = express.Router()
         res.json({ success: true, user })
     })
 
-    // change assignations for other users
-    .put('/assignment', validateRecaptchaToken, async (req: Request, res: Response) => {
+    // change house-to-house assignations for other users
+    .put('/hth-assignment', setUpUser, async (req: Request, res: Response) => {
+        const token: string = req.header(authorizationString) || ""
+        const email: string = req.body.email
+        const toAssign: number = req.body.toAssign
+        const toUnassign: number = req.body.toUnassign
+        const all: boolean = req.body.all
+        let user: typeUser|null = await userServices.assignHTHTerritoryService(token, email, toAssign, toUnassign, all)
+        if (!user) return res.json({ success: false })
+        user = blindUser(user)
+        res.json({ success: true, user })
+    })
+
+    // change telephonic assignations for other users
+    .put('/tlp-assignment', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const email: string = req.body.email
         const toAssign: number = req.body.toAssign
@@ -86,7 +93,7 @@ export const userController: Router = express.Router()
     })
     
     // get email from email link id
-    .get('/recovery/:id', validateRecaptchaToken, async (req: Request, res: Response) => {
+    .get('/recovery/:id', setUpUser, async (req: Request, res: Response) => {
         const id: string = req.params.id
         const user: typeUser|null = await userServices.getUserByEmailLinkService(id)
         if (!user || !user.email) return res.json({ success: false })
@@ -94,7 +101,7 @@ export const userController: Router = express.Router()
     })
 
     // recover account by a link in email box
-    .patch('/', validateRecaptchaToken, async (req: Request, res: Response) => {
+    .patch('/', setUpUser, async (req: Request, res: Response) => {
         const email: string = req.body.email || ""
         const response: string = await userServices.recoverAccountService(email)
         if (response === "no user") res.json({ success: false, noUser: true })
@@ -104,7 +111,7 @@ export const userController: Router = express.Router()
     })
     
     // new login
-    .post('/token', async (req: Request, res: Response) => {
+    .post('/token', setUpUser, async (req: Request, res: Response) => {
         const { email, password, recaptchaToken } = req.body
         const newToken: string|null = await userServices.loginUserService(email, password, recaptchaToken)
         if (!newToken)
@@ -117,14 +124,14 @@ export const userController: Router = express.Router()
     })
 
     // logout all devices
-    .delete('/token', async (req: Request, res: Response) => {
+    .delete('/token', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const newToken: string|null = await userServices.logoutAllService(token)
         res.json({ success: !!newToken, newToken })
     })
 
     // change my password
-    .put('/token', async (req: Request, res: Response) => {
+    .put('/token', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const { psw, newPsw, id } = req.body
         if (psw && newPsw) {
@@ -145,7 +152,7 @@ export const userController: Router = express.Router()
     })
 
     // change the password of other user by admin
-    .patch('/token', async (req: Request, res: Response) => {
+    .patch('/token', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const email: string = req.body.email
         const newPassword: string|null = await userServices.changePswOtherUserService(token, email)

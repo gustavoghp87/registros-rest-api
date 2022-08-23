@@ -6,7 +6,7 @@ import * as controllers from './controllers'
 import { DbConnection } from './services-db/_dbConnection'
 import { socketConnection } from './services/broadcast-services'
 import { Logger } from './services/log-services'
-import { port, environment } from './env-variables'
+import { environment, port } from './env-variables'
 
 export const isProduction: boolean = environment === 'prod'
 export const testingDb: boolean = !isProduction
@@ -31,6 +31,7 @@ app.use('/api/house-to-house', controllers.houseToHouseController)
 app.use('/api/geocoding', controllers.geocodingController)
 app.use('/api/telephonic', controllers.telephonicController)
 app.use('/api/user', controllers.userController)
+app.use('/api/weather', controllers.weatherController)
 
 export const server = app.listen(port, () => {
     console.log(`\n\n\nListening on port ${port}`)

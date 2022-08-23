@@ -40,6 +40,34 @@ export class UserDb {
             return false
         }
     }
+    async AssignHTHTerritory(email: string, toAssign: number, toUnassign: number, all: boolean): Promise<typeUser|null> {
+        try {
+            let result: UpdateResult
+            if (all)
+                result = await getCollection().updateOne(
+                    { email },
+                    { $set: { hthAssignments: [] } }
+                )
+            else if (toAssign)
+                result = await getCollection().updateOne(
+                    { email },
+                    { $addToSet: { hthAssignments: toAssign } }
+                )
+            else if (toUnassign)
+                result = await getCollection().updateOne(
+                    { email },
+                    { $pull: { hthAssignments: toUnassign } }
+                )
+            else return null
+            if (!result || !result.modifiedCount) return null
+            const user: typeUser|null = await this.GetUserByEmail(email)
+            return user ?? null
+        } catch (error) {
+            console.log("Asign Territory failed:", error)
+            logger.Add(`Falló AssignTerritory() ${email} ${toAssign} ${toUnassign} ${all}: ${error}`, errorLogs)
+            return null
+        }
+    }
     async AssignTLPTerritory(email: string, toAssign: number, toUnassign: number, all: boolean): Promise<typeUser|null> {
         try {
             if (all)

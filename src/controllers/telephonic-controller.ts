@@ -1,11 +1,12 @@
 import express, { Request, Response, Router } from 'express'
+import { setUpUser } from './filter-controller'
 import * as territoryServices from '../services/telephonic-services'
 import { authorizationString, typeHousehold, typeTerritoryNumber, typeTelephonicTerritory, typeLocalTelephonicStatistic, typeTelephonicStatistic } from '../models'
 
 export const telephonicController: Router = express.Router()
 
     // get territory
-    .get('/:territoryNumber', async (req: Request, res: Response) => {
+    .get('/:territoryNumber', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const territoryNumber: typeTerritoryNumber = req.params.territoryNumber as typeTerritoryNumber
         const telephonicTerritory: typeTelephonicTerritory|null = await territoryServices.getTelephonicTerritoryService(token, territoryNumber)
@@ -13,7 +14,7 @@ export const telephonicController: Router = express.Router()
     })
 
     // edit household
-    .put('/:territoryNumber', async (req: Request, res: Response) => {
+    .put('/:territoryNumber', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const territoryNumber: typeTerritoryNumber = req.params.territoryNumber as typeTerritoryNumber
         const { householdId, callingState, notSubscribed, isAssigned } = req.body
@@ -23,7 +24,7 @@ export const telephonicController: Router = express.Router()
     })
     
     // reset territory
-    .delete('/', async (req: Request, res: Response) => {
+    .delete('/', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const { territoryNumber, option } = req.body
         const modifiedCount: number|null = await territoryServices.resetTerritoryService(token, territoryNumber, option)
@@ -31,7 +32,7 @@ export const telephonicController: Router = express.Router()
     })
 
     // open and close territory
-    .patch('/', async (req: Request, res: Response) => {
+    .patch('/', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const isFinished: boolean = req.body.isFinished
         const territoryNumber: typeTerritoryNumber = req.body.territoryNumber
@@ -40,14 +41,14 @@ export const telephonicController: Router = express.Router()
     })
 
     // get local statistics
-    .get('/statistic/local', async (req: Request, res: Response) => {
+    .get('/statistic/local', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const localStatistics: typeLocalTelephonicStatistic[]|null = await territoryServices.getTelephonicLocalStatisticsService(token)
         res.json({ success: !!localStatistics, localStatistics })
     })
 
     // get global statistics
-    .get('/statistic/global', async (req: Request, res: Response) => {
+    .get('/statistic/global', setUpUser, async (req: Request, res: Response) => {
         const token: string = req.header(authorizationString) || ""
         const globalStatistics: typeTelephonicStatistic|null = await territoryServices.getTelephonicGlobalStatisticsService(token)
         res.json({ success: !!globalStatistics, globalStatistics })

@@ -10,6 +10,24 @@ import { typeJWTObjectForUser, typeRecoveryOption, typeTerritoryNumber, typeUser
 
 const userDbConnection: UserDb = new UserDb()
 
+export const assignHTHTerritoryService = async (token: string, email: string, toAssign: number, toUnassign: number, all: boolean): Promise<typeUser|null> => {
+    all = !!all
+    if (toAssign) {
+        toAssign = parseInt(toAssign.toString())
+        if (isNaN(toAssign)) return null
+    }
+    if (toUnassign) {
+        toUnassign = parseInt(toUnassign.toString())
+        if (isNaN(toUnassign)) return null
+    }
+    const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
+    const userToEdit: typeUser|null = await userDbConnection.GetUserByEmail(email)
+    if (!user || !userToEdit || (!toAssign && !toUnassign && !all)) return null
+    const updatedUser: typeUser|null = await userDbConnection.AssignHTHTerritory(email, toAssign, toUnassign, all)
+    if (updatedUser) logger.Add(`Admin ${user.email} modificó las asignaciones de Casa en Casa de ${updatedUser?.email}: asignados antes ${userToEdit.phoneAssignments?.length ? userToEdit.phoneAssignments : "ninguno"}, ahora ${updatedUser.phoneAssignments?.length ? updatedUser.phoneAssignments : "ninguno"}`, userLogs)
+    return updatedUser
+}
+
 export const assignTLPTerritoryService = async (token: string, email: string, toAssign: number, toUnassign: number, all: boolean): Promise<typeUser|null> => {
     all = !!all
     if (toAssign) {
@@ -24,7 +42,7 @@ export const assignTLPTerritoryService = async (token: string, email: string, to
     const userToEdit: typeUser|null = await userDbConnection.GetUserByEmail(email)
     if (!user || !userToEdit || (!toAssign && !toUnassign && !all)) return null
     const updatedUser: typeUser|null = await userDbConnection.AssignTLPTerritory(email, toAssign, toUnassign, all)
-    if (updatedUser) logger.Add(`Admin ${user.email} modificó las asignaciones de ${updatedUser?.email}: asignados antes ${userToEdit.phoneAssignments?.length ? userToEdit.phoneAssignments : "ninguno"}, ahora ${updatedUser.phoneAssignments?.length ? updatedUser.phoneAssignments : "ninguno"}`, userLogs)
+    if (updatedUser) logger.Add(`Admin ${user.email} modificó las asignaciones Telefónica de ${updatedUser?.email}: asignados antes ${userToEdit.phoneAssignments?.length ? userToEdit.phoneAssignments : "ninguno"}, ahora ${updatedUser.phoneAssignments?.length ? updatedUser.phoneAssignments : "ninguno"}`, userLogs)
     return updatedUser
 }
 
@@ -76,8 +94,8 @@ export const changePswService = async (token: string, psw: string, newPsw: strin
     return newToken
 }
 
-export const deallocateMyTLPTerritoryService = async (token: string, territoryNumber: typeTerritoryNumber): Promise<boolean> => {
-    const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
+export const deallocateMyTLPTerritoryService = async (user: typeUser, territoryNumber: typeTerritoryNumber): Promise<boolean> => {
+    // no auth
     if (!user) return false
     const toUnassign: number = parseInt(territoryNumber)
     if (!toUnassign || isNaN(toUnassign)) {
@@ -119,6 +137,8 @@ export const getActivatedAdminByAccessTokenService = async (token: string): Prom
 }
 
 export const getActivatedUserByAccessTokenService = async (token: string): Promise<typeUser|null> => {
+    console.log("\Getting Act User By AT");
+    
     if (!token) return null
     let decoded: typeJWTObjectForUser|null = decodeVerifiedService(token) as typeJWTObjectForUser
     if (!decoded || !decoded.userId || !decoded.tokenId) return null       // change to id
@@ -211,6 +231,7 @@ export const registerUserService = async (email: string, password: string, group
     const newUser: typeUser = {
         email,
         group,
+        hthAssignments: [],
         id: +new Date(),
         isActive: false,
         password: encryptedPassword,

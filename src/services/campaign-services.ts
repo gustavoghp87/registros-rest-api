@@ -63,6 +63,7 @@ export const editCampaignPackService = async (token: string, id: number, phoneNu
 const anonymousUser: typeUser = {
     email: "anónimo por accesibilidad",
     group: 0,
+    hthAssignments: [],
     id: 0,
     isActive: false,
     phoneAssignments: [],

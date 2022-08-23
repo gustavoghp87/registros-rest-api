@@ -1,6 +1,7 @@
 export type typeUser = {
     email: string
     group: number
+    hthAssignments: number[]
     id: number
     isActive: boolean
     password?: string

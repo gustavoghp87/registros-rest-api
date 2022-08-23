@@ -152,7 +152,7 @@ export const resetTerritoryService = async (token: string, territoryNumber: type
         logger.Add(`Admin ${user.email} no pudo resetear territorio ${territoryNumber} opción ${option}`, telephonicStateLogs)
         return null
     }
-    logger.Add(`Admin ${user.email} reseteó territorio ${territoryNumber} con la opción ${option}: ${modifiedCount} viviendas reseteadas`, telephonicStateLogs)
+    logger.Add(`Admin ${user.email} reseteó territorio ${territoryNumber} con la opción ${option}`, telephonicStateLogs)
     if (modifiedCount) {
         const success: boolean = await telephonicDbConnection.SetResetDate(territoryNumber, option)
         if (!success) logger.Add(`Admin ${user.email} no pudo setear fecha de reseteo de territorio ${territoryNumber} opción ${option}`, errorLogs)

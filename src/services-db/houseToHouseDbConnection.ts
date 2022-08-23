@@ -134,7 +134,7 @@ export class HouseToHouseDb {
                 }},
                 { arrayFilters: [{ 'x.block': polygon.block, 'x.face': polygon.face, 'x.id': polygon.id }] }
             )
-            return !!result.modifiedCount
+            return true  // true
         } catch (error) {
             console.log(error)
             logger.Add(`Falló EditHTHPolygon() territorio ${territoryNumber}: ${error}`, errorLogs)
@@ -148,7 +148,7 @@ export class HouseToHouseDb {
                 { territoryNumber },
                 { $set: { 'map.centerCoords': centerCoords, 'map.zoom': zoom, 'map.lastEditor': lastEditor } }
             )
-            return !!result.modifiedCount
+            return true  // true
         } catch (error) {
             console.log(error)
             logger.Add(`Falló EditViewHTHMap() territorio ${territoryNumber} ${centerCoords} ${zoom}: ${error}`, errorLogs)

@@ -3,9 +3,49 @@ import { logger } from '../server'
 import { getActivatedAdminByAccessTokenService, getActivatedUserByAccessTokenService } from './user-services'
 import { errorLogs, houseToHouseAdminLogs, houseToHouseLogs } from './log-services'
 import { HouseToHouseDb } from '../services-db/houseToHouseDbConnection'
-import { typeBlock, typeCoords, typeDoNotCall, typeFace, typeHTHMap, typeHTHTerritory, typeObservation, typePolygon, typeTerritoryNumber, typeUser } from '../models'
+import { typeBlock, typeCoords, typeDoNotCall, typeFace, typeHTHBuilding, typeHTHMap, typeHTHTerritory, typeObservation, typePolygon, typeTerritoryNumber, typeUser } from '../models'
 
 const houseToHouseDbConnection = new HouseToHouseDb()
+
+export const addHTHBuildingService = async (token: string, territoryNumber: typeTerritoryNumber,
+ block: typeBlock, face: typeFace, newBuilding: typeHTHBuilding): Promise<boolean|'dataError'|'alreadyExists'> => {
+    const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
+    if (!user) return false
+    if (!territoryNumber || !block || !face || !newBuilding || typeof newBuilding.streetNumber !== 'number'
+     || !newBuilding.households || !newBuilding.households.length) return 'dataError'
+    newBuilding.hasCharacters = !!newBuilding.hasCharacters
+    newBuilding.hasContinuousNumbers = !!newBuilding.hasContinuousNumbers
+    newBuilding.hasLowLevel = !!newBuilding.hasLowLevel
+    if (typeof newBuilding.numberOfLevels !== 'number' || typeof newBuilding.numberPerLevel !== 'number' || !newBuilding.numberPerLevel) return 'dataError'
+    newBuilding.households.forEach(x => {
+        if (x.doorName === undefined || x.doorName === null || x.doorName === "" || typeof x.doorNumber !== 'number' || typeof x.level !== 'number') return 'dataError'
+    })
+    const hthTerritory: typeHTHTerritory|null = await getHTHTerritoryServiceWithoutPermissions(territoryNumber)
+    if (!hthTerritory) return false
+    if (hthTerritory.map.polygons
+        .find(x => x.block === block && x.face === face)?.buildings
+        .some(x => x.streetNumber === newBuilding.streetNumber)
+    ) return 'alreadyExists'
+    const id: number = +new Date()
+    const building: typeHTHBuilding = {
+        hasCharacters: newBuilding.hasCharacters,
+        hasContinuousNumbers: newBuilding.hasContinuousNumbers,
+        hasLowLevel: newBuilding.hasLowLevel,
+        households: newBuilding.households.map((x, y) => ({
+            dateOfLastCall: 0,
+            doorName: x.doorName,
+            doorNumber: x.doorNumber,
+            id: id + y,
+            isChecked: false,
+            level: x.level
+        })),
+        numberOfLevels: newBuilding.numberOfLevels,
+        numberPerLevel: newBuilding.numberPerLevel,
+        streetNumber: newBuilding.streetNumber
+    }
+    const success: boolean = await houseToHouseDbConnection.AddHTHBuilding(territoryNumber, block, face, building)
+    return success
+}
 
 export const addHTHDoNotCallService = async (token: string, territoryNumber: typeTerritoryNumber,
  block: typeBlock, face: typeFace, polygonId: number, doNotCall: typeDoNotCall): Promise<boolean> => {
@@ -46,6 +86,16 @@ export const addHTHPolygonFaceService = async (token: string, territoryNumber: t
     else logger.Add(`${user.email} no pudo agregar una Cara al territorio ${territoryNumber} manzana ${polygon.block} cara ${polygon.face}`, errorLogs)
     return success
 }
+
+export const changeStateToHTHHouseholdService = async (token: string, territoryNumber: typeTerritoryNumber,
+ block: typeBlock, face: typeFace, streetNumber: number, householdId: number, isChecked: boolean): Promise<boolean> => {
+    const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
+    if (!user) return false
+    if (!territoryNumber || !block || !face || !householdId || typeof householdId !== 'number') return false
+    isChecked = !!isChecked
+    const success: boolean = await houseToHouseDbConnection.EditStateHTHHousehold(territoryNumber, block, face, streetNumber, householdId, isChecked)
+    return success
+ }
 
 export const createHTHTerritoriesService = async (token: string): Promise<boolean> => {
     const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
@@ -128,6 +178,11 @@ export const getHTHTerritoriesService = async (token: string): Promise<typeHTHTe
 export const getHTHTerritoryService = async (token: string, territoryNumber: typeTerritoryNumber): Promise<typeHTHTerritory|null> => {
     const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
     if (!user || !territoryNumber) return null
+    const hthTerritory: typeHTHTerritory|null = await getHTHTerritoryServiceWithoutPermissions(territoryNumber)
+    return hthTerritory
+}
+
+const getHTHTerritoryServiceWithoutPermissions = async (territoryNumber: typeTerritoryNumber): Promise<typeHTHTerritory|null> => {
     const hthTerritory: typeHTHTerritory|null = await houseToHouseDbConnection.GetHTHTerritory(territoryNumber)
     if (hthTerritory) {
         hthTerritory.map.polygons = hthTerritory.map.polygons.map(x => {

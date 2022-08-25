@@ -1,7 +1,7 @@
 import express, { Request, Response, Router } from 'express'
 import { setUpUser } from './filter-controller'
 import * as hTHServices from '../services/house-to-house-services'
-import { authorizationString, typeBlock, typeDoNotCall, typeFace, typeHTHMap, typeHTHTerritory, typeObservation, typePolygon, typeTerritoryNumber } from '../models'
+import { authorizationString, typeBlock, typeDoNotCall, typeFace, typeHTHBuilding, typeHTHMap, typeHTHTerritory, typeObservation, typePolygon, typeTerritoryNumber } from '../models'
 
 export const houseToHouseController: Router = express.Router()
 
@@ -113,6 +113,31 @@ export const houseToHouseController: Router = express.Router()
         const polygon: typePolygon = req.body.polygon as typePolygon
         const territoryNumber: typeTerritoryNumber = req.params.territoryNumber as unknown as typeTerritoryNumber
         const success: boolean = await hTHServices.addHTHPolygonFaceService(token, territoryNumber, polygon)
+        res.json({ success })
+    })
+
+    // add new household to building
+    .post('/building/:territoryNumber/:block/:face', setUpUser, async (req: Request, res: Response) => {
+        const token: string = req.header(authorizationString) || ""
+        const block: typeBlock = req.params.block as typeBlock
+        const face: typeFace = req.params.face as typeFace
+        const newBuilding: typeHTHBuilding = req.body.newBuilding
+        const territoryNumber: typeTerritoryNumber = req.params.territoryNumber as unknown as typeTerritoryNumber
+        const result: boolean|'dataError'|'alreadyExists' = await hTHServices.addHTHBuildingService(token, territoryNumber, block, face, newBuilding)
+        res.json({ success: result === true, dataError: result === 'dataError', alreadyExists: result === 'alreadyExists' })
+    })
+
+    // modify is called state to household
+    .patch('/building/:territoryNumber/:block/:face', setUpUser, async (req: Request, res: Response) => {
+        const token: string = req.header(authorizationString) || ""
+        const block: typeBlock = req.params.block as typeBlock
+        const face: typeFace = req.params.face as typeFace
+        const householdId: number = req.body.householdId
+        const isChecked: boolean = req.body.isChecked
+        const streetNumber: number = req.body.streetNumber
+        const territoryNumber: typeTerritoryNumber = req.params.territoryNumber as unknown as typeTerritoryNumber
+        const success: boolean =
+            await hTHServices.changeStateToHTHHouseholdService(token, territoryNumber, block, face, streetNumber, householdId, isChecked)
         res.json({ success })
     })
 ;

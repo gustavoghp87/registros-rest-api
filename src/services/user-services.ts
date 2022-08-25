@@ -137,8 +137,6 @@ export const getActivatedAdminByAccessTokenService = async (token: string): Prom
 }
 
 export const getActivatedUserByAccessTokenService = async (token: string): Promise<typeUser|null> => {
-    console.log("\Getting Act User By AT");
-    
     if (!token) return null
     let decoded: typeJWTObjectForUser|null = decodeVerifiedService(token) as typeJWTObjectForUser
     if (!decoded || !decoded.userId || !decoded.tokenId) return null       // change to id

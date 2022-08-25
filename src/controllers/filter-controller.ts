@@ -95,6 +95,7 @@ const getMockedUserResponse = (isAdmin: boolean): typeResponseData => {
                 type: 'UserLogs'
             },
         },
+        alreadyExists: false,
         campaignAssignments: [44],
         campaignPack: {
             assignedTo: userEmail,
@@ -150,6 +151,7 @@ const getMockedUserResponse = (isAdmin: boolean): typeResponseData => {
             lat: -34.6319777,
             lng: -58.4757213
         },
+        dataError: false,
         email: userEmail,
         emailSuccess: true,
         expired: false,
@@ -191,20 +193,31 @@ const getMockedUserResponse = (isAdmin: boolean): typeResponseData => {
                 markers: [],
                 polygons: [
                     {
-                   block: "1",
-                   coordsPoint1: {
-                       lat: -34.6304776580043,
-                       lng: -58.474124535421154
-                        },
-                   coordsPoint2: {
-                       lat: -34.631218766130246,
-                       lng: -58.47434904391251
-                        },
-                   coordsPoint3: {
-                       lat: -34.63074553684708,
-                       lng: -58.475149819321636
-                        },
-                   doNotCalls: [
+                        block: "1",
+                        buildings: [
+                            {
+                                hasCharacters: true,
+                                hasContinuousNumbers: false,
+                                hasLowLevel: false,
+                                households: [],
+                                numberOfLevels: 9,
+                                numberPerLevel: 2,
+                                streetNumber: 2302
+                            }
+                        ],
+                        coordsPoint1: {
+                            lat: -34.6304776580043,
+                            lng: -58.474124535421154
+                                },
+                        coordsPoint2: {
+                            lat: -34.631218766130246,
+                            lng: -58.47434904391251
+                                },
+                        coordsPoint3: {
+                            lat: -34.63074553684708,
+                            lng: -58.475149819321636
+                                },
+                        doNotCalls: [
                             {
                            creator: "ghp.2120@gmail.com",
                            date: "2022-07-11",
@@ -277,6 +290,17 @@ const getMockedUserResponse = (isAdmin: boolean): typeResponseData => {
                     },
                     {
                         block: "1",
+                        buildings: [
+                            {
+                                hasCharacters: true,
+                                hasContinuousNumbers: false,
+                                hasLowLevel: false,
+                                households: [],
+                                numberOfLevels: 9,
+                                numberPerLevel: 2,
+                                streetNumber: 2310
+                            }
+                        ],
                         coordsPoint1: {
                             lat: -34.6304921387505,
                             lng: -58.474119670542095
@@ -306,6 +330,17 @@ const getMockedUserResponse = (isAdmin: boolean): typeResponseData => {
                     },
                     {
                         block: "1",
+                        buildings: [
+                            {
+                                hasCharacters: false,
+                                hasContinuousNumbers: false,
+                                hasLowLevel: false,
+                                households: [],
+                                numberOfLevels: 9,
+                                numberPerLevel: 2,
+                                streetNumber: 2320
+                            }
+                        ],
                         coordsPoint1: {
                             lat: -34.63122845386888,
                             lng: -58.4743457366586
@@ -344,6 +379,17 @@ const getMockedUserResponse = (isAdmin: boolean): typeResponseData => {
                     },
                     {
                         block: "1",
+                        buildings: [
+                            {
+                                hasCharacters: true,
+                                hasContinuousNumbers: true,
+                                hasLowLevel: false,
+                                households: [],
+                                numberOfLevels: 9,
+                                numberPerLevel: 2,
+                                streetNumber: 2310
+                            }
+                        ],
                         coordsPoint1: {
                             lat: -34.632014299458405,
                             lng: -58.474567394274125
@@ -387,6 +433,17 @@ const getMockedUserResponse = (isAdmin: boolean): typeResponseData => {
                     },
                     {
                         block: "2",
+                        buildings: [
+                            {
+                                hasCharacters: true,
+                                hasContinuousNumbers: true,
+                                hasLowLevel: true,
+                                households: [],
+                                numberOfLevels: 1,
+                                numberPerLevel: 5,
+                                streetNumber: 2330
+                            }
+                        ],
                         coordsPoint1: {
                             lat: -34.630204915700354,
                             lng: -58.473028680697446
@@ -408,6 +465,17 @@ const getMockedUserResponse = (isAdmin: boolean): typeResponseData => {
                     },
                     {
                         block: "2",
+                        buildings: [
+                            {
+                                hasCharacters: true,
+                                hasContinuousNumbers: false,
+                                hasLowLevel: false,
+                                households: [],
+                                numberOfLevels: 20,
+                                numberPerLevel: 8,
+                                streetNumber: 2340
+                            }
+                        ],
                         coordsPoint1: {
                             lat: -34.630205790055356,
                             lng: -58.473025148083366
@@ -429,6 +497,17 @@ const getMockedUserResponse = (isAdmin: boolean): typeResponseData => {
                     },
                     {
                         block: "2",
+                        buildings: [
+                            {
+                                hasCharacters: true,
+                                hasContinuousNumbers: false,
+                                hasLowLevel: true,
+                                households: [],
+                                numberOfLevels: 9,
+                                numberPerLevel: 3,
+                                streetNumber: 2350
+                            }
+                        ],
                         coordsPoint1: {
                             lat: -34.63096789381602,
                             lng: -58.47324566225329
@@ -450,6 +529,17 @@ const getMockedUserResponse = (isAdmin: boolean): typeResponseData => {
                     },
                     {
                         block: "2",
+                        buildings: [
+                            {
+                                hasCharacters: false,
+                                hasContinuousNumbers: false,
+                                hasLowLevel: false,
+                                households: [],
+                                numberOfLevels: 9,
+                                numberPerLevel: 2,
+                                streetNumber: 2360
+                            }
+                        ],
                         coordsPoint1: {
                             lat: -34.63046105805857,
                             lng: -58.474055929853705
@@ -471,6 +561,17 @@ const getMockedUserResponse = (isAdmin: boolean): typeResponseData => {
                     },
                     {
                         block: "3",
+                        buildings: [
+                            {
+                                hasCharacters: true,
+                                hasContinuousNumbers: false,
+                                hasLowLevel: false,
+                                households: [],
+                                numberOfLevels: 9,
+                                numberPerLevel: 2,
+                                streetNumber: 2370
+                            }
+                        ],
                         coordsPoint1: {
                             lat: -34.630183519872006,
                             lng: -58.472938005691645
@@ -491,8 +592,18 @@ const getMockedUserResponse = (isAdmin: boolean): typeResponseData => {
                         street: "Yerbal"
                     },
                     {
-                        id: 1657824975187,
                         block: "3",
+                        buildings: [
+                            {
+                                hasCharacters: true,
+                                hasContinuousNumbers: false,
+                                hasLowLevel: false,
+                                households: [],
+                                numberOfLevels: 9,
+                                numberPerLevel: 2,
+                                streetNumber: 2380
+                            }
+                        ],
                         doNotCalls: [],
                         coordsPoint1: {
                             lat: -34.629890981054835,
@@ -507,12 +618,24 @@ const getMockedUserResponse = (isAdmin: boolean): typeResponseData => {
                             lng: -58.472041775457676
                         },
                         face: "B",
+                        id: 1657824975187,
                         isFinished: false,
                         observations: [],
                         street: "Argerich"
                     },
                     {
                         block: "3",
+                        buildings: [
+                            {
+                                hasCharacters: true,
+                                hasContinuousNumbers: false,
+                                hasLowLevel: false,
+                                households: [],
+                                numberOfLevels: 9,
+                                numberPerLevel: 2,
+                                streetNumber: 2390
+                            }
+                        ],
                         coordsPoint1: {
                             lat: -34.6306289361724,
                             lng: -58.47204842526862
@@ -534,6 +657,17 @@ const getMockedUserResponse = (isAdmin: boolean): typeResponseData => {
                     },
                     {
                         block: "3",
+                        buildings: [
+                            {
+                                hasCharacters: true,
+                                hasContinuousNumbers: false,
+                                hasLowLevel: false,
+                                households: [],
+                                numberOfLevels: 9,
+                                numberPerLevel: 2,
+                                streetNumber: 2398
+                            }
+                        ],
                         coordsPoint1: {
                             lat: -34.6301890979069,
                             lng: -58.472934729029824
@@ -705,12 +839,17 @@ type typeResponseData = {
     //
     address: string
     allLogsObj: typeAllLogsObj
+    alreadyExists: boolean
     campaignAssignments: number[]
+    campaignPack: typeCampaignPack
+    campaignPacks: typeCampaignPack[]
     congregationItems: typeCongregationItem[]
     coordinates: typeCoords
+    dataError: boolean
     email: string
     emailSuccess: boolean
     expired: boolean
+    globalStatistics: typeTelephonicStatistic,
     gmailKeys: Credentials
     household: typeHousehold
     hthTerritory: typeHTHTerritory
@@ -719,16 +858,13 @@ type typeResponseData = {
     modifiedCount: number
     newPassword: string
     newToken: string,
-    campaignPack: typeCampaignPack
-    campaignPacks: typeCampaignPack[]
     recaptchaFails: boolean
-    globalStatistics: typeTelephonicStatistic,
+    streets: string[]
     telephonicTerritory: typeTelephonicTerritory
     url: string
     used: boolean
     user: typeUser
     userExists: boolean
     users: typeUser[]
-    streets: string[]
     wrongPassword: boolean
 }

@@ -1,11 +1,26 @@
 import { UpdateResult } from 'mongodb'
 import { dbClient, logger } from '../server'
 import { errorLogs } from '../services/log-services'
-import { typeBlock, typeCoords, typeDoNotCall, typeFace, typeHTHTerritory, typeObservation, typePolygon, typeTerritoryNumber } from '../models'
+import { typeBlock, typeCoords, typeDoNotCall, typeFace, typeHTHBuilding, typeHTHTerritory, typeObservation, typePolygon, typeTerritoryNumber } from '../models'
 
 const getCollection = () => dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollHTHTerritories)
 
 export class HouseToHouseDb {
+    async AddHTHBuilding(territoryNumber: typeTerritoryNumber, block: typeBlock, face: typeFace, building: typeHTHBuilding): Promise<boolean> {
+        try {
+            if (!territoryNumber || !block || !face || !building) throw new Error("No llegaron datos")
+            const result: UpdateResult = await getCollection().updateOne(
+                { territoryNumber },
+                { $push: { 'map.polygons.$[x].buildings': building } },
+                { arrayFilters: [{ 'x.block': block, 'x.face': face }] }
+            )
+            return !!result.modifiedCount
+        } catch (error) {
+            console.log(error)
+            logger.Add(`Falló AddHTHBuilding() territorio ${territoryNumber}: ${error}`, errorLogs)
+            return false
+        }
+    }
     async AddHTHDoNotCall(territoryNumber: typeTerritoryNumber,
      doNotCall: typeDoNotCall, block: typeBlock, face: typeFace, polygonId: number): Promise<boolean> {
         try {
@@ -138,6 +153,21 @@ export class HouseToHouseDb {
         } catch (error) {
             console.log(error)
             logger.Add(`Falló EditHTHPolygon() territorio ${territoryNumber}: ${error}`, errorLogs)
+            return false
+        }
+    }
+    async EditStateHTHHousehold(territoryNumber: typeTerritoryNumber, block: typeBlock, face: typeFace, streetNumber: number, householdId: number, isChecked: boolean): Promise<boolean> {
+        try {
+            if (!territoryNumber || !block || !face || !streetNumber || !householdId) throw new Error("No llegaron datos")
+            const result: UpdateResult = await getCollection().updateOne(
+                { territoryNumber },
+                { $set: { 'map.polygons.$[x].buildings.$[y].households.$[z].isChecked': isChecked } },
+                { arrayFilters: [{ 'x.block': block, 'x.face': face }, { 'y.streetNumber': streetNumber }, { 'z.id': householdId }] }
+            )
+            return !!result.modifiedCount
+        } catch (error) {
+            console.log(error)
+            logger.Add(`Falló EditStateHTHHousehold() territorio ${territoryNumber}: ${error}`, errorLogs)
             return false
         }
     }

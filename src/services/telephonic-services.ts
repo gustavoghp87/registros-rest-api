@@ -1,5 +1,5 @@
 import { logger } from '../server'
-import { deallocateMyTLPTerritoryService, getActivatedAdminByAccessTokenService, getActivatedUserByAccessTokenService } from './user-services'
+import { deallocateMyTLPTerritoryService } from './user-services'
 import { errorLogs, telephonicLogs, telephonicStateLogs } from './log-services'
 import { TelephonicDb } from '../services-db/telephonicDbConnection'
 import { typeCallingState, typeHousehold, typeLocalTelephonicStatistic, typeTelephonicStatistic, typeTelephonicTerritory, typeTerritoryNumber, typeUser } from '../models'
@@ -8,22 +8,17 @@ import { filterHouses, isTerritoryAssignedToUserService } from './helpers'
 const telephonicDbConnection: TelephonicDb = new TelephonicDb()
 
 export const changeStateOfTerritoryService = async (
- token: string, territoryNumber: typeTerritoryNumber, isFinished: boolean, user?: typeUser): Promise<boolean> => {
-    if (!user) {
-        const user0: typeUser|null = await getActivatedUserByAccessTokenService(token)
-        if (user0) user = user0
-        else return false
-    }
-    if (!user || !territoryNumber) return false
-    if (user.role !== 1 && !isTerritoryAssignedToUserService(user, territoryNumber)) return false
+ requesterUser: typeUser, territoryNumber: typeTerritoryNumber, isFinished: boolean, user?: typeUser): Promise<boolean> => {
+    if (!requesterUser || !territoryNumber) return false
+    if (requesterUser.role !== 1 && !isTerritoryAssignedToUserService(requesterUser, territoryNumber)) return false
     isFinished = !!isFinished
     const success: boolean = await telephonicDbConnection.ChangeStateOfTerritory(territoryNumber, isFinished)
     if (!success) {
-        logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} no pudo cambiar territorio ${territoryNumber} a ${isFinished ? 'terminado' : 'abierto'}`, errorLogs)
+        logger.Add(`${requesterUser.role === 1 ? 'Admin' : 'Usuario'} ${requesterUser.email} no pudo cambiar territorio ${territoryNumber} a ${isFinished ? 'terminado' : 'abierto'}`, errorLogs)
         return false
     }
-    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cambia territorio ${territoryNumber} a ${isFinished ? 'terminado' : 'abierto'}`, telephonicStateLogs)
-    if (isFinished) await deallocateMyTLPTerritoryService(user, territoryNumber)
+    logger.Add(`${requesterUser.role === 1 ? 'Admin' : 'Usuario'} ${requesterUser.email} cambia territorio ${territoryNumber} a ${isFinished ? 'terminado' : 'abierto'}`, telephonicStateLogs)
+    if (isFinished) await deallocateMyTLPTerritoryService(requesterUser, territoryNumber)
     return true
 }
 
@@ -33,9 +28,8 @@ export const getAllTelephonicTerritoriesService = async (): Promise<typeTelephon
     return phoneTerritories
 }
 
-export const getTelephonicGlobalStatisticsService = async (token: string): Promise<typeTelephonicStatistic|null> => {
-    const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
-    if (!user) return null
+export const getTelephonicGlobalStatisticsService = async (requesterUser: typeUser): Promise<typeTelephonicStatistic|null> => {
+    if (!requesterUser || requesterUser.role !== 1) return null
     const telephonicTerritories: typeTelephonicTerritory[]|null = await telephonicDbConnection.GetAllTelephonicTerritories()
     if (!telephonicTerritories) return null
     telephonicTerritories.forEach(x => x.households = filterHouses(x.households))
@@ -62,9 +56,8 @@ export const getTelephonicGlobalStatisticsService = async (token: string): Promi
     return telephonicGlobalStatistics
 }
 
-export const getTelephonicLocalStatisticsService = async (token: string): Promise<typeLocalTelephonicStatistic[]|null> => {
-    const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
-    if (!user) return null
+export const getTelephonicLocalStatisticsService = async (requesterUser: typeUser): Promise<typeLocalTelephonicStatistic[]|null> => {
+    if (!requesterUser || requesterUser.role !== 1) return null
     const telephonicTerritories: typeTelephonicTerritory[]|null = await telephonicDbConnection.GetAllTelephonicTerritories()
     if (!telephonicTerritories) return null
     telephonicTerritories.forEach(x => x.households = filterHouses(x.households))
@@ -106,22 +99,20 @@ export const getTerritoryStreetsService = async (territoryNumber: typeTerritoryN
     return streets
 }
 
-export const getTelephonicTerritoryService = async (token: string, territory: typeTerritoryNumber): Promise<typeTelephonicTerritory|null> => {
-    const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
-    if (!user || !territory) return null
-    if (user.role !== 1 && !isTerritoryAssignedToUserService(user, territory)) return null
+export const getTelephonicTerritoryService = async (requesterUser: typeUser, territory: typeTerritoryNumber): Promise<typeTelephonicTerritory|null> => {
+    if (!requesterUser || !territory) return null
+    if (requesterUser.role !== 1 && !isTerritoryAssignedToUserService(requesterUser, territory)) return null
     const telephonicTerritory: typeTelephonicTerritory|null = await telephonicDbConnection.GetTerritory(territory)
     if (!telephonicTerritory) return null
     telephonicTerritory.households = filterHouses(telephonicTerritory.households)
     return telephonicTerritory
 }
 
-export const modifyHouseholdService = async (token: string, territoryNumber: typeTerritoryNumber,
+export const modifyHouseholdService = async (requesterUser: typeUser, territoryNumber: typeTerritoryNumber,
  householdId: number, callingState: typeCallingState, notSubscribed: boolean, asignado: boolean): Promise<typeHousehold|null> => {
-    const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
     notSubscribed = !!notSubscribed
     asignado = !!asignado
-    if (!user || !householdId || !callingState) return null
+    if (!requesterUser || !householdId || !callingState) return null
     const isTelephonicTerritoryAssignedToUser = async (user: typeUser, territoryNumber: typeTerritoryNumber, householdId: number): Promise<boolean> => {
         if (!territoryNumber || !user || !user.phoneAssignments.length) return false
         const household: typeHousehold|null = await telephonicDbConnection.GetHouseholdById(territoryNumber, householdId)
@@ -134,29 +125,28 @@ export const modifyHouseholdService = async (token: string, territoryNumber: typ
             return false
         }
     }
-    if (!await isTelephonicTerritoryAssignedToUser(user, territoryNumber, householdId)) return null
+    if (!await isTelephonicTerritoryAssignedToUser(requesterUser, territoryNumber, householdId)) return null
     const success: boolean = await telephonicDbConnection.UpdateHouseholdState(territoryNumber, householdId, callingState, notSubscribed, asignado)
     if (!success) return null
     const updatedHousehold: typeHousehold|null = await telephonicDbConnection.GetHouseholdById(territoryNumber, householdId)
     if (!updatedHousehold) return null
-    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} modificó una vivienda: territorio ${territoryNumber}, vivienda ${updatedHousehold.householdId}, estado ${updatedHousehold.callingState}, no abonado ${updatedHousehold.notSubscribed}, asignado ${updatedHousehold.isAssigned}`, telephonicLogs)
+    logger.Add(`${requesterUser.role === 1 ? 'Admin' : 'Usuario'} ${requesterUser.email} modificó una vivienda: territorio ${territoryNumber}, vivienda ${updatedHousehold.householdId}, estado ${updatedHousehold.callingState}, no abonado ${updatedHousehold.notSubscribed}, asignado ${updatedHousehold.isAssigned}`, telephonicLogs)
     //sendAlertOfTerritoriesEmailService()
     return updatedHousehold
 }
 
-export const resetTerritoryService = async (token: string, territoryNumber: typeTerritoryNumber, option: number): Promise<number|null> => {
-    const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
-    if (!user || !territoryNumber || !option) return null
+export const resetTerritoryService = async (requesterUser: typeUser, territoryNumber: typeTerritoryNumber, option: number): Promise<number|null> => {
+    if (!requesterUser || requesterUser.role !== 1 || !territoryNumber || !option) return null
     let modifiedCount: number|null = await telephonicDbConnection.ResetTerritory(territoryNumber, option)
     if (modifiedCount === null) {
-        logger.Add(`Admin ${user.email} no pudo resetear territorio ${territoryNumber} opción ${option}`, telephonicStateLogs)
+        logger.Add(`Admin ${requesterUser.email} no pudo resetear territorio ${territoryNumber} opción ${option}`, telephonicStateLogs)
         return null
     }
-    logger.Add(`Admin ${user.email} reseteó territorio ${territoryNumber} con la opción ${option}`, telephonicStateLogs)
+    logger.Add(`Admin ${requesterUser.email} reseteó territorio ${territoryNumber} con la opción ${option}`, telephonicStateLogs)
     if (modifiedCount) {
         const success: boolean = await telephonicDbConnection.SetResetDate(territoryNumber, option)
-        if (!success) logger.Add(`Admin ${user.email} no pudo setear fecha de reseteo de territorio ${territoryNumber} opción ${option}`, errorLogs)
-        await changeStateOfTerritoryService("", territoryNumber, false, user)
+        if (!success) logger.Add(`Admin ${requesterUser.email} no pudo setear fecha de reseteo de territorio ${territoryNumber} opción ${option}`, errorLogs)
+        await changeStateOfTerritoryService(requesterUser, territoryNumber, false, requesterUser)
     }
     return modifiedCount
 }

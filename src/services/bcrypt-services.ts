@@ -14,9 +14,9 @@ export const generatePasswordHash = async (password: string): Promise<string|nul
     }
 }
 
-export const comparePasswordsService = async (password0: string, password1: string): Promise<boolean> => {
+export const comparePasswordsService = async (password: string, passwordHash: string): Promise<boolean> => {
     try {
-        const success: boolean = await bcrypt.compare(password0, password1)
+        const success: boolean = await bcrypt.compare(password, passwordHash)
         return success
     } catch (error) {
         console.log(error)

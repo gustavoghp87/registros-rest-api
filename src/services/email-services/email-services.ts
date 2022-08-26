@@ -2,7 +2,6 @@ import { google } from 'googleapis'
 import { GetTokenResponse } from 'google-auth-library/build/src/auth/oauth2client'
 import { Credentials } from 'google-auth-library'
 import { domain, logger } from '../../server'
-import { getActivatedUserByAccessTokenService } from '../user-services'
 import { EmailDb } from '../../services-db/emailDbConnection'
 import { errorLogs } from '../log-services'
 import { gmailCredentials, sendEmail, sendScope } from '.'
@@ -10,9 +9,8 @@ import { typeUser } from '../../models'
 
 const emailDbConnection: EmailDb = new EmailDb()
 
-export const getGmailUrlService = async (token: string): Promise<string|null> => {
-    const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
-    if (!user) return null
+export const getGmailUrlService = async (requesterUser: typeUser): Promise<string|null> => {
+    if (!requesterUser) return null
     //const uriNumber: 0|1 = isProduction ? 0 : 1   redirect_uris[uriNumber]
     try {
         const { client_secret, client_id } = gmailCredentials
@@ -30,9 +28,8 @@ export const getGmailUrlService = async (token: string): Promise<string|null> =>
     }
 }
 
-export const getGmailRequestService = async (token: string, code: string): Promise<Credentials|null> => {
-    const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
-    if (!user) return null
+export const getGmailRequestService = async (requesterUser: typeUser, code: string): Promise<Credentials|null> => {
+    if (!requesterUser) return null
     //const uriNumber: 0|1 = isProduction ? 0 : 1   redirect_uris[uriNumber]
     try {
         const { client_secret, client_id } = gmailCredentials
@@ -53,9 +50,8 @@ export const GetGmailTokensService = async (): Promise<Credentials|null> => {
     return tokens
 }
 
-export const saveNewGmailAPITokenToDBService = async (token: string, accessToken: string, refreshToken: string): Promise<boolean> => {
-    const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
-    if (!user) return false
+export const saveNewGmailAPITokenToDBService = async (requesterUser: typeUser, accessToken: string, refreshToken: string): Promise<boolean> => {
+    if (!requesterUser) return false
     if (!accessToken || !refreshToken) return false
     const success: boolean = await emailDbConnection.SaveNewGmailAPITokensToDB(accessToken, refreshToken)
     return success

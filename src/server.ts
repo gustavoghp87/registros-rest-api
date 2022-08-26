@@ -3,10 +3,11 @@ import path from 'path'
 import morgan from 'morgan'
 import cors from 'cors'
 import * as controllers from './controllers'
+import { environment, port } from './env-variables'
 import { DbConnection } from './services-db/_dbConnection'
 import { socketConnection } from './services/broadcast-services'
 import { Logger } from './services/log-services'
-import { environment, port } from './env-variables'
+import { setUpUser } from './services/set-up-user-service'
 
 export const isProduction: boolean = environment === 'prod'
 export const testingDb: boolean = !isProduction
@@ -23,15 +24,15 @@ app.use(express.urlencoded({ extended: false }) as RequestHandler)
 app.use(morgan('dev') as RequestHandler)
 app.use(express.static(path.join(__dirname, 'frontend-src')))
 app.use(express.static(path.join(__dirname, 'build')))
-app.use('/api/campaign', controllers.campaignController)
-app.use('/api/congregation', controllers.congregationController)
-app.use('/api/email', controllers.emailController)
-app.use('/api/log', controllers.logController)
-app.use('/api/house-to-house', controllers.houseToHouseController)
-app.use('/api/geocoding', controllers.geocodingController)
-app.use('/api/telephonic', controllers.telephonicController)
-app.use('/api/user', controllers.userController)
-app.use('/api/weather', controllers.weatherController)
+app.use('/api/campaign', setUpUser, controllers.campaignController)
+app.use('/api/congregation', setUpUser, controllers.congregationController)
+app.use('/api/email', setUpUser, controllers.emailController)
+app.use('/api/log', setUpUser, controllers.logController)
+app.use('/api/house-to-house', setUpUser, controllers.houseToHouseController)
+app.use('/api/geocoding', setUpUser, controllers.geocodingController)
+app.use('/api/telephonic', setUpUser, controllers.telephonicController)
+app.use('/api/user', setUpUser, controllers.userController)
+app.use('/api/weather', setUpUser, controllers.weatherController)
 
 export const server = app.listen(port, () => {
     console.log(`\n\n\nListening on port ${port}`)

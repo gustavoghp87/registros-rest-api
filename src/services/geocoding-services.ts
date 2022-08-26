@@ -2,12 +2,10 @@ import NodeGeocoder from 'node-geocoder'
 import { googleGeocodingAPIKey } from '../env-variables'
 import { logger } from '../server'
 import { errorLogs } from './log-services'
-import { getActivatedUserByAccessTokenService } from './user-services'
 import { typeCoords, typeUser } from '../models'
 
-export const getGeocodingFromAddressService = async (token: string, address: string): Promise<typeCoords|null> => {
-    const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
-    if (!user) return null
+export const getGeocodingFromAddressService = async (requesterUser: typeUser, address: string): Promise<typeCoords|null> => {
+    if (!requesterUser) return null
     try {
         const response: NodeGeocoder.Entry[] = await NodeGeocoder({
             provider: 'google',
@@ -30,9 +28,8 @@ export const getGeocodingFromAddressService = async (token: string, address: str
     }
 }
 
-export const getGeocodingFromCoordinatesService = async (token: string, coordinates: typeCoords): Promise<string|null> => {
-    const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
-    if (!user || !coordinates || !coordinates.lat || !coordinates.lng) return null
+export const getGeocodingFromCoordinatesService = async (requesterUser: typeUser, coordinates: typeCoords): Promise<string|null> => {
+    if (!requesterUser || !coordinates || !coordinates.lat || !coordinates.lng) return null
     try {
         const response: NodeGeocoder.Entry[] = await NodeGeocoder({
             provider: 'google',

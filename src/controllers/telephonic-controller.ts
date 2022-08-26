@@ -1,56 +1,49 @@
 import express, { Request, Response, Router } from 'express'
-import { setUpUser } from './filter-controller'
 import * as territoryServices from '../services/telephonic-services'
-import { authorizationString, typeHousehold, typeTerritoryNumber, typeTelephonicTerritory, typeLocalTelephonicStatistic, typeTelephonicStatistic } from '../models'
+import { typeHousehold, typeTerritoryNumber, typeTelephonicTerritory, typeLocalTelephonicStatistic, typeTelephonicStatistic } from '../models'
 
 export const telephonicController: Router = express.Router()
 
     // get territory
-    .get('/:territoryNumber', setUpUser, async (req: Request, res: Response) => {
-        const token: string = req.header(authorizationString) || ""
+    .get('/:territoryNumber', async (req: Request, res: Response) => {
         const territoryNumber: typeTerritoryNumber = req.params.territoryNumber as typeTerritoryNumber
-        const telephonicTerritory: typeTelephonicTerritory|null = await territoryServices.getTelephonicTerritoryService(token, territoryNumber)
+        const telephonicTerritory: typeTelephonicTerritory|null = await territoryServices.getTelephonicTerritoryService(req.user, territoryNumber)
         res.json({ success: !!telephonicTerritory, telephonicTerritory })
     })
 
     // edit household
-    .put('/:territoryNumber', setUpUser, async (req: Request, res: Response) => {
-        const token: string = req.header(authorizationString) || ""
+    .put('/:territoryNumber', async (req: Request, res: Response) => {
         const territoryNumber: typeTerritoryNumber = req.params.territoryNumber as typeTerritoryNumber
         const { householdId, callingState, notSubscribed, isAssigned } = req.body
         const household: typeHousehold|null =
-            await territoryServices.modifyHouseholdService(token, territoryNumber, householdId, callingState, notSubscribed, isAssigned)
+            await territoryServices.modifyHouseholdService(req.user, territoryNumber, householdId, callingState, notSubscribed, isAssigned)
         res.json({ success: !!household, household })
     })
     
     // reset territory
-    .delete('/', setUpUser, async (req: Request, res: Response) => {
-        const token: string = req.header(authorizationString) || ""
+    .delete('/', async (req: Request, res: Response) => {
         const { territoryNumber, option } = req.body
-        const modifiedCount: number|null = await territoryServices.resetTerritoryService(token, territoryNumber, option)
+        const modifiedCount: number|null = await territoryServices.resetTerritoryService(req.user, territoryNumber, option)
         res.json({ success: modifiedCount !== null, modifiedCount })
     })
 
     // open and close territory
-    .patch('/', setUpUser, async (req: Request, res: Response) => {
-        const token: string = req.header(authorizationString) || ""
+    .patch('/', async (req: Request, res: Response) => {
         const isFinished: boolean = req.body.isFinished
         const territoryNumber: typeTerritoryNumber = req.body.territoryNumber
-        const success: boolean = await territoryServices.changeStateOfTerritoryService(token, territoryNumber, isFinished)
+        const success: boolean = await territoryServices.changeStateOfTerritoryService(req.user, territoryNumber, isFinished)
         res.json({ success })
     })
 
     // get local statistics
-    .get('/statistic/local', setUpUser, async (req: Request, res: Response) => {
-        const token: string = req.header(authorizationString) || ""
-        const localStatistics: typeLocalTelephonicStatistic[]|null = await territoryServices.getTelephonicLocalStatisticsService(token)
+    .get('/statistic/local', async (req: Request, res: Response) => {
+        const localStatistics: typeLocalTelephonicStatistic[]|null = await territoryServices.getTelephonicLocalStatisticsService(req.user)
         res.json({ success: !!localStatistics, localStatistics })
     })
 
     // get global statistics
-    .get('/statistic/global', setUpUser, async (req: Request, res: Response) => {
-        const token: string = req.header(authorizationString) || ""
-        const globalStatistics: typeTelephonicStatistic|null = await territoryServices.getTelephonicGlobalStatisticsService(token)
+    .get('/statistic/global', async (req: Request, res: Response) => {
+        const globalStatistics: typeTelephonicStatistic|null = await territoryServices.getTelephonicGlobalStatisticsService(req.user)
         res.json({ success: !!globalStatistics, globalStatistics })
     })
 ;

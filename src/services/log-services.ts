@@ -1,5 +1,4 @@
 import { isProduction } from '../server'
-import { getActivatedAdminByAccessTokenService } from './user-services'
 import { LogDb } from '../services-db/logDbConnection'
 import { typeLogsPackage, typeLogObj, typeAllLogsObj, typeLogType, typeUser } from '../models'
 
@@ -36,16 +35,14 @@ export class Logger {
         return success
     }
 
-    public async Get(token: string, type: typeLogType): Promise<typeLogsPackage|null> {
-        const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
-        if (!user) return null
+    public async Get(requesterUser: typeUser, type: typeLogType): Promise<typeLogsPackage|null> {
+        if (!requesterUser || requesterUser.role !== 1) return null
         const logs: typeLogsPackage|null = await this.LogDbConnection.Get(type)
         return logs
     }
 
-    public async GetAll(token: string): Promise<typeAllLogsObj|null> {
-        const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
-        if (!user) return null
+    public async GetAll(requesterUser: typeUser): Promise<typeAllLogsObj|null> {
+        if (!requesterUser || requesterUser.role !== 1) return null
         const logs: typeAllLogsObj|null = await this.LogDbConnection.GetAll()
         return logs
     }

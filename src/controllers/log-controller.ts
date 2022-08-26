@@ -1,14 +1,12 @@
 import express, { Request, Response, Router } from 'express'
-import { setUpUser } from './filter-controller'
 import { logger } from '../server'
-import { authorizationString, typeAllLogsObj } from '../models'
+import { typeAllLogsObj } from '../models'
 
 export const logController: Router = express.Router()
 
     // get all logs
-    .get('/', setUpUser, async (req: Request, res: Response) => {
-        const token: string = req.header(authorizationString) || ""
-        const allLogsObj: typeAllLogsObj|null = await logger.GetAll(token)
+    .get('/', async (req: Request, res: Response) => {
+        const allLogsObj: typeAllLogsObj|null = await logger.GetAll(req.user)
         res.json({ success: !!allLogsObj, allLogsObj })
     })
 ;

@@ -2,8 +2,7 @@ import express, { Request, Response, Router } from 'express'
 import * as userServices from '../services/user-services'
 import { sendNewPswEmailService } from '../services/email-services'
 import { checkRecaptchaTokenService } from '../services/recaptcha-services'
-import { setUpUser } from './filter-controller'
-import { authorizationString, typeUser } from '../models'
+import { typeUser } from '../models'
 
 // const unauthenticatedUser: typeUser = {
 //     isAuth: false,
@@ -25,16 +24,14 @@ const blindUser = (user: typeUser): typeUser => {
 export const userController: Router = express.Router()
 
     // get my user
-    .get('/', setUpUser, async (req: Request, res: Response) => {
-        const token: string = req.header(authorizationString) || ""
-        let user: typeUser|null = await userServices.getActivatedUserByAccessTokenService(token)
-        if (!user) return res.json({ success: false })
-        user = blindUser(user)
+    .get('/', async (req: Request, res: Response) => {
+        if (!req.user) return res.json({ success: false })
+        let user: typeUser = blindUser(req.user)
         res.json({ success: true, user })
     })
     
     // sign up user
-    .post('/', setUpUser, async (req: Request, res: Response) => {
+    .post('/', async (req: Request, res: Response) => {
         const { email, password, group, recaptchaToken } = req.body
         const checkRecaptch: boolean = await checkRecaptchaTokenService(recaptchaToken)
         if (!checkRecaptch) return res.json({ success: false, recaptchaFails: true })
@@ -45,55 +42,51 @@ export const userController: Router = express.Router()
     })
 
     // get all users
-    .get('/all', setUpUser, async (req: Request, res: Response) => {
-        const token: string = req.header(authorizationString) || ""
-        const users: typeUser[]|null = await userServices.getUsersService(token)
+    .get('/all', async (req: Request, res: Response) => {
+        const users: typeUser[]|null = await userServices.getUsersService(req.user)
         if (!users) return res.json({ success: false })
         users.forEach((user: typeUser) => { user = blindUser(user) })
         res.json({ success: true, users })
     })
 
     // change features for other users
-    .put('/', setUpUser, async (req: Request, res: Response) => {
-        const token: string = req.header(authorizationString) || ""
+    .put('/', async (req: Request, res: Response) => {
         const email: string = req.body.email
         const isActive: boolean = req.body.isActive
         const role: number = req.body.role
         const group: number = req.body.group
-        let user: typeUser|null = await userServices.editUserService(token, email, isActive, role, group)
+        let user: typeUser|null = await userServices.editUserService(req.user, email, isActive, role, group)
         if (!user) return res.json({ success: false })
         user = blindUser(user)
         res.json({ success: true, user })
     })
 
     // change house-to-house assignations for other users
-    .put('/hth-assignment', setUpUser, async (req: Request, res: Response) => {
-        const token: string = req.header(authorizationString) || ""
+    .put('/hth-assignment', async (req: Request, res: Response) => {
         const email: string = req.body.email
         const toAssign: number = req.body.toAssign
         const toUnassign: number = req.body.toUnassign
         const all: boolean = req.body.all
-        let user: typeUser|null = await userServices.assignHTHTerritoryService(token, email, toAssign, toUnassign, all)
+        let user: typeUser|null = await userServices.assignHTHTerritoryService(req.user, email, toAssign, toUnassign, all)
         if (!user) return res.json({ success: false })
         user = blindUser(user)
         res.json({ success: true, user })
     })
 
     // change telephonic assignations for other users
-    .put('/tlp-assignment', setUpUser, async (req: Request, res: Response) => {
-        const token: string = req.header(authorizationString) || ""
+    .put('/tlp-assignment', async (req: Request, res: Response) => {
         const email: string = req.body.email
         const toAssign: number = req.body.toAssign
         const toUnassign: number = req.body.toUnassign
         const all: boolean = req.body.all
-        let user: typeUser|null = await userServices.assignTLPTerritoryService(token, email, toAssign, toUnassign, all)
+        let user: typeUser|null = await userServices.assignTLPTerritoryService(req.user, email, toAssign, toUnassign, all)
         if (!user) return res.json({ success: false })
         user = blindUser(user)
         res.json({ success: true, user })
     })
     
     // get email from email link id
-    .get('/recovery/:id', setUpUser, async (req: Request, res: Response) => {
+    .get('/recovery/:id', async (req: Request, res: Response) => {
         const id: string = req.params.id
         const user: typeUser|null = await userServices.getUserByEmailLinkService(id)
         if (!user || !user.email) return res.json({ success: false })
@@ -101,7 +94,7 @@ export const userController: Router = express.Router()
     })
 
     // recover account by a link in email box
-    .patch('/', setUpUser, async (req: Request, res: Response) => {
+    .patch('/', async (req: Request, res: Response) => {
         const email: string = req.body.email || ""
         const response: string = await userServices.recoverAccountService(email)
         if (response === "no user") res.json({ success: false, noUser: true })
@@ -111,7 +104,7 @@ export const userController: Router = express.Router()
     })
     
     // new login
-    .post('/token', setUpUser, async (req: Request, res: Response) => {
+    .post('/token', async (req: Request, res: Response) => {
         const { email, password, recaptchaToken } = req.body
         const newToken: string|null = await userServices.loginUserService(email, password, recaptchaToken)
         if (!newToken)
@@ -124,19 +117,17 @@ export const userController: Router = express.Router()
     })
 
     // logout all devices
-    .delete('/token', setUpUser, async (req: Request, res: Response) => {
-        const token: string = req.header(authorizationString) || ""
-        const newToken: string|null = await userServices.logoutAllService(token)
+    .delete('/token', async (req: Request, res: Response) => {
+        const newToken: string|null = await userServices.logoutAllService(req.user)
         res.json({ success: !!newToken, newToken })
     })
 
     // change my password
-    .put('/token', setUpUser, async (req: Request, res: Response) => {
-        const token: string = req.header(authorizationString) || ""
+    .put('/token', async (req: Request, res: Response) => {
         const { psw, newPsw, id } = req.body
         if (psw && newPsw) {
             // change my psw
-            const newToken: string|null = await userServices.changePswService(token, psw, newPsw)
+            const newToken: string|null = await userServices.changePswService(req.user, psw, newPsw)
             if (newToken === "wrongPassword") return res.json({ success: false, wrongPassword: true })
             res.json({ success: !!newToken, newToken })
         } else if (id && newPsw) {
@@ -152,10 +143,9 @@ export const userController: Router = express.Router()
     })
 
     // change the password of other user by admin
-    .patch('/token', setUpUser, async (req: Request, res: Response) => {
-        const token: string = req.header(authorizationString) || ""
+    .patch('/token', async (req: Request, res: Response) => {
         const email: string = req.body.email
-        const newPassword: string|null = await userServices.changePswOtherUserService(token, email)
+        const newPassword: string|null = await userServices.changePswOtherUserService(req.user, email)
         if (!newPassword) return res.json({ success: false })
         const emailSuccess: boolean = await sendNewPswEmailService(email, newPassword)
         res.json({ success: !!newPassword, newPassword, emailSuccess })

@@ -10,7 +10,7 @@ import { typeJWTObjectForUser, typeRecoveryOption, typeTerritoryNumber, typeUser
 
 const userDbConnection: UserDb = new UserDb()
 
-export const assignHTHTerritoryService = async (token: string, email: string, toAssign: number, toUnassign: number, all: boolean): Promise<typeUser|null> => {
+export const assignHTHTerritoryService = async (requesterUser: typeUser, email: string, toAssign: number, toUnassign: number, all: boolean): Promise<typeUser|null> => {
     all = !!all
     if (toAssign) {
         toAssign = parseInt(toAssign.toString())
@@ -20,15 +20,14 @@ export const assignHTHTerritoryService = async (token: string, email: string, to
         toUnassign = parseInt(toUnassign.toString())
         if (isNaN(toUnassign)) return null
     }
-    const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
     const userToEdit: typeUser|null = await userDbConnection.GetUserByEmail(email)
-    if (!user || !userToEdit || (!toAssign && !toUnassign && !all)) return null
+    if (!requesterUser || requesterUser.role !== 1 || !userToEdit || (!toAssign && !toUnassign && !all)) return null
     const updatedUser: typeUser|null = await userDbConnection.AssignHTHTerritory(email, toAssign, toUnassign, all)
-    if (updatedUser) logger.Add(`Admin ${user.email} modificó las asignaciones de Casa en Casa de ${updatedUser?.email}: asignados antes ${userToEdit.phoneAssignments?.length ? userToEdit.phoneAssignments : "ninguno"}, ahora ${updatedUser.hthAssignments?.length ? updatedUser.hthAssignments : "ninguno"}`, userLogs)
+    if (updatedUser) logger.Add(`Admin ${requesterUser.email} modificó las asignaciones de Casa en Casa de ${updatedUser?.email}: asignados antes ${userToEdit.phoneAssignments?.length ? userToEdit.phoneAssignments : "ninguno"}, ahora ${updatedUser.hthAssignments?.length ? updatedUser.hthAssignments : "ninguno"}`, userLogs)
     return updatedUser
 }
 
-export const assignTLPTerritoryService = async (token: string, email: string, toAssign: number, toUnassign: number, all: boolean): Promise<typeUser|null> => {
+export const assignTLPTerritoryService = async (requesterUser: typeUser, email: string, toAssign: number, toUnassign: number, all: boolean): Promise<typeUser|null> => {
     all = !!all
     if (toAssign) {
         toAssign = parseInt(toAssign.toString())
@@ -38,11 +37,10 @@ export const assignTLPTerritoryService = async (token: string, email: string, to
         toUnassign = parseInt(toUnassign.toString())
         if (isNaN(toUnassign)) return null
     }
-    const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
     const userToEdit: typeUser|null = await userDbConnection.GetUserByEmail(email)
-    if (!user || !userToEdit || (!toAssign && !toUnassign && !all)) return null
+    if (!requesterUser || requesterUser.role !== 1 || !userToEdit || (!toAssign && !toUnassign && !all)) return null
     const updatedUser: typeUser|null = await userDbConnection.AssignTLPTerritory(email, toAssign, toUnassign, all)
-    if (updatedUser) logger.Add(`Admin ${user.email} modificó las asignaciones Telefónica de ${updatedUser?.email}: asignados antes ${userToEdit.phoneAssignments?.length ? userToEdit.phoneAssignments : "ninguno"}, ahora ${updatedUser.phoneAssignments?.length ? updatedUser.phoneAssignments : "ninguno"}`, userLogs)
+    if (updatedUser) logger.Add(`Admin ${requesterUser.email} modificó las asignaciones Telefónica de ${updatedUser?.email}: asignados antes ${userToEdit.phoneAssignments?.length ? userToEdit.phoneAssignments : "ninguno"}, ahora ${updatedUser.phoneAssignments?.length ? updatedUser.phoneAssignments : "ninguno"}`, userLogs)
     return updatedUser
 }
 
@@ -65,32 +63,30 @@ export const changePswByEmailLinkService = async (id: string, newPsw: string): P
     return newToken
 }
 
-export const changePswOtherUserService = async (token: string, email: string): Promise<string|null> => {
-    const myUser: typeUser|null = await getActivatedAdminByAccessTokenService(token)
+export const changePswOtherUserService = async (requesterUser: typeUser, email: string): Promise<string|null> => {
     const user: typeUser|null = await getUserByEmailService(email)
-    if (!myUser || !user) return null
+    if (!requesterUser || requesterUser.role !== 1 || !user) return null
     const newPsw: string = getRandomId12()
     const encryptedPassword: string|null = await generatePasswordHash(newPsw)
     if (!encryptedPassword) return null
     const success: boolean = await userDbConnection.ChangePsw(email, encryptedPassword)
-    if (success) logger.Add(`Admin ${myUser.email} cambió la contraseña de ${email}`, loginLogs)
+    if (success) logger.Add(`Admin ${requesterUser.email} cambió la contraseña de ${email}`, loginLogs)
     return success ? newPsw : null
 }
 
-export const changePswService = async (token: string, psw: string, newPsw: string): Promise<string|null> => {
-    let user: typeUser|null = await getActivatedUserByAccessTokenService(token)
-    if (!user || !user.password || !user.id || !psw || !newPsw || newPsw.length < 8) return null
-    let compare: boolean = await comparePasswordsService(psw, user.password)
-    if (!compare) return "wrongPassword"
+export const changePswService = async (requesterUser: typeUser, psw: string, newPsw: string): Promise<string|null> => {
+    if (!requesterUser || !requesterUser.password || !requesterUser.id || !psw || !newPsw || newPsw.length < 8) return null
+    let compare: boolean = await comparePasswordsService(psw, requesterUser.password)
+    if (!compare) return 'wrongPassword'
     const encryptedPassword: string|null = await generatePasswordHash(newPsw)
     if (!encryptedPassword) return null
-    const success: boolean = await userDbConnection.ChangePsw(user.email, encryptedPassword)
+    const success: boolean = await userDbConnection.ChangePsw(requesterUser.email, encryptedPassword)
     if (!success) {
-        logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} no pudo cambiar su contraseña usando la que tenía`, loginLogs)
+        logger.Add(`${requesterUser.role === 1 ? 'Admin' : 'Usuario'} ${requesterUser.email} no pudo cambiar su contraseña usando la que tenía`, loginLogs)
         return null
     }
-    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cambió su contraseña usando la que tenía`, loginLogs)
-    const newToken: string|null = generateAccessTokenService(user, user.tokenId || 1)
+    logger.Add(`${requesterUser.role === 1 ? 'Admin' : 'Usuario'} ${requesterUser.email} cambió su contraseña usando la que tenía`, loginLogs)
+    const newToken: string|null = generateAccessTokenService(requesterUser, requesterUser.tokenId || 1)
     return newToken
 }
 
@@ -108,15 +104,14 @@ export const deallocateMyTLPTerritoryService = async (user: typeUser, territoryN
     return !!updatedUser
 }
 
-export const editUserService = async (token: string, email: string, isActive: boolean, role: number, group: number): Promise<typeUser|null> => {
-    const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
+export const editUserService = async (requesterUser: typeUser, email: string, isActive: boolean, role: number, group: number): Promise<typeUser|null> => {
     isActive = !!isActive
     role = parseInt(role.toString())
     group = parseInt(group.toString())
     if (isNaN(role) || isNaN(group)) return null
-    if (!user || !email || typeof role !== 'number' || typeof group !== 'number') return null
+    if (!requesterUser || requesterUser.role !== 1 || !email || typeof role !== 'number' || typeof group !== 'number') return null
     const updatedUser: typeUser|null = await userDbConnection.EditUserState(email, isActive, role, group)
-    if (updatedUser) logger.Add(`Admin ${user.email} modificó al usuario ${updatedUser.email}: activado ${updatedUser.isActive}, rol ${updatedUser.role}, grupo ${updatedUser.group}`, userLogs)
+    if (updatedUser) logger.Add(`Admin ${requesterUser.email} modificó al usuario ${updatedUser.email}: activado ${updatedUser.isActive}, rol ${updatedUser.role}, grupo ${updatedUser.group}`, userLogs)
     return updatedUser
 }
 
@@ -150,11 +145,6 @@ export const getUserByEmailLinkService = async (id: string): Promise<typeUser|nu
     const users: typeUser[]|null = await userDbConnection.GetAllUsers()
     if (!users) return null
     let user0: typeUser|undefined = users.find(x => x.recoveryOptions.find(y => y.id === id) !== undefined)
-    // users.forEach((user: typeUser) => {
-    //     if (user && user.recoveryOptions) user.recoveryOptions.forEach((recoveryOption: typeRecoveryOption) => {
-    //         if (recoveryOption.id === id) user0 = user 
-    //     })
-    // })
     return user0 ?? null
 }
 
@@ -177,9 +167,8 @@ export const getUsersNotAuthService = async (): Promise<typeUser[]|null> => {
     return users
 }
 
-export const getUsersService = async (token: string): Promise<typeUser[]|null> => {
-    const user: typeUser|null = await getActivatedAdminByAccessTokenService(token)
-    if (!user) return null
+export const getUsersService = async (requesterUser: typeUser): Promise<typeUser[]|null> => {
+    if (!requesterUser || requesterUser.role !== 1) return null
     let users: typeUser[]|null = await userDbConnection.GetAllUsers()
     if (!users) return null
     users = users.reverse()
@@ -198,13 +187,12 @@ export const loginUserService = async (email: string, password: string, recaptch
     return newToken
 }
 
-export const logoutAllService = async (token: string): Promise<string|null> => {
-    const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
-    if (!user || !user.tokenId || !user.id) return null
-    const success: boolean = await userDbConnection.UpdateTokenId(user.id, user.tokenId + 1)
+export const logoutAllService = async (requesterUser: typeUser): Promise<string|null> => {
+    if (!requesterUser || !requesterUser.tokenId || !requesterUser.id) return null
+    const success: boolean = await userDbConnection.UpdateTokenId(requesterUser.id, requesterUser.tokenId + 1)
     if (!success) return null
-    logger.Add(`${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cerró todas las sesiones`, loginLogs)
-    const newToken: string|null = generateAccessTokenService(user, user.tokenId + 1)
+    logger.Add(`${requesterUser.role === 1 ? 'Admin' : 'Usuario'} ${requesterUser.email} cerró todas las sesiones`, loginLogs)
+    const newToken: string|null = generateAccessTokenService(requesterUser, requesterUser.tokenId + 1)
     return newToken
 }
 

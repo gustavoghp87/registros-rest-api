@@ -1,12 +1,10 @@
 import Axios from 'axios'
-import { googleSiteUrl } from '../env-variables'
-import { getActivatedUserByAccessTokenService } from './user-services'
-import { typeCongregationItem, typeUser } from '../models'
 import { logger } from '../server'
+import { googleSiteUrl } from '../env-variables'
+import { typeCongregationItem, typeUser } from '../models'
 
-export const getCongregationItems = async (token: string): Promise<typeCongregationItem[]|null> => {
-    const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
-    if (!user) return null
+export const getCongregationItems = async (requesterUser: typeUser): Promise<typeCongregationItem[]|null> => {
+    if (!requesterUser) return null
     const siteUrl: string = 'https://sites.google.com' + googleSiteUrl
     try {
         const { data } = await Axios.get(siteUrl)

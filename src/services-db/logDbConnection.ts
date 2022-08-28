@@ -19,7 +19,7 @@ export class LogDb {
         try {
             //const isAlreadySaved: boolean = collection !== 'TerritoryChangeLogs' && await this.IsAlreadySaved(log, collection)
             // if (isAlreadySaved) {
-            //     console.log("Se evitó un repetido")
+            //     ("Se evitó un repetido")
             //     return true
             // }
             await getCollection().updateOne(
@@ -28,7 +28,7 @@ export class LogDb {
             )
             return true
         } catch (error) {
-            console.log("Failed adding logs to db:", error)
+            console.log("\n\nFailed adding logs to db:", error, "\n\n")
             return false
         }
     }
@@ -37,7 +37,6 @@ export class LogDb {
             const logs: typeLogsPackage = await getCollection().findOne({ type }) as typeLogsPackage
             return logs
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló Get() logs ${type}: ${error}`, errorLogs)
             return null
         }
@@ -63,7 +62,6 @@ export class LogDb {
                 userLogs
             }
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló GetAll() logs: ${error}`, errorLogs)
             return null
         }
@@ -72,7 +70,7 @@ export class LogDb {
     //     try {
     //         const logObj: typeLogObj = await getCollection().findOne({ logText: log.logText }) as typeLogObj
     //         if (logObj) {
-    //             console.log("Se evitó un duplicado simple: " + log.logText)
+    //             ("Se evitó un duplicado simple: " + log.logText)
     //             return true
     //         }
     
@@ -84,7 +82,7 @@ export class LogDb {
     //         if (logObjs && logObjs.length) {
     //             logObjs.forEach((logObj0: typeLogObj) => {
     //                 if (logObj0 && log.timestamp - logObj0.timestamp < 200) {
-    //                     console.log("Se evitó un duplicado por regex: " + log.logText)
+    //                     ("Se evitó un duplicado por regex: " + log.logText)
     //                     return true
     //                 }
     //             })
@@ -92,7 +90,7 @@ export class LogDb {
 
     //         return false
     //     } catch (error) {
-    //         console.log(`Falló IsAlreadySaved() ${log.logText}: ${error}`)
+    //         (`Falló IsAlreadySaved() ${log.logText}: ${error}`)
     //         return false
     //     }
 

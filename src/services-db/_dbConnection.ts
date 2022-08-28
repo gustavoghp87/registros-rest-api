@@ -7,7 +7,8 @@ type typeCollection =
     'HouseToHouseTerritories' |
     'Logs' |
     'TelephonicTerritories' |
-    'Users'
+    'Users' |
+    'Weather'
 ;
 
 export class DbConnection {
@@ -21,6 +22,7 @@ export class DbConnection {
     public CollLogs: typeCollection = 'Logs'
     public CollTelephonicTerritories: typeCollection = 'TelephonicTerritories'
     public CollUsers: typeCollection = 'Users'
+    public CollWeather: typeCollection = 'Weather'
 
     public Client: MongoClient = new MongoClient(databaseUrl)
     

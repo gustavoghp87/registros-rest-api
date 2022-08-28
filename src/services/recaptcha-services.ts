@@ -10,7 +10,6 @@ export const checkRecaptchaTokenService = async (recaptchaToken: string): Promis
         const { data } = await Axios.post(verifyURL)
         return !!data?.success
     } catch (error) {
-        console.log(error)
         logger.Add(`Falló checkRecaptchaTokenService(): ${error}`, errorLogs)
         return false
     }

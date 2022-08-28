@@ -31,7 +31,6 @@ export const getCongregationItems = async (requesterUser: typeUser): Promise<typ
                         title
                     })
                 } catch (error) {
-                    console.log(error)
                     logger.Add(`No se pudo traer el identificador del PDF: ${error}`, 'ErrorLogs')
                     reject()
                 }
@@ -40,7 +39,6 @@ export const getCongregationItems = async (requesterUser: typeUser): Promise<typ
         congregationItems = await Promise.all(promisesArray)
         return congregationItems
     } catch (error) {
-        console.log(error)
         logger.Add(`Falló la conexión con el sitio Google de los PDF: ${error}`, 'ErrorLogs')
         return null
     }

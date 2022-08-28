@@ -1,4 +1,4 @@
-import { UpdateResult } from 'mongodb'
+import { DeleteResult, UpdateResult } from 'mongodb'
 import { dbClient, logger } from '../server'
 import { errorLogs } from '../services/log-services'
 import { typeRecoveryOption, typeUser } from '../models'
@@ -23,7 +23,6 @@ export class UserDb {
             })
             return !!result && !!result.modifiedCount
         } catch (error) {
-            console.log("Add recovery option failed:", error)
             logger.Add(`Falló AddRecoveryOption() ${email} ${id}: ${error}`, errorLogs)
             return false
         }
@@ -63,7 +62,6 @@ export class UserDb {
             const user: typeUser|null = await this.GetUserByEmail(email)
             return user ?? null
         } catch (error) {
-            console.log("Asign Territory failed:", error)
             logger.Add(`Falló AssignTerritory() ${email} ${toAssign} ${toUnassign} ${all}: ${error}`, errorLogs)
             return null
         }
@@ -88,7 +86,6 @@ export class UserDb {
             const user: typeUser|null = await this.GetUserByEmail(email)
             return user ?? null
         } catch (error) {
-            console.log("Asign Territory failed:", error)
             logger.Add(`Falló AssignTerritory() ${email} ${toAssign} ${toUnassign} ${all}: ${error}`, errorLogs)
             return null
         }
@@ -101,8 +98,17 @@ export class UserDb {
             )
             return !!result && !!result.modifiedCount
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló ChangePsw() ${email}: ${error}`, errorLogs)
+            return false
+        }
+    }
+    async DeleteUser(id: number): Promise<boolean> {
+        try {
+            if (!id) return false
+            const result: DeleteResult = await getCollection().deleteOne({ id })
+            return !!result.deletedCount
+        } catch (error) {
+            logger.Add(`Falló DeleteUser() ${id}: ${error}`, errorLogs)
             return false
         }
     }
@@ -116,7 +122,6 @@ export class UserDb {
             const user: typeUser|null = await this.GetUserByEmail(email)
             return user && user.isActive === isActive && user.role === role && user.group === group ? user : null
         } catch (error) {
-            console.log("Update User State failed:", error)
             logger.Add(`Falló UpdateUserState() ${email} ${isActive} ${role} ${group}: ${error}`, errorLogs)
             return null
         }
@@ -126,19 +131,16 @@ export class UserDb {
             const users: typeUser[] = await getCollection().find().toArray() as typeUser[]
             return users
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló GetAllUsers(): ${error}`, errorLogs)
             return null
         }
     }
     async GetUserByEmail(email: string): Promise<typeUser|null> {
         try {
-            const user: typeUser|null =
-                await getCollection().findOne({ email }) as typeUser
+            const user: typeUser|null = await getCollection().findOne({ email }) as typeUser
             if (!user) return null
             return user
         } catch (error) {
-            console.log("Db user by email", error)
             logger.Add(`Falló GetUserByEmail() ${email}: ${error}`, errorLogs)
             return null
         }
@@ -148,7 +150,6 @@ export class UserDb {
             const user: typeUser|null = await getCollection().findOne({ id }) as typeUser
             return user
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló GetUserById() ${id}: ${error}`, errorLogs)
             return null
         }
@@ -159,7 +160,6 @@ export class UserDb {
             const user: typeUser|null = await this.GetUserByEmail(newUser.email)
             return !!user
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló RegisterUser() ${JSON.stringify(newUser)}: ${error}`, errorLogs)
             return false
         }
@@ -174,7 +174,6 @@ export class UserDb {
             )
             return !!result && !!result.modifiedCount
         } catch (error) {
-            console.log("Set recovery option as used failed:", error)
             logger.Add(`Falló SetRecoveryOptionAsUsed() ${email} ${id}: ${error}`, errorLogs)
             return false
         }
@@ -188,7 +187,6 @@ export class UserDb {
             const user: typeUser|null = await this.GetUserById(id)
             return !!user && user.tokenId === tokenId
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló UpdateTokenId() ${id}: ${error}`, errorLogs)
             return false
         }

@@ -29,7 +29,7 @@ export const userController: Router = express.Router()
         let user: typeUser = blindUser(req.user)
         res.json({ success: true, user })
     })
-    
+
     // sign up user
     .post('/', async (req: Request, res: Response) => {
         const { email, password, group, recaptchaToken } = req.body
@@ -39,14 +39,6 @@ export const userController: Router = express.Router()
         if (user) return res.json({ success: false, userExists: true })
         const success: boolean = await userServices.registerUserService(email, password, group)
         res.json({ success })
-    })
-
-    // get all users
-    .get('/all', async (req: Request, res: Response) => {
-        const users: typeUser[]|null = await userServices.getUsersService(req.user)
-        if (!users) return res.json({ success: false })
-        users.forEach((user: typeUser) => { user = blindUser(user) })
-        res.json({ success: true, users })
     })
 
     // change features for other users
@@ -59,6 +51,31 @@ export const userController: Router = express.Router()
         if (!user) return res.json({ success: false })
         user = blindUser(user)
         res.json({ success: true, user })
+    })
+
+    // recover account by a link in email box
+    .patch('/', async (req: Request, res: Response) => {
+        const email: string = req.body.email || ""
+        const response: string = await userServices.recoverAccountService(email)
+        if (response === "no user") res.json({ success: false, noUser: true })
+        else if (response === "not sent") res.json({ success: false, notSent: true })
+        else if (response === "ok") res.json({ success: true })
+        else res.json({ success: false })
+    })
+
+    // detele user
+    .delete('/', async (req: Request, res: Response) => {
+        const userId: number = req.body.userId
+        const success: boolean = await userServices.deleteUserService(req.user,userId)
+        res.json({ success })
+    })
+
+    // get all users
+    .get('/all', async (req: Request, res: Response) => {
+        const users: typeUser[]|null = await userServices.getUsersService(req.user)
+        if (!users) return res.json({ success: false })
+        users.forEach((user: typeUser) => { user = blindUser(user) })
+        res.json({ success: true, users })
     })
 
     // change house-to-house assignations for other users
@@ -84,7 +101,7 @@ export const userController: Router = express.Router()
         user = blindUser(user)
         res.json({ success: true, user })
     })
-    
+
     // get email from email link id
     .get('/recovery/:id', async (req: Request, res: Response) => {
         const id: string = req.params.id
@@ -93,16 +110,6 @@ export const userController: Router = express.Router()
         res.json({ success: true, email: user.email })
     })
 
-    // recover account by a link in email box
-    .patch('/', async (req: Request, res: Response) => {
-        const email: string = req.body.email || ""
-        const response: string = await userServices.recoverAccountService(email)
-        if (response === "no user") res.json({ success: false, noUser: true })
-        else if (response === "not sent") res.json({ success: false, notSent: true })
-        else if (response === "ok") res.json({ success: true })
-        else res.json({ success: false })
-    })
-    
     // new login
     .post('/token', async (req: Request, res: Response) => {
         const { email, password, recaptchaToken } = req.body

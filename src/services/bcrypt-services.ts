@@ -8,7 +8,6 @@ export const generatePasswordHash = async (password: string): Promise<string|nul
         const passwordHash: string = await bcrypt.hash(password, parseInt(bcryptSalt))
         return passwordHash
     } catch (error) {
-        console.log(error)
         logger.Add(`Falló generatePasswordHash(): ${error}`, errorLogs)
         return null
     }
@@ -19,7 +18,6 @@ export const comparePasswordsService = async (password: string, passwordHash: st
         const success: boolean = await bcrypt.compare(password, passwordHash)
         return success
     } catch (error) {
-        console.log(error)
         logger.Add(`Falló comparePasswordsService(): ${error}`, errorLogs)
         return false
     }

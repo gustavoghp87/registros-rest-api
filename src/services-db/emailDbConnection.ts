@@ -9,36 +9,34 @@ const getCollection = () => dbClient.Client.db(dbClient.DbMW).collection(dbClien
 export class EmailDb {
     async GetEmailLastTime(): Promise<number|null> {
         try {
-            const lastEmailObj: any|null = await getCollection().findOne()
+            const lastEmailObj: typeEmailObj = await getCollection().findOne() as typeEmailObj
             if (!lastEmailObj) throw new Error("No se pudo leer documento")
-            const lastEmailTime: number|null = lastEmailObj.lastEmail
-            return lastEmailTime
+            if (!lastEmailObj.lastEmailDate) throw new Error("No está la fecha")
+            return lastEmailObj.lastEmailDate
         } catch (error) {
-            console.log("Get Email Last Time failed", error)
             logger.Add(`Falló GetEmailLastTime(): ${error}`, errorLogs)
             return null
         }
     }
     async GetEmailObject(): Promise<typeEmailObj|null> {
         try {
-            const lastEmailObj: any|null = await getCollection().findOne()
+            const lastEmailObj: typeEmailObj = await getCollection().findOne() as typeEmailObj
             if (!lastEmailObj) throw new Error("No se pudo leer documento")
             return lastEmailObj
         } catch (error) {
-            console.log("Get Email Last Time failed", error)
-            logger.Add(`Falló GetEmailLastTime(): ${error}`, errorLogs)
+            logger.Add(`Falló GetEmailObject(): ${error}`, errorLogs)
             return null
         }
     }
     async GetGmailTokens(): Promise<Credentials|null> {
         try {
-            const tokens = await getCollection().findOne()
-            if (!tokens) throw new Error("No se pudo leer documento")
+            const lastEmailObj: typeEmailObj = await getCollection().findOne() as typeEmailObj
+            if (!lastEmailObj) throw new Error("No se pudo leer documento")
             return {
-                access_token: tokens.accessToken,
+                access_token: lastEmailObj.accessToken,
                 expiry_date: 0,
                 id_token: '',
-                refresh_token: tokens.refreshToken,
+                refresh_token: lastEmailObj.refreshToken,
                 scope: '',
                 token_type: ''
             }
@@ -50,21 +48,17 @@ export class EmailDb {
     async UpdateLastEmail(): Promise<boolean> {
         try {
             const newDate = + new Date()
-            await getCollection().updateOne(
+            const result: UpdateResult = await getCollection().updateOne(
                 {  },
                 { $set: { lastEmail: newDate } }
             )
-            const lastEmailObj: any|null =
-                await getCollection().findOne()
-            if (!lastEmailObj || (lastEmailObj.lastEmail !== newDate)) return false
-            return true
+            return !!result.modifiedCount
         } catch (error) {
-            console.log("Update Last Email failed", error)
             logger.Add(`Falló UpdateLastEmail(): ${error}`, errorLogs)
             return false
         }
     }
-    async SaveNewGmailAPITokensToDB(accessToken: string, refreshToken: string): Promise<boolean> {
+    async SaveNewGmailAPITokensToDB(accessToken: string, refreshToken: string): Promise<boolean> {  // TODO separate genesys
         const CreateDocument = async (): Promise<boolean> => {
             try {
                 const result: InsertOneResult = await getCollection().insertOne({
@@ -72,7 +66,7 @@ export class EmailDb {
                 })
                 return !!result && !!result.insertedId
             } catch (error) {
-                console.log(error)
+                logger.Add(`Falló SaveNewGmailAPITokensToDB(): ${error}`, errorLogs)
                 return false
             }
         }
@@ -92,7 +86,6 @@ export class EmailDb {
             }
             return !!result.modifiedCount
         } catch (error) {
-            console.log("Falló SaveNewGmailAPITokensToDB", error)
             logger.Add(`Falló SaveNewGmailAPITokensToDB(): ${error}`, errorLogs)
             return false
         }

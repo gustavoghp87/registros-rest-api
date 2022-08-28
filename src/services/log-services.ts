@@ -23,10 +23,8 @@ export class Logger {
         const newDateTs: number = isProduction ? new Date().getTime() - 3*60*60*1000 : new Date().getTime()
         const newDate = new Date().setTime(newDateTs)
         logText = new Date(newDate).toLocaleString('es-AR') + " | " + logText
-        if (!isProduction) {
-            console.log(logText)
-            return true
-        }
+        console.log(logText)
+        if (!isProduction) return true
         const log: typeLogObj = {
             timestamp: + new Date(),
             logText

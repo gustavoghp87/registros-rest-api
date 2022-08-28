@@ -7,7 +7,8 @@ export type typeWeatherResponse = {
     id: number
     main: Main
     name: string
-    sys: Sys
+    sys: SysWeather
+    timezone: number
     visibility: number
     weather: Weather[]
     wind: Wind
@@ -22,15 +23,15 @@ export type typeForecastResponse = {
 }
 
 type Main = {
-    temp: number
     feels_like: number
-    temp_min: number
-    temp_max: number
-    pressure: number
-    sea_level: number
-    grnd_level: number
+    grnd_level?: number
     humidity: number
-    temp_kf: number
+    pressure: number
+    sea_level?: number
+    temp_kf?: number
+    temp_max: number
+    temp_min: number
+    temp: number
 }
 
 type Weather = {
@@ -47,11 +48,19 @@ type Clouds = {
 type Wind = {
     speed: number
     deg: number
-    gust: number
+    gust?: number
 }
 
 type Rain = {
     '3h': number
+}
+
+type SysWeather = {
+    country: string
+    id: number
+    sunrise: number
+    sunset: number
+    type: number
 }
 
 type Sys = {
@@ -66,7 +75,7 @@ type List = {
     wind: Wind
     visibility: number
     pop: number
-    rain: Rain
+    rain?: Rain
     sys: Sys
     dt_txt: string
 }

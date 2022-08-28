@@ -18,7 +18,6 @@ export class TelephonicDb {
             )
             return !!result && !!result.modifiedCount
         } catch (error) {
-            console.log("Territory Db ChangeStateOfTerritory", error)
             logger.Add(`Falló ChangeStateOfTerritory() pasando ${territoryNumber} a ${isFinished}: ${error}`, errorLogs)
             return false
         }
@@ -28,7 +27,6 @@ export class TelephonicDb {
             const phoneTerritories = await getCollection().find().toArray() as typeTelephonicTerritory[]
             return phoneTerritories
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló GetAllHouseholds(): ${error}`, errorLogs)
             return null
         }
@@ -49,7 +47,6 @@ export class TelephonicDb {
             const telephonicTerritory = await getCollection().findOne({ territoryNumber }) as typeTelephonicTerritory
             return telephonicTerritory
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló GetTerritory() territorio ${territoryNumber}: ${error}`, errorLogs)
             return null
         }
@@ -90,7 +87,6 @@ export class TelephonicDb {
             }
             return result ? result.modifiedCount : null
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló ResetTerritory() territorio ${territoryNumber} opción ${option}: ${error}`, errorLogs)
             return null
         }
@@ -103,7 +99,6 @@ export class TelephonicDb {
             )
             return !!result.modifiedCount
         } catch (error) {
-            console.log(error);
             logger.Add(`Falló SetResetDate() pasando ${territoryNumber} opción ${option}: ${error}`, errorLogs)
             return false
         }
@@ -122,7 +117,6 @@ export class TelephonicDb {
             )
             return !!result.modifiedCount
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló UpdateHouseholdState() pasando ${householdId} ${callingState} ${notSubscribed} ${isAssigned}: ${error}`, errorLogs)
             return false
         }

@@ -1,37 +1,39 @@
 import { Credentials } from 'google-auth-library'
-import { typeAllLogsObj, typeCampaignPack, typeCongregationItem, typeCoords, typeHousehold, typeHTHTerritory, typeLocalTelephonicStatistic, typeTelephonicStatistic, typeTelephonicTerritory, typeUser } from '.'
+import * as type from '.'
 
 export type typeResponseData = {
     success: boolean
     //
     address: string
-    allLogsObj: typeAllLogsObj
+    allLogsObj: type.typeAllLogsObj
     alreadyExists: boolean
     campaignAssignments: number[]
-    campaignPack: typeCampaignPack
-    campaignPacks: typeCampaignPack[]
-    congregationItems: typeCongregationItem[]
-    coordinates: typeCoords
+    campaignPack: type.typeCampaignPack
+    campaignPacks: type.typeCampaignPack[]
+    congregationItems: type.typeCongregationItem[]
+    coordinates: type.typeCoords
     dataError: boolean
     email: string
     emailSuccess: boolean
     expired: boolean
-    globalStatistics: typeTelephonicStatistic,
+    forecast: type.typeForecastResponse
+    globalStatistics: type.typeTelephonicStatistic,
     gmailKeys: Credentials
-    household: typeHousehold
-    hthTerritory: typeHTHTerritory
+    household: type.typeHousehold
+    hthTerritory: type.typeHTHTerritory
     isDisabled: boolean
-    localStatistics: typeLocalTelephonicStatistic[]
+    localStatistics: type.typeLocalTelephonicStatistic[]
     modifiedCount: number
     newPassword: string
     newToken: string,
     recaptchaFails: boolean
     streets: string[]
-    telephonicTerritory: typeTelephonicTerritory
+    telephonicTerritory: type.typeTelephonicTerritory
     url: string
     used: boolean
-    user: typeUser
+    user: type.typeUser
     userExists: boolean
-    users: typeUser[]
+    users: type.typeUser[]
+    weather: type.typeWeatherResponse
     wrongPassword: boolean
 }

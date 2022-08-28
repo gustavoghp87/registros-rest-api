@@ -104,6 +104,17 @@ export const deallocateMyTLPTerritoryService = async (user: typeUser, territoryN
     return !!updatedUser
 }
 
+export const deleteUserService = async (requesterUser: typeUser, userId: number): Promise<boolean> => {
+    if (!requesterUser || requesterUser.role !== 1 || !userId || typeof userId !== 'number') return false
+    const userToRemove: typeUser|null = await userDbConnection.GetUserById(userId)
+    if (!userToRemove || userToRemove.isActive || userToRemove.role !== 0 || userToRemove.hthAssignments?.length
+     || userToRemove.phoneAssignments?.length) return false
+    const success: boolean = await userDbConnection.DeleteUser(userId)
+    if (success) logger.Add(`Admin ${requesterUser.email} eliminó al usuario ${userToRemove.email}`, userLogs)
+    else logger.Add(`Admin ${requesterUser.email} quiso eliminar al usuario ${userToRemove.email} pero algo falló`, errorLogs)
+    return success
+}
+
 export const editUserService = async (requesterUser: typeUser, email: string, isActive: boolean, role: number, group: number): Promise<typeUser|null> => {
     isActive = !!isActive
     role = parseInt(role.toString())
@@ -126,14 +137,9 @@ export const generateAccessTokenService = (user: typeUser, tokenId: number): str
     return newToken
 }
 
-export const getActivatedAdminByAccessTokenService = async (token: string): Promise<typeUser|null> => {
-    const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
-    return user && user.role === 1 ? user : null
-}
-
 export const getActivatedUserByAccessTokenService = async (token: string): Promise<typeUser|null> => {
     if (!token) return null
-    let decoded: typeJWTObjectForUser|null = decodeVerifiedService(token) as typeJWTObjectForUser
+    const decoded: typeJWTObjectForUser|null = decodeVerifiedService(token) as typeJWTObjectForUser
     if (!decoded || !decoded.userId || !decoded.tokenId) return null       // change to id
     const user: typeUser|null = await userDbConnection.GetUserById(decoded.userId)
     if (!user || user.tokenId !== decoded.tokenId) return null

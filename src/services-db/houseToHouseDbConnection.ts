@@ -16,7 +16,6 @@ export class HouseToHouseDb {
             )
             return !!result.modifiedCount
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló AddHTHBuilding() territorio ${territoryNumber}: ${error}`, errorLogs)
             return false
         }
@@ -32,7 +31,6 @@ export class HouseToHouseDb {
             )
             return !!result.modifiedCount
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló AddHTHDoNotCall() territorio ${territoryNumber}: ${error}`, errorLogs)
             return false
         }
@@ -48,7 +46,6 @@ export class HouseToHouseDb {
             )
             return !!result.modifiedCount
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló AddHTHObservation() territorio ${territoryNumber}: ${error}`, errorLogs)
             return false
         }
@@ -62,7 +59,6 @@ export class HouseToHouseDb {
             )
             return !!result.modifiedCount
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló AddHTHObservation() territorio ${territoryNumber}: ${error}`, errorLogs)
             return false
         }
@@ -88,7 +84,6 @@ export class HouseToHouseDb {
             }
             return true
         } catch (error) {
-            console.log(error)
             return false
         }
     }
@@ -102,7 +97,6 @@ export class HouseToHouseDb {
             )
             return !!result.modifiedCount
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló DeleteHTHDoNotCall() territorio ${territoryNumber} id ${doNotCallId}: ${error}`, errorLogs)
             return false
         }
@@ -117,7 +111,6 @@ export class HouseToHouseDb {
             )
             return !!result.modifiedCount
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló DeleteHTHObservation() territorio ${territoryNumber} id ${observationId}: ${error}`, errorLogs)
             return false
         }
@@ -132,7 +125,6 @@ export class HouseToHouseDb {
             )
             return !!result.modifiedCount
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló EditHTHObservation() territorio ${territoryNumber}: ${error}`, errorLogs)
             return false
         }
@@ -149,9 +141,8 @@ export class HouseToHouseDb {
                 }},
                 { arrayFilters: [{ 'x.block': polygon.block, 'x.face': polygon.face, 'x.id': polygon.id }] }
             )
-            return true  // true
+            return true  // do not use .modifiedCount
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló EditHTHPolygon() territorio ${territoryNumber}: ${error}`, errorLogs)
             return false
         }
@@ -166,7 +157,6 @@ export class HouseToHouseDb {
             )
             return !!result.modifiedCount
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló EditStateHTHHousehold() territorio ${territoryNumber}: ${error}`, errorLogs)
             return false
         }
@@ -178,9 +168,8 @@ export class HouseToHouseDb {
                 { territoryNumber },
                 { $set: { 'map.centerCoords': centerCoords, 'map.zoom': zoom, 'map.lastEditor': lastEditor } }
             )
-            return true  // true
+            return true  // do not use .modifiedCount
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló EditViewHTHMap() territorio ${territoryNumber} ${centerCoords} ${zoom}: ${error}`, errorLogs)
             return false
         }
@@ -190,7 +179,6 @@ export class HouseToHouseDb {
             const hthTerritories: typeHTHTerritory[] = await getCollection().find()?.toArray() as typeHTHTerritory[]
             return hthTerritories ?? null
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló GetHTHTerritories()`, errorLogs)
             return null
         }
@@ -201,7 +189,6 @@ export class HouseToHouseDb {
             const hthTerritory: typeHTHTerritory = await getCollection().findOne({ territoryNumber }) as typeHTHTerritory
             return hthTerritory ?? null
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló GetHTHTerritory() territorio ${territoryNumber}`, errorLogs)
             return null
         }
@@ -217,7 +204,6 @@ export class HouseToHouseDb {
             )
             return !!result.modifiedCount
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló SetHTHIsFinished() territorio ${territoryNumber} ${block} ${face} ${polygonId}: ${error}`, errorLogs)
             return false
         }

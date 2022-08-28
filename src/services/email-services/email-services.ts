@@ -65,7 +65,7 @@ export const saveNewGmailAPITokenToDBService = async (requesterUser: typeUser, a
 //         logger.Add("No se pudo recuperar último email de territorios llenos enviado", errorLogs)
 //         return
 //     }
-//     console.log(`Timestamp last email: ${lastEmailTime}; difference: ${timestampRightNow - lastEmailTime}, ${Math.floor((timestampRightNow-lastEmailTime)/1000/60/60)} hours`);
+//     (`Timestamp last email: ${lastEmailTime}; difference: ${timestampRightNow - lastEmailTime}, ${Math.floor((timestampRightNow-lastEmailTime)/1000/60/60)} hours`);
 //     if (timestampRightNow - lastEmailTime < 86400000) return    // 24 hs
 
 //     // get finished and almost finished territories and order email send
@@ -95,7 +95,7 @@ export const saveNewGmailAPITokenToDBService = async (requesterUser: typeUser, a
 //         i++
 //     }
 //     if (!alert || !alert.length) {
-//         console.log("There are not almost finished territories")
+//         ("There are not almost finished territories")
 //         return
 //     }
 

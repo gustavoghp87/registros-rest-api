@@ -21,7 +21,6 @@ export class CampaignDb {
             const pack: typeCampaignPack = await getCollection().findOne({ assignedTo: email }) as typeCampaignPack
             return pack?.id
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló AskForANewCampaignPack() ${email}: ${error}`, errorLogs)
             return null
         }
@@ -35,7 +34,6 @@ export class CampaignDb {
                 result = await getCollection().updateOne({ id }, { $set: { assignedTo: email } })
             return !!result.modifiedCount
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló AssignCampaignPackByEmail() ${id} ${email}: ${error}`, errorLogs)
             return false
         }
@@ -48,7 +46,6 @@ export class CampaignDb {
             )
             return !!result.modifiedCount
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló ChangeAccesibilityMode() ${id} ${isAccessible}: ${error}`, errorLogs)
             return false
         }
@@ -61,7 +58,6 @@ export class CampaignDb {
             )
             return !!result.modifiedCount
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló CloseCampaignPack() id ${id}: ${error}`, errorLogs)
             return false
         }
@@ -77,7 +73,6 @@ export class CampaignDb {
             }
             return !!result.modifiedCount
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló EditCampaignPackById() ${id} ${phoneNumber} ${checked}: ${error}`, errorLogs)
             return false
         }
@@ -88,7 +83,6 @@ export class CampaignDb {
             const pack: typeCampaignPack = await getCollection().findOne({ id }) as typeCampaignPack
             return pack ?? null
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló GetCampaignPackById() id ${id}: ${error}`, errorLogs)
             return null
         }
@@ -98,7 +92,6 @@ export class CampaignDb {
             const packs: typeCampaignPack[]|null = await getCollection().find().toArray() as typeCampaignPack[]
             return packs ?? null
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló GetCampaignPacks(): ${error}`, errorLogs)
             return null
         }
@@ -109,7 +102,6 @@ export class CampaignDb {
             const packs: typeCampaignPack[]|null = await getCollection().find({ assignedTo: userEmail }).toArray() as typeCampaignPack[]
             return packs ?? null
         } catch (error) {
-            console.log(error)
             logger.Add(`Falló GetCampaignPacksByUser() usuario ${userEmail}: ${error}`, errorLogs)
             return null
         }

@@ -20,12 +20,9 @@ export const addHTHBuildingService = async (requesterUser: typeUser, territoryNu
     })
     const hthTerritory: typeHTHTerritory|null = await getHTHTerritoryServiceWithoutPermissions(territoryNumber)
     if (!hthTerritory) return false
-    console.log(block, typeof block)
-    console.log(face, typeof face)
     const currentPolygon: typePolygon|undefined = hthTerritory.map.polygons.find(x => x.block === block && x.face === face)
-    console.log(currentPolygon)
-    if (!currentPolygon || !currentPolygon.buildings) return false
-    if (currentPolygon.buildings.some(x => x.streetNumber === newBuilding.streetNumber)) return 'alreadyExists'
+    if (!currentPolygon) return false
+    if (currentPolygon.buildings && currentPolygon.buildings.some(x => x.streetNumber === newBuilding.streetNumber)) return 'alreadyExists'
     const id: number = +new Date()
     const building: typeHTHBuilding = {
         hasCharacters: newBuilding.hasCharacters,

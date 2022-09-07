@@ -87,7 +87,21 @@ export class HouseToHouseDb {
             return false
         }
     }
-    async DeleteHTHDoNotCall(territoryNumber: typeTerritoryNumber, doNotCallId: number, block: typeBlock, face: typeFace): Promise<boolean> {
+    async DeleteHTHBuilding(territoryNumber: typeTerritoryNumber, block: typeBlock, face: typeFace, streetNumber: number): Promise<boolean> {
+        try {
+            if (!territoryNumber || !block || !face || !streetNumber) return false
+            const result: UpdateResult = await getCollection().updateOne(
+                { territoryNumber },
+                { $pull: { 'map.polygons.$[x].buildings': { streetNumber } } },
+                { arrayFilters: [{ 'x.block': block, 'x.face': face }] }
+            )
+            return !!result.modifiedCount
+        } catch (error) {
+            logger.Add(`Falló DeleteHTHBuilding() territorio ${territoryNumber}: ${error}`, errorLogs)
+            return false
+        }
+    }
+    async DeleteHTHDoNotCall(territoryNumber: typeTerritoryNumber, block: typeBlock, face: typeFace, doNotCallId: number): Promise<boolean> {
         try {
             if (!doNotCallId || !territoryNumber || !block || !face) throw new Error("No llegó no tocar id o territorio")
             const result: UpdateResult = await getCollection().updateOne(
@@ -115,7 +129,20 @@ export class HouseToHouseDb {
             return false
         }
     }
-    async EditHTHObservation(territoryNumber: typeTerritoryNumber, observation: typeObservation, block: typeBlock, face: typeFace): Promise<boolean> {
+    async DeleteHTHPolygonFace(territoryNumber: typeTerritoryNumber, block: typeBlock, face: typeFace, faceId: number): Promise<boolean> {
+        try {
+            if (!territoryNumber || !block || !face || !faceId) throw new Error("Faltan datos")
+            const result: UpdateResult = await getCollection().updateOne(
+                { territoryNumber },
+                { $pull: { 'map.polygons': { block, face, id: faceId } } }
+            )
+            return !!result.modifiedCount
+        } catch (error) {
+            logger.Add(`Falló DeleteHTHPolygonFace() territorio ${territoryNumber}: ${error}`, errorLogs)
+            return false
+        }
+    }
+    async EditHTHObservation(territoryNumber: typeTerritoryNumber, block: typeBlock, face: typeFace, observation: typeObservation): Promise<boolean> {
         try {
             if (!observation || !territoryNumber || !block || !face) throw new Error("No llegaron observaciones o territorio")
             const result: UpdateResult = await getCollection().updateOne(

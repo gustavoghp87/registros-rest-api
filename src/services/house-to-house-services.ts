@@ -96,11 +96,20 @@ export const createHTHTerritoriesService = async (requesterUser: typeUser): Prom
     return success
 }
 
+export const deleteHTHBuildingService = async (requesterUser: typeUser,
+ territoryNumber: typeTerritoryNumber, block: typeBlock, face: typeFace, streetNumber: number): Promise<boolean> => {
+    if (!requesterUser || requesterUser.role !== 1 || !territoryNumber || !block || !face || !streetNumber) return false
+    const success: boolean = await houseToHouseDbConnection.DeleteHTHBuilding(territoryNumber, block, face, streetNumber)
+    if (success) logger.Add(`${requesterUser.email} eliminó el edificio de territorio ${territoryNumber} manzana ${block} cara ${face} altura ${streetNumber}`, houseToHouseAdminLogs)
+    else logger.Add(`${requesterUser.email} no pudo eliminar el edificio de territorio ${territoryNumber} manzana ${block} cara ${face} altura ${streetNumber}`, errorLogs)
+    return success
+}
+
 export const deleteHTHDoNotCallService = async (requesterUser: typeUser, territoryNumber: typeTerritoryNumber,
  block: typeBlock, face: typeFace, doNotCallId: number): Promise<boolean> => {
     if (!requesterUser || requesterUser.role !== 1) return false
     if (!territoryNumber || !doNotCallId || !block || !face) return false
-    const success: boolean = await houseToHouseDbConnection.DeleteHTHDoNotCall(territoryNumber, doNotCallId, block, face)
+    const success: boolean = await houseToHouseDbConnection.DeleteHTHDoNotCall(territoryNumber, block, face, doNotCallId)
     if (success) logger.Add(`${requesterUser.email} eliminó un No Tocar del territorio ${territoryNumber} manzana ${block} cara ${face}`, houseToHouseLogs)
     else logger.Add(`${requesterUser.email} no pudo eliminar un No Tocar del territorio ${territoryNumber} manzana ${block} cara ${face}`, errorLogs)
     return success
@@ -115,11 +124,29 @@ export const deleteHTHObservationService = async (requesterUser: typeUser, terri
     return success
 }
 
+export const deleteHTHPolygonFaceService = async (requesterUser: typeUser,
+ territoryNumber: typeTerritoryNumber, block: typeBlock, face: typeFace, faceId: number): Promise<boolean> => {
+    if (!requesterUser || requesterUser.role !== 1 || !block || !face || !faceId) return false
+    const hthTerritory: typeHTHTerritory|null = await getHTHTerritoryServiceWithoutPermissions(territoryNumber)
+    
+    console.log(hthTerritory?.map.polygons.find(x =>
+        x.block === block && x.face === face && x.id === faceId
+         && (x.buildings?.length || x.doNotCalls?.length || x.observations?.length))
+    )
+    if (!hthTerritory || !hthTerritory.map || !hthTerritory.map.polygons
+        || !!hthTerritory.map.polygons.some(x => x.block === block && x.face === face && x.id === faceId && (x.buildings?.length || x.doNotCalls?.length || x.observations?.length))
+    ) return false
+    const success: boolean = await houseToHouseDbConnection.DeleteHTHPolygonFace(territoryNumber, block, face, faceId)
+    if (success) logger.Add(`${requesterUser.email} eliminó la cara ${face} manzana ${face} territorio ${territoryNumber}`, houseToHouseAdminLogs)
+    else logger.Add(`${requesterUser.email} no pudo eliminar la cara ${face} manzana ${face} territorio ${territoryNumber}`, errorLogs)
+    return success
+}
+
 export const editHTHObservationService = async (requesterUser: typeUser, territoryNumber: typeTerritoryNumber,
  block: typeBlock, face: typeFace, observation: typeObservation): Promise<boolean> => {
     if (!requesterUser || requesterUser.role !== 1) return false
     if (!territoryNumber || !observation || !observation.id || !observation.date || !observation.text || !block || !face) return false
-    const success: boolean = await houseToHouseDbConnection.EditHTHObservation(territoryNumber, observation, block, face)
+    const success: boolean = await houseToHouseDbConnection.EditHTHObservation(territoryNumber, block, face, observation)
     if (success) logger.Add(`${requesterUser.email} modificó una Observación del territorio ${territoryNumber} manzana ${block} cara ${face}`, houseToHouseLogs)
     else logger.Add(`${requesterUser.email} no pudo modificar una Observación del territorio ${territoryNumber} manzana ${block} cara ${face}`, errorLogs)
     return success

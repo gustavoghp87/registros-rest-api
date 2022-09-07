@@ -96,7 +96,7 @@ export const houseToHouseController: Router = express.Router()
         res.json({ success })
     })
 
-    // add polygon face to hth territorys
+    // add polygon face
     .post('/map/:territoryNumber', async (req: Request, res: Response) => {
         const polygon: typePolygon = req.body.polygon as typePolygon
         const territoryNumber: typeTerritoryNumber = req.params.territoryNumber as unknown as typeTerritoryNumber
@@ -104,7 +104,17 @@ export const houseToHouseController: Router = express.Router()
         res.json({ success })
     })
 
-    // add new household to building
+    // delete polygon face
+    .delete('/map/:territoryNumber/:block/:face', async (req: Request, res: Response) => {
+        const block: typeBlock = req.params.block as typeBlock
+        const face: typeFace = req.params.face as typeFace
+        const faceId: number = req.body.faceId
+        const territoryNumber: typeTerritoryNumber = req.params.territoryNumber as unknown as typeTerritoryNumber
+        const success: boolean = await hTHServices.deleteHTHPolygonFaceService(req.user, territoryNumber, block, face, faceId)
+        res.json({ success })
+    })
+
+    // add new building to face
     .post('/building/:territoryNumber/:block/:face', async (req: Request, res: Response) => {
         const block: typeBlock = req.params.block as typeBlock
         const face: typeFace = req.params.face as typeFace
@@ -114,7 +124,7 @@ export const houseToHouseController: Router = express.Router()
         res.json({ success: result === true, dataError: result === 'dataError', alreadyExists: result === 'alreadyExists' })
     })
 
-    // modify is called state to household
+    // modify household called state
     .patch('/building/:territoryNumber/:block/:face', async (req: Request, res: Response) => {
         const block: typeBlock = req.params.block as typeBlock
         const face: typeFace = req.params.face as typeFace
@@ -124,6 +134,16 @@ export const houseToHouseController: Router = express.Router()
         const territoryNumber: typeTerritoryNumber = req.params.territoryNumber as unknown as typeTerritoryNumber
         const success: boolean =
             await hTHServices.changeStateToHTHHouseholdService(req.user, territoryNumber, block, face, streetNumber, householdId, isChecked)
+        res.json({ success })
+    })
+
+    // delete hth building
+    .delete('/building/:territoryNumber/:block/:face', async (req: Request, res: Response) => {
+        const block: typeBlock = req.params.block as typeBlock
+        const face: typeFace = req.params.face as typeFace
+        const streetNumber: number = req.body.streetNumber
+        const territoryNumber: typeTerritoryNumber = req.params.territoryNumber as unknown as typeTerritoryNumber
+        const success: boolean = await hTHServices.deleteHTHBuildingService(req.user, territoryNumber, block, face, streetNumber)
         res.json({ success })
     })
 ;

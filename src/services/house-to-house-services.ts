@@ -36,6 +36,7 @@ export const addHTHBuildingService = async (requesterUser: typeUser, territoryNu
             isChecked: false,
             level: x.level
         })),
+        dateOfLastSharing: 0,
         numberOfLevels: newBuilding.numberOfLevels,
         numberPerLevel: newBuilding.numberPerLevel,
         streetNumber: newBuilding.streetNumber
@@ -217,8 +218,18 @@ export const setHTHIsFinishedService = async (requesterUser: typeUser, territory
  block: typeBlock, face: typeFace, polygonId: number, isFinished: boolean): Promise<boolean> => {
     if (!requesterUser || requesterUser.role !== 1) return false
     if (!territoryNumber || !block || !face || isFinished === undefined || !polygonId) return false
-    const success: boolean = await houseToHouseDbConnection.SetHTHIsFinished(territoryNumber, isFinished, block, face, polygonId)
+    const success: boolean = await houseToHouseDbConnection.SetHTHIsFinished(territoryNumber, block, face, polygonId, isFinished)
     if (success) logger.Add(`${requesterUser.email} ${isFinished ? "cerró" : "abrió"} territorio ${territoryNumber} manzana ${block} cara ${face}`, houseToHouseLogs)
     else logger.Add(`${requesterUser.email} no pudo ${isFinished ? "cerrar" : "abrir"} territorio ${territoryNumber} manzana ${block} cara ${face}`, errorLogs)
+    return success
+}
+
+export const setHTHIsSharedBuildingsService = async (requesterUser: typeUser, territoryNumber: typeTerritoryNumber,
+ block: typeBlock, face: typeFace, polygonId: number, streetNumbers: number[]): Promise<boolean> => {
+    if (!requesterUser || requesterUser.role !== 1) return false
+    if (!territoryNumber || !block || !face || !polygonId || !streetNumbers || !streetNumbers.length) return false
+    const success: boolean = await houseToHouseDbConnection.SetHTHIsSharedBuildings(territoryNumber, block, face, polygonId, streetNumbers)
+    if (success) logger.Add(`${requesterUser.email} compartió edificios por WhatsApp: territorio ${territoryNumber} manzana ${block} cara ${face} números ${streetNumbers}`, houseToHouseLogs)
+    else logger.Add(`${requesterUser.email} no pudo compartir edificios por WhatsApp: territorio ${territoryNumber} manzana ${block} cara ${face} números ${streetNumbers}`, errorLogs)
     return success
 }

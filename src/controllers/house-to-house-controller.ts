@@ -137,6 +137,18 @@ export const houseToHouseController: Router = express.Router()
         res.json({ success })
     })
 
+    // set building is shared
+    .put('/building/:territoryNumber/:block/:face', async (req: Request, res: Response) => {
+        const block: typeBlock = req.params.block as typeBlock
+        const face: typeFace = req.params.face as typeFace
+        const polygonId: number = req.body.polygonId as number
+        const streetNumbers: number[] = req.body.streetNumbers
+        const territoryNumber: typeTerritoryNumber = req.params.territoryNumber as unknown as typeTerritoryNumber
+        const success: boolean =
+            await hTHServices.setHTHIsSharedBuildingsService(req.user, territoryNumber, block, face, polygonId, streetNumbers)
+        res.json({ success })
+    })
+
     // delete hth building
     .delete('/building/:territoryNumber/:block/:face', async (req: Request, res: Response) => {
         const block: typeBlock = req.params.block as typeBlock

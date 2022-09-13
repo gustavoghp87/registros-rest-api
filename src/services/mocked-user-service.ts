@@ -174,6 +174,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         block: "1",
                         buildings: [
                             {
+                                dateOfLastSharing: 0,
                                 hasCharacters: true,
                                 hasContinuousNumbers: false,
                                 hasLowLevel: false,
@@ -327,6 +328,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         block: "1",
                         buildings: [
                             {
+                                dateOfLastSharing: 0,
                                 hasCharacters: true,
                                 hasContinuousNumbers: false,
                                 hasLowLevel: false,
@@ -424,6 +426,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         block: "1",
                         buildings: [
                             {
+                                dateOfLastSharing: 0,
                                 hasCharacters: true,
                                 hasContinuousNumbers: false,
                                 hasLowLevel: false,
@@ -530,6 +533,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         block: "1",
                         buildings: [
                             {
+                                dateOfLastSharing: 0,
                                 hasCharacters: true,
                                 hasContinuousNumbers: false,
                                 hasLowLevel: false,
@@ -641,6 +645,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         block: "2",
                         buildings: [
                             {
+                                dateOfLastSharing: 0,
                                 hasCharacters: true,
                                 hasContinuousNumbers: false,
                                 hasLowLevel: false,
@@ -730,6 +735,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         block: "2",
                         buildings: [
                             {
+                                dateOfLastSharing: 0,
                                 hasCharacters: true,
                                 hasContinuousNumbers: false,
                                 hasLowLevel: false,
@@ -819,6 +825,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         block: "2",
                         buildings: [
                             {
+                                dateOfLastSharing: 0,
                                 hasCharacters: true,
                                 hasContinuousNumbers: false,
                                 hasLowLevel: false,
@@ -908,6 +915,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         block: "2",
                         buildings: [
                             {
+                                dateOfLastSharing: 0,
                                 hasCharacters: true,
                                 hasContinuousNumbers: false,
                                 hasLowLevel: false,
@@ -997,6 +1005,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         block: "3",
                         buildings: [
                             {
+                                dateOfLastSharing: 0,
                                 hasCharacters: true,
                                 hasContinuousNumbers: false,
                                 hasLowLevel: false,
@@ -1086,6 +1095,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         block: "3",
                         buildings: [
                             {
+                                dateOfLastSharing: 0,
                                 hasCharacters: true,
                                 hasContinuousNumbers: false,
                                 hasLowLevel: false,
@@ -1175,6 +1185,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         block: "3",
                         buildings: [
                             {
+                                dateOfLastSharing: 0,
                                 hasCharacters: true,
                                 hasContinuousNumbers: false,
                                 hasLowLevel: false,
@@ -1264,6 +1275,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         block: "3",
                         buildings: [
                             {
+                                dateOfLastSharing: 0,
                                 hasCharacters: true,
                                 hasContinuousNumbers: false,
                                 hasLowLevel: false,
@@ -1396,6 +1408,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
         recaptchaFails: false,
         streets: ["Concordia"],
         telephonicTerritory: {
+            mapId: '1VKEvlr_MS6WpCp1gzwjmI7Uhl2mNO40f',
             households: [{
                 address: "Concordia 21 1 2",
                 block: "1",

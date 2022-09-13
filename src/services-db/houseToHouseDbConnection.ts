@@ -221,9 +221,9 @@ export class HouseToHouseDb {
         }
     }
     async SetHTHIsFinished(territoryNumber: typeTerritoryNumber,
-     isFinished: boolean, block: typeBlock, face: typeFace, polygonId: number): Promise<boolean> {
+     block: typeBlock, face: typeFace, polygonId: number, isFinished: boolean): Promise<boolean> {
         try {
-            if (!block || !face || !territoryNumber || isFinished === undefined || !polygonId) throw new Error("No llegaron datos")
+            if (!territoryNumber || !block || !face || isFinished === undefined || !polygonId) throw new Error("No llegaron datos")
             const result: UpdateResult = await getCollection().updateOne(
                 { territoryNumber },
                 { $set: { 'map.polygons.$[x].isFinished': isFinished } },
@@ -232,6 +232,25 @@ export class HouseToHouseDb {
             return !!result.modifiedCount
         } catch (error) {
             logger.Add(`Falló SetHTHIsFinished() territorio ${territoryNumber} ${block} ${face} ${polygonId}: ${error}`, errorLogs)
+            return false
+        }
+    }
+    async SetHTHIsSharedBuildings(territoryNumber: typeTerritoryNumber,
+     block: typeBlock, face: typeFace, polygonId: number, streetNumbers: number[]): Promise<boolean> {
+        try {
+            if (!territoryNumber || !block || !face || !polygonId || !streetNumbers || !streetNumbers.length) throw new Error("No llegaron datos")
+            console.log("db");
+            streetNumbers.forEach(async (streetNumber: number) => {
+                const result: UpdateResult = await getCollection().updateOne(
+                    { territoryNumber },
+                    { $set: { 'map.polygons.$[x].buildings.$[y].dateOfLastSharing': +new Date() } },
+                    { arrayFilters: [{ 'x.block': block, 'x.face': face, 'x.id': polygonId }, { 'y.streetNumber': streetNumber }]}
+                )
+                if (!!result.modifiedCount) return false
+            })
+            return true
+        } catch (error) {
+            logger.Add(`Falló SetHTHIsSharedBuildings() territorio ${territoryNumber} ${block} ${face}: ${error}`, errorLogs)
             return false
         }
     }

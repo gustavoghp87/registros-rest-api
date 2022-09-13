@@ -4,6 +4,7 @@ export type typeCallingState = "No predicado" | "No contestó" | "Contestó" | "
 
 export type typeTelephonicTerritory = {
     households: typeHousehold[]
+    mapId: string
     stateOfTerritory: typeStateOfTerritory
     territoryNumber: typeTerritoryNumber
 }

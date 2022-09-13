@@ -3,6 +3,7 @@ import { getTerritoryStreetsService } from './telephonic-services'
 import { errorLogs, houseToHouseAdminLogs, houseToHouseLogs } from './log-services'
 import { HouseToHouseDb } from '../services-db/houseToHouseDbConnection'
 import { typeBlock, typeCoords, typeDoNotCall, typeFace, typeHTHBuilding, typeHTHMap, typeHTHTerritory, typeObservation, typePolygon, typeTerritoryNumber, typeUser } from '../models'
+import { getCurrentLocalDate } from './helpers'
 
 const houseToHouseDbConnection = new HouseToHouseDb()
 
@@ -25,6 +26,7 @@ export const addHTHBuildingService = async (requesterUser: typeUser, territoryNu
     if (currentPolygon.buildings && currentPolygon.buildings.some(x => x.streetNumber === newBuilding.streetNumber)) return 'alreadyExists'
     const id: number = +new Date()
     const building: typeHTHBuilding = {
+        creatorId: requesterUser.id,
         hasCharacters: newBuilding.hasCharacters,
         hasContinuousNumbers: newBuilding.hasContinuousNumbers,
         hasLowLevel: newBuilding.hasLowLevel,
@@ -47,9 +49,9 @@ export const addHTHBuildingService = async (requesterUser: typeUser, territoryNu
 
 export const addHTHDoNotCallService = async (requesterUser: typeUser, territoryNumber: typeTerritoryNumber,
  block: typeBlock, face: typeFace, polygonId: number, doNotCall: typeDoNotCall): Promise<boolean> => {
-    if (!requesterUser || requesterUser.role !== 1) return false
+    if (!requesterUser) return false
     if (!territoryNumber || !block || !face || !doNotCall || !doNotCall.date || !doNotCall.id || !doNotCall.streetNumber || !polygonId) return false
-    doNotCall.creator = requesterUser.email
+    doNotCall.creatorId = requesterUser.id
     doNotCall.deleted = false
     const success: boolean = await houseToHouseDbConnection.AddHTHDoNotCall(territoryNumber, doNotCall, block, face, polygonId)
     if (success) logger.Add(`${requesterUser.email} agregó un No Tocar al territorio ${territoryNumber} manzana ${block} cara ${face}`, houseToHouseLogs)
@@ -59,9 +61,10 @@ export const addHTHDoNotCallService = async (requesterUser: typeUser, territoryN
 
 export const addHTHObservationService = async (requesterUser: typeUser, territoryNumber: typeTerritoryNumber,
  block: typeBlock, face: typeFace, polygonId: number, observation: typeObservation): Promise<boolean> => {
-    if (!requesterUser || requesterUser.role !== 1 || !territoryNumber || !block || !face || !observation || !observation.date || !observation.id || !observation.text || !polygonId) return false
+    if (!requesterUser) return false
+    if (!territoryNumber || !block || !face || !observation || !observation.date || !observation.id || !observation.text || !polygonId) return false
     block = block.toString() as typeBlock
-    observation.creator = requesterUser.email
+    observation.creatorId = requesterUser.id
     observation.deleted = false
     const success: boolean = await houseToHouseDbConnection.AddHTHObservation(territoryNumber, observation, block, face, polygonId)
     if (success) logger.Add(`${requesterUser.email} agregó una Observación al territorio ${territoryNumber} manzana ${block} cara ${face}`, houseToHouseLogs)
@@ -70,7 +73,8 @@ export const addHTHObservationService = async (requesterUser: typeUser, territor
 }
 
 export const addHTHPolygonFaceService = async (requesterUser: typeUser, territoryNumber: typeTerritoryNumber, polygon: typePolygon): Promise<boolean> => {
-    if (!requesterUser || requesterUser.role !== 1 || !territoryNumber || !polygon || !polygon.block || !polygon.face || !polygon.id ||
+    if (!requesterUser || requesterUser.role !== 1) return false
+    if (!territoryNumber || !polygon || !polygon.block || !polygon.face || !polygon.id ||
         !polygon.doNotCalls || !polygon.observations ||
         !polygon.coordsPoint1 || !polygon.coordsPoint2 || !polygon.coordsPoint3 ||
         !polygon.coordsPoint1.lat || !polygon.coordsPoint2.lat || !polygon.coordsPoint3.lat ||
@@ -84,12 +88,14 @@ export const addHTHPolygonFaceService = async (requesterUser: typeUser, territor
 
 export const changeStateToHTHHouseholdService = async (requesterUser: typeUser, territoryNumber: typeTerritoryNumber,
  block: typeBlock, face: typeFace, streetNumber: number, householdId: number, isChecked: boolean): Promise<boolean> => {
-    if (!requesterUser) return false
+    // freed
+    console.log(territoryNumber, block, face, streetNumber, householdId, isChecked);
+    
     if (!territoryNumber || !block || !face || !householdId || typeof householdId !== 'number') return false
     isChecked = !!isChecked
     const success: boolean = await houseToHouseDbConnection.EditStateHTHHousehold(territoryNumber, block, face, streetNumber, householdId, isChecked)
     return success
- }
+}
 
 export const createHTHTerritoriesService = async (requesterUser: typeUser): Promise<boolean> => {
     if (!requesterUser || requesterUser.role !== 1) return false
@@ -99,7 +105,8 @@ export const createHTHTerritoriesService = async (requesterUser: typeUser): Prom
 
 export const deleteHTHBuildingService = async (requesterUser: typeUser,
  territoryNumber: typeTerritoryNumber, block: typeBlock, face: typeFace, streetNumber: number): Promise<boolean> => {
-    if (!requesterUser || requesterUser.role !== 1 || !territoryNumber || !block || !face || !streetNumber) return false
+    if (!requesterUser || requesterUser.role !== 1) return false
+    if (!territoryNumber || !block || !face || !streetNumber) return false
     const success: boolean = await houseToHouseDbConnection.DeleteHTHBuilding(territoryNumber, block, face, streetNumber)
     if (success) logger.Add(`${requesterUser.email} eliminó el edificio de territorio ${territoryNumber} manzana ${block} cara ${face} altura ${streetNumber}`, houseToHouseAdminLogs)
     else logger.Add(`${requesterUser.email} no pudo eliminar el edificio de territorio ${territoryNumber} manzana ${block} cara ${face} altura ${streetNumber}`, errorLogs)
@@ -108,7 +115,7 @@ export const deleteHTHBuildingService = async (requesterUser: typeUser,
 
 export const deleteHTHDoNotCallService = async (requesterUser: typeUser, territoryNumber: typeTerritoryNumber,
  block: typeBlock, face: typeFace, doNotCallId: number): Promise<boolean> => {
-    if (!requesterUser || requesterUser.role !== 1) return false
+    if (!requesterUser) return false
     if (!territoryNumber || !doNotCallId || !block || !face) return false
     const success: boolean = await houseToHouseDbConnection.DeleteHTHDoNotCall(territoryNumber, block, face, doNotCallId)
     if (success) logger.Add(`${requesterUser.email} eliminó un No Tocar del territorio ${territoryNumber} manzana ${block} cara ${face}`, houseToHouseLogs)
@@ -118,7 +125,8 @@ export const deleteHTHDoNotCallService = async (requesterUser: typeUser, territo
 
 export const deleteHTHObservationService = async (requesterUser: typeUser, territoryNumber: typeTerritoryNumber,
  block: typeBlock, face: typeFace, observationId: number): Promise<boolean> => {
-    if (!requesterUser || requesterUser.role !== 1 || !territoryNumber || !observationId || !block || !face) return false
+    if (!requesterUser) return false
+    if (!territoryNumber || !block || !face || !observationId) return false
     const success: boolean = await houseToHouseDbConnection.DeleteHTHObservation(territoryNumber, block, face, observationId)
     if (success) logger.Add(`${requesterUser.email} eliminó una Observación del territorio ${territoryNumber} manzana ${block} cara ${face}`, houseToHouseLogs)
     else logger.Add(`${requesterUser.email} no pudo eliminar una Observación del territorio ${territoryNumber} manzana ${block} cara ${face}`, errorLogs)
@@ -127,13 +135,9 @@ export const deleteHTHObservationService = async (requesterUser: typeUser, terri
 
 export const deleteHTHPolygonFaceService = async (requesterUser: typeUser,
  territoryNumber: typeTerritoryNumber, block: typeBlock, face: typeFace, faceId: number): Promise<boolean> => {
-    if (!requesterUser || requesterUser.role !== 1 || !block || !face || !faceId) return false
+    if (!requesterUser || requesterUser.role !== 1) return false
+    if (!block || !face || !faceId) return false
     const hthTerritory: typeHTHTerritory|null = await getHTHTerritoryServiceWithoutPermissions(territoryNumber)
-    
-    console.log(hthTerritory?.map.polygons.find(x =>
-        x.block === block && x.face === face && x.id === faceId
-         && (x.buildings?.length || x.doNotCalls?.length || x.observations?.length))
-    )
     if (!hthTerritory || !hthTerritory.map || !hthTerritory.map.polygons
         || !!hthTerritory.map.polygons.some(x => x.block === block && x.face === face && x.id === faceId && (x.buildings?.length || x.doNotCalls?.length || x.observations?.length))
     ) return false
@@ -145,7 +149,7 @@ export const deleteHTHPolygonFaceService = async (requesterUser: typeUser,
 
 export const editHTHObservationService = async (requesterUser: typeUser, territoryNumber: typeTerritoryNumber,
  block: typeBlock, face: typeFace, observation: typeObservation): Promise<boolean> => {
-    if (!requesterUser || requesterUser.role !== 1) return false
+    if (!requesterUser) return false
     if (!territoryNumber || !observation || !observation.id || !observation.date || !observation.text || !block || !face) return false
     const success: boolean = await houseToHouseDbConnection.EditHTHObservation(territoryNumber, block, face, observation)
     if (success) logger.Add(`${requesterUser.email} modificó una Observación del territorio ${territoryNumber} manzana ${block} cara ${face}`, houseToHouseLogs)
@@ -175,24 +179,34 @@ export const editHTHMapService = async (requesterUser: typeUser,
     return success
 }
 
-export const getHTHTerritoriesService = async (requesterUser: typeUser): Promise<typeHTHTerritory[]|null> => {
-    if (!requesterUser) return null
-    const hthTerritories: typeHTHTerritory[]|null = await houseToHouseDbConnection.GetHTHTerritories()
-    if (hthTerritories && hthTerritories.length) {
-        hthTerritories.forEach(hthTerritory =>
-            hthTerritory.map.polygons = hthTerritory.map.polygons.map(x => {
-                if (x.doNotCalls && x.doNotCalls.length) x.doNotCalls = x.doNotCalls.filter(y => y.deleted !== true)
-                if (x.observations && x.observations.length) x.observations = x.observations.filter(y => y.deleted !== true)
-                return x
-            })
-        )
-    }
-    return hthTerritories
-}
+// export const getHTHTerritoriesService = async (requesterUser: typeUser): Promise<typeHTHTerritory[]|null> => {
+//     if (!requesterUser) return null
+//     const hthTerritories: typeHTHTerritory[]|null = await houseToHouseDbConnection.GetHTHTerritories()
+//     if (hthTerritories && hthTerritories.length) {
+//         hthTerritories.forEach(hthTerritory =>
+//             hthTerritory.map.polygons = hthTerritory.map.polygons.map(x => {
+//                 if (x.doNotCalls && x.doNotCalls.length) x.doNotCalls = x.doNotCalls.filter(y => y.deleted !== true)
+//                 if (x.observations && x.observations.length) x.observations = x.observations.filter(y => y.deleted !== true)
+//                 return x
+//             })
+//         )
+//     }
+//     return hthTerritories
+// }
 
 export const getHTHTerritoryService = async (requesterUser: typeUser, territoryNumber: typeTerritoryNumber): Promise<typeHTHTerritory|null> => {
-    if (!requesterUser || !territoryNumber) return null
+    if (!territoryNumber) return null
     const hthTerritory: typeHTHTerritory|null = await getHTHTerritoryServiceWithoutPermissions(territoryNumber)
+    if (!hthTerritory) return null
+    if (requesterUser) {
+        if (requesterUser.role !== 1 && !requesterUser.hthAssignments.includes(parseInt(territoryNumber))) return null
+    } else {
+        if (!hthTerritory.map.polygons.some(x =>
+            x.buildings && x.buildings.some(y =>
+                y.dateOfLastSharing && getCurrentLocalDate() === getCurrentLocalDate(y.dateOfLastSharing)
+            )
+        )) return null
+    }
     return hthTerritory
 }
 
@@ -216,7 +230,7 @@ export const getHTHStreetsByTerritoryService = async (requesterUser: typeUser, t
 
 export const setHTHIsFinishedService = async (requesterUser: typeUser, territoryNumber: typeTerritoryNumber,
  block: typeBlock, face: typeFace, polygonId: number, isFinished: boolean): Promise<boolean> => {
-    if (!requesterUser || requesterUser.role !== 1) return false
+    if (!requesterUser) return false
     if (!territoryNumber || !block || !face || isFinished === undefined || !polygonId) return false
     const success: boolean = await houseToHouseDbConnection.SetHTHIsFinished(territoryNumber, block, face, polygonId, isFinished)
     if (success) logger.Add(`${requesterUser.email} ${isFinished ? "cerró" : "abrió"} territorio ${territoryNumber} manzana ${block} cara ${face}`, houseToHouseLogs)
@@ -226,7 +240,7 @@ export const setHTHIsFinishedService = async (requesterUser: typeUser, territory
 
 export const setHTHIsSharedBuildingsService = async (requesterUser: typeUser, territoryNumber: typeTerritoryNumber,
  block: typeBlock, face: typeFace, polygonId: number, streetNumbers: number[]): Promise<boolean> => {
-    if (!requesterUser || requesterUser.role !== 1) return false
+    if (!requesterUser) return false
     if (!territoryNumber || !block || !face || !polygonId || !streetNumbers || !streetNumbers.length) return false
     const success: boolean = await houseToHouseDbConnection.SetHTHIsSharedBuildings(territoryNumber, block, face, polygonId, streetNumbers)
     if (success) logger.Add(`${requesterUser.email} compartió edificios por WhatsApp: territorio ${territoryNumber} manzana ${block} cara ${face} números ${streetNumbers}`, houseToHouseLogs)

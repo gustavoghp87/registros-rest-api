@@ -174,6 +174,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         block: "1",
                         buildings: [
                             {
+                                creatorId: 1,
                                 dateOfLastSharing: 0,
                                 hasCharacters: true,
                                 hasContinuousNumbers: false,
@@ -255,7 +256,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                 },
                         doNotCalls: [
                             {
-                           creator: "ghp.2120@gmail.com",
+                           creatorId: 1,
                            date: "2022-07-11",
                                 doorBell: "2A",
                                 id: 1657570428011,
@@ -263,7 +264,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                 deleted: false
                             },
                             {
-                                creator: "ghp.2120@gmail.com",
+                                creatorId: 1,
                                 date: "2022-07-11",
                                 doorBell: "3B",
                                 id: 1657570751929,
@@ -271,7 +272,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                 deleted: false
                             },
                             {
-                                creator: "ghp.2120@gmail.com",
+                                creatorId: 1,
                                 date: "2022-07-11",
                                 doorBell: "",
                                 id: 1657572430332,
@@ -279,7 +280,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                 deleted: false
                             },
                             {
-                                creator: "ghp.2120@gmail.com",
+                                creatorId: 1,
                                 date: "2022-07-11",
                                 doorBell: "C",
                                 id: 1657572670460,
@@ -287,7 +288,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                 deleted: false
                             },
                             {
-                                creator: "ghp.2120@gmail.com",
+                                creatorId: 1,
                                 date: "2022-07-12",
                                 doorBell: "1D",
                                 id: 1657644187635,
@@ -295,7 +296,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                 deleted: false
                             },
                             {
-                                creator: "ghp.2120@gmail.com",
+                                creatorId: 1,
                                 date: "2022-07-12",
                                 doorBell: "",
                                 id: 1657675116946,
@@ -308,14 +309,14 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         isFinished: false,
                         observations: [
                             {
-                                creator: "ghp.2120@gmail.com",
+                                creatorId: 1,
                                 date: "2022-07-12",
                                 id: 1657675250321,
                                 text: "Observación editada",
                                 deleted: false
                             },
                             {
-                                creator: "ghp.2120@gmail.com",
+                                creatorId: 1,
                                 date: "2022-08-06",
                                 id: 1659835150715,
                                 text: "Observación 2: queda observado de prueba, queda observado de prueba, queda observado de prueba",
@@ -328,6 +329,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         block: "1",
                         buildings: [
                             {
+                                creatorId: 1,
                                 dateOfLastSharing: 0,
                                 hasCharacters: true,
                                 hasContinuousNumbers: false,
@@ -413,7 +415,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         isFinished: true,
                         observations: [
                             {
-                                creator: "ghp.2120@gmail.com",
+                                creatorId: 1,
                                 date: "2022-08-17",
                                 id: 1660752010256,
                                 text: "Obs manz 1 cara 2",
@@ -426,6 +428,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         block: "1",
                         buildings: [
                             {
+                                creatorId: 1,
                                 dateOfLastSharing: 0,
                                 hasCharacters: true,
                                 hasContinuousNumbers: false,
@@ -507,7 +510,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         },
                         doNotCalls: [
                             {
-                                creator: "ghp.2120@gmail.com",
+                                creatorId: 1,
                                 date: "2022-07-14",
                                 doorBell: "1° C",
                                 id: 1657805998721,
@@ -520,7 +523,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         isFinished: false,
                         observations: [
                             {
-                                creator: "ghp.2120@gmail.com",
+                                creatorId: 1,
                                 date: "2022-07-14",
                                 id: 1657805967853,
                                 text: "Observación Manzana 1 cara C: una observación",
@@ -533,6 +536,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         block: "1",
                         buildings: [
                             {
+                                creatorId: 1,
                                 dateOfLastSharing: 0,
                                 hasCharacters: true,
                                 hasContinuousNumbers: false,
@@ -618,21 +622,21 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         isFinished: false,
                         observations: [
                             {
-                                creator: "ghp.2120@gmail.com",
+                                creatorId: 1,
                                 date: "2022-07-16",
                                 id: 1657995658398,
                                 text: "Observación corta",
                                 deleted: false
                             },
                             {
-                                creator: "ghp.2120@gmail.com",
+                                creatorId: 1,
                                 date: "2022-07-16",
                                 id: 1657997472488,
                                 text: "Observación corta ccc",
                                 deleted: false
                             },
                             {
-                                creator: "ghp.2120@gmail.com",
+                                creatorId: 1,
                                 date: "2022-07-16",
                                 id: 1657997741120,
                                 text: "Observación corta ddd",
@@ -645,6 +649,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         block: "2",
                         buildings: [
                             {
+                                creatorId: 1,
                                 dateOfLastSharing: 0,
                                 hasCharacters: true,
                                 hasContinuousNumbers: false,
@@ -735,6 +740,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         block: "2",
                         buildings: [
                             {
+                                creatorId: 1,
                                 dateOfLastSharing: 0,
                                 hasCharacters: true,
                                 hasContinuousNumbers: false,
@@ -825,6 +831,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         block: "2",
                         buildings: [
                             {
+                                creatorId: 1,
                                 dateOfLastSharing: 0,
                                 hasCharacters: true,
                                 hasContinuousNumbers: false,
@@ -915,6 +922,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         block: "2",
                         buildings: [
                             {
+                                creatorId: 1,
                                 dateOfLastSharing: 0,
                                 hasCharacters: true,
                                 hasContinuousNumbers: false,
@@ -1005,6 +1013,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         block: "3",
                         buildings: [
                             {
+                                creatorId: 1,
                                 dateOfLastSharing: 0,
                                 hasCharacters: true,
                                 hasContinuousNumbers: false,
@@ -1095,6 +1104,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         block: "3",
                         buildings: [
                             {
+                                creatorId: 1,
                                 dateOfLastSharing: 0,
                                 hasCharacters: true,
                                 hasContinuousNumbers: false,
@@ -1185,6 +1195,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         block: "3",
                         buildings: [
                             {
+                                creatorId: 1,
                                 dateOfLastSharing: 0,
                                 hasCharacters: true,
                                 hasContinuousNumbers: false,
@@ -1275,6 +1286,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         block: "3",
                         buildings: [
                             {
+                                creatorId: 1,
                                 dateOfLastSharing: 0,
                                 hasCharacters: true,
                                 hasContinuousNumbers: false,
@@ -1356,7 +1368,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         },
                         doNotCalls: [
                             {
-                                creator: "ghp.2120@gmail.com",
+                                creatorId: 1,
                                 date: "2022-07-16",
                                 doorBell: "P",
                                 id: 1657998485660,
@@ -1369,14 +1381,14 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         isFinished: false,
                         observations: [
                             {
-                                creator: "ghp.2120@gmail.com",
+                                creatorId: 1,
                                 date: "2022-07-16",
                                 id: 1657998465413,
                                 text: "Observación corta",
                                 deleted: false
                             },
                             {
-                                creator: "ghp.2120@gmail.com",
+                                creatorId: 1,
                                 date: "2022-07-16",
                                 id: 1657998506332,
                                 text: "Observación larga: observación de prueba, observación de prueba, observación de prueba, observación de prueba, observación de prueba",

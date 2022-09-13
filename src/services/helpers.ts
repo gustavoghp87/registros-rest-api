@@ -13,3 +13,8 @@ export const isTerritoryAssignedToUserService = (user: typeUser, territoryNumber
 export const filterHouses = (households: typeHousehold[]): typeHousehold[] => {
     return households.filter(x => x.doorBell)
 }
+
+export const getCurrentLocalDate = (timestamp?: number) => {
+    if (timestamp) new Date(timestamp).toLocaleDateString('es-AR')
+    return new Date().toLocaleDateString('es-AR')
+}

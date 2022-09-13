@@ -38,7 +38,7 @@ export type typePolygon = {
 }
 
 export type typeDoNotCall = {
-    creator: string
+    creatorId: number
     date: string
     deleted: boolean
     doorBell: string
@@ -47,7 +47,7 @@ export type typeDoNotCall = {
 }
 
 export type typeObservation = {
-    creator: string
+    creatorId: number
     date: string
     deleted: boolean
     id: number
@@ -58,6 +58,7 @@ export type typeObservation = {
 // new buildings section
 
 export type typeHTHBuilding = {
+    creatorId: number
     dateOfLastSharing: number
     hasCharacters: boolean
     hasContinuousNumbers: boolean

@@ -194,6 +194,25 @@ export const editHTHMapService = async (requesterUser: typeUser,
 //     return hthTerritories
 // }
 
+export const getHTHTerritoriesForMapService = async (requesterUser: typeUser): Promise<typeHTHTerritory[]|null> => {
+    if (!requesterUser) return null
+    const hthTerritories: typeHTHTerritory[]|null = await houseToHouseDbConnection.GetHTHTerritories()
+    if (!hthTerritories) return null
+    return hthTerritories.map(x => {
+        x.map.centerCoords = { lat: 0, lng: 0 }
+        x.map.lastEditor = ""
+        x.map.markers = []
+        if (x.map.polygons) x.map.polygons = x.map.polygons.map(y => {
+            y.buildings = []
+            y.doNotCalls = []
+            y.observations = []
+            return y
+        })
+        x.map.zoom = 0
+        return x
+    })
+}
+
 export const getHTHTerritoryService = async (requesterUser: typeUser, territoryNumber: typeTerritoryNumber): Promise<typeHTHTerritory|null> => {
     if (!territoryNumber) return null
     const hthTerritory: typeHTHTerritory|null = await getHTHTerritoryServiceWithoutPermissions(territoryNumber)

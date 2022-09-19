@@ -87,6 +87,12 @@ export const houseToHouseController: Router = express.Router()
         res.json({ success })
     })
 
+    // get territories for map
+    .get('/map/territory', async (req: Request, res: Response) => {
+        const hthTerritories: typeHTHTerritory[]|null = await hTHServices.getHTHTerritoriesForMapService(req.user)
+        return res.json({ success: !!hthTerritories, hthTerritories})
+    })
+
     // edit territory map
     .patch('/map/:territoryNumber', async (req: Request, res: Response) => {
         const editedHTHMap: typeHTHMap = req.body.editedHTHMap as typeHTHMap

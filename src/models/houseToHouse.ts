@@ -18,7 +18,7 @@ export type typeCoords = {
     lng: number
 }
 
-export type typeMarker = {
+type typeMarker = {
     id: number
     coords: typeCoords
 }
@@ -26,13 +26,16 @@ export type typeMarker = {
 export type typePolygon = {
     block: typeBlock
     buildings: typeHTHBuilding[]
+    completionData: {
+        completionDates: number[]
+        isFinished: boolean
+    }
     coordsPoint1: typeCoords
     coordsPoint2: typeCoords
     coordsPoint3: typeCoords
     doNotCalls: typeDoNotCall[]
     face: typeFace
     id: number
-    isFinished: boolean
     observations: typeObservation[]
     street: string
 }

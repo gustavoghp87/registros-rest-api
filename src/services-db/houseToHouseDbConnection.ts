@@ -224,10 +224,21 @@ export class HouseToHouseDb {
      block: typeBlock, face: typeFace, polygonId: number, isFinished: boolean): Promise<boolean> {
         try {
             if (!territoryNumber || !block || !face || isFinished === undefined || !polygonId) throw new Error("No llegaron datos")
+            if (isFinished) {
+                const result: UpdateResult = await getCollection().updateOne(
+                    { territoryNumber },
+                    {
+                        $set: { 'map.polygons.$[x].completionData.isFinished': isFinished },
+                        $addToSet: { 'map.polygons.$[x].completionData.completionDates': +new Date() }
+                    },
+                    { arrayFilters: [{ 'x.block': block, 'x.face': face, 'x.id': polygonId }] }
+                )
+                return !!result.modifiedCount
+            }
             const result: UpdateResult = await getCollection().updateOne(
                 { territoryNumber },
-                { $set: { 'map.polygons.$[x].isFinished': isFinished } },
-                { arrayFilters: [{ 'x.block': block, 'x.face': face, 'x.id': polygonId }]}
+                { $set: { 'map.polygons.$[x].completionData.isFinished': isFinished } },
+                { arrayFilters: [{ 'x.block': block, 'x.face': face, 'x.id': polygonId }] }
             )
             return !!result.modifiedCount
         } catch (error) {

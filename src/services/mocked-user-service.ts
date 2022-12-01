@@ -306,7 +306,10 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         ],
                         face: "A",
                         id: 1657563696007,
-                        isFinished: false,
+                        completionData: {
+                            completionDates: [1669900846000],
+                            isFinished: false
+                        },
                         observations: [
                             {
                                 creatorId: 1,
@@ -412,7 +415,10 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         doNotCalls: [],
                         face: "B",
                         id: 1657659482046,
-                        isFinished: true,
+                        completionData: {
+                            completionDates: [1669900846000],
+                            isFinished: true
+                        },
                         observations: [
                             {
                                 creatorId: 1,
@@ -520,7 +526,10 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         ],
                         face: "C",
                         id: 1657659646637,
-                        isFinished: false,
+                        completionData: {
+                            completionDates: [1669900846000],
+                            isFinished: false
+                        },
                         observations: [
                             {
                                 creatorId: 1,
@@ -619,7 +628,10 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         doNotCalls: [],
                         face: "D",
                         id: 1657735692516,
-                        isFinished: false,
+                        completionData: {
+                            completionDates: [1669900846000],
+                            isFinished: false
+                        },
                         observations: [
                             {
                                 creatorId: 1,
@@ -732,7 +744,10 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         doNotCalls: [],
                         face: "A",
                         id: 1657766647124,
-                        isFinished: false,
+                        completionData: {
+                            completionDates: [1669900846000],
+                            isFinished: false
+                        },
                         observations: [],
                         street: "Yerbal"
                     },
@@ -823,7 +838,10 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         doNotCalls: [],
                         face: "B",
                         id: 1657766688331,
-                        isFinished: true,
+                        completionData: {
+                            completionDates: [1669900846000],
+                            isFinished: true
+                        },
                         observations: [],
                         street: "Helguera"
                     },
@@ -914,7 +932,10 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         doNotCalls: [],
                         face: "C",
                         id: 1657808465215,
-                        isFinished: false,
+                        completionData: {
+                            completionDates: [1669900846000],
+                            isFinished: false
+                        },
                         observations: [],
                         street: "Av Rivadavia"
                     },
@@ -1005,7 +1026,10 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         doNotCalls: [],
                         face: "D",
                         id: 1657812818508,
-                        isFinished: false,
+                        completionData: {
+                            completionDates: [1669900846000],
+                            isFinished: false
+                        },
                         observations: [],
                         street: "Av Rivadavia"
                     },
@@ -1096,7 +1120,10 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         doNotCalls: [],
                         face: "A",
                         id: 1657813113307,
-                        isFinished: true,
+                        completionData: {
+                            completionDates: [1669900846000],
+                            isFinished: true
+                        },
                         observations: [],
                         street: "Yerbal"
                     },
@@ -1187,7 +1214,10 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         },
                         face: "B",
                         id: 1657824975187,
-                        isFinished: false,
+                        completionData: {
+                            completionDates: [1669900846000],
+                            isFinished: false
+                        },
                         observations: [],
                         street: "Argerich"
                     },
@@ -1278,7 +1308,10 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         doNotCalls: [],
                         face: "C",
                         id: 1657828465443,
-                        isFinished: false,
+                        completionData: {
+                            completionDates: [1669900846000],
+                            isFinished: false
+                        },
                         observations: [],
                         street: "Av Rivadavia"
                     },
@@ -1378,7 +1411,10 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         ],
                         face: "D",
                         id: 1657828650330,
-                        isFinished: false,
+                        completionData: {
+                            completionDates: [1669900846000],
+                            isFinished: false
+                        },
                         observations: [
                             {
                                 creatorId: 1,

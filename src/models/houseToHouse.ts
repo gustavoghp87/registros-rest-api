@@ -29,6 +29,7 @@ export type typePolygon = {
     completionData: {
         completionDates: number[]
         isFinished: boolean
+        reopeningDates: number[]
     }
     coordsPoint1: typeCoords
     coordsPoint2: typeCoords

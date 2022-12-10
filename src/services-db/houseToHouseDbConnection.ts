@@ -223,7 +223,8 @@ export class HouseToHouseDb {
     async SetHTHIsFinished(territoryNumber: typeTerritoryNumber,
      block: typeBlock, face: typeFace, polygonId: number, isFinished: boolean): Promise<boolean> {
         try {
-            if (!territoryNumber || !block || !face || isFinished === undefined || !polygonId) throw new Error("No llegaron datos")
+            if (!territoryNumber || !block || !face || isFinished === undefined || !polygonId)
+                throw new Error("No llegaron datos")
             if (isFinished) {
                 const result: UpdateResult = await getCollection().updateOne(
                     { territoryNumber },
@@ -234,13 +235,17 @@ export class HouseToHouseDb {
                     { arrayFilters: [{ 'x.block': block, 'x.face': face, 'x.id': polygonId }] }
                 )
                 return !!result.modifiedCount
+            } else {
+                const result: UpdateResult = await getCollection().updateOne(
+                    { territoryNumber },
+                    {
+                        $set: { 'map.polygons.$[x].completionData.isFinished': isFinished },
+                        $addToSet: { 'map.polygons.$[x].completionData.reopeningDates': +new Date() }
+                    },
+                    { arrayFilters: [{ 'x.block': block, 'x.face': face, 'x.id': polygonId }] }
+                )
+                return !!result.modifiedCount
             }
-            const result: UpdateResult = await getCollection().updateOne(
-                { territoryNumber },
-                { $set: { 'map.polygons.$[x].completionData.isFinished': isFinished } },
-                { arrayFilters: [{ 'x.block': block, 'x.face': face, 'x.id': polygonId }] }
-            )
-            return !!result.modifiedCount
         } catch (error) {
             logger.Add(`Falló SetHTHIsFinished() territorio ${territoryNumber} ${block} ${face} ${polygonId}: ${error}`, errorLogs)
             return false

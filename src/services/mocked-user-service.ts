@@ -308,7 +308,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         id: 1657563696007,
                         completionData: {
                             completionDates: [1669900846000],
-                            isFinished: false
+                            isFinished: false,
+                            reopeningDates: [1669900946000]
                         },
                         observations: [
                             {
@@ -417,7 +418,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         id: 1657659482046,
                         completionData: {
                             completionDates: [1669900846000],
-                            isFinished: true
+                            isFinished: true,
+                            reopeningDates: [1669900946000]
                         },
                         observations: [
                             {
@@ -528,7 +530,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         id: 1657659646637,
                         completionData: {
                             completionDates: [1669900846000],
-                            isFinished: false
+                            isFinished: false,
+                            reopeningDates: [1669900946000]
                         },
                         observations: [
                             {
@@ -630,7 +633,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         id: 1657735692516,
                         completionData: {
                             completionDates: [1669900846000],
-                            isFinished: false
+                            isFinished: false,
+                            reopeningDates: [1669900946000]
                         },
                         observations: [
                             {
@@ -746,7 +750,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         id: 1657766647124,
                         completionData: {
                             completionDates: [1669900846000],
-                            isFinished: false
+                            isFinished: false,
+                            reopeningDates: [1669900946000]
                         },
                         observations: [],
                         street: "Yerbal"
@@ -840,7 +845,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         id: 1657766688331,
                         completionData: {
                             completionDates: [1669900846000],
-                            isFinished: true
+                            isFinished: true,
+                            reopeningDates: [1669900946000]
                         },
                         observations: [],
                         street: "Helguera"
@@ -934,7 +940,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         id: 1657808465215,
                         completionData: {
                             completionDates: [1669900846000],
-                            isFinished: false
+                            isFinished: false,
+                            reopeningDates: [1669900946000]
                         },
                         observations: [],
                         street: "Av Rivadavia"
@@ -1028,7 +1035,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         id: 1657812818508,
                         completionData: {
                             completionDates: [1669900846000],
-                            isFinished: false
+                            isFinished: false,
+                            reopeningDates: [1669900946000]
                         },
                         observations: [],
                         street: "Av Rivadavia"
@@ -1122,7 +1130,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         id: 1657813113307,
                         completionData: {
                             completionDates: [1669900846000],
-                            isFinished: true
+                            isFinished: true,
+                            reopeningDates: [1669900946000]
                         },
                         observations: [],
                         street: "Yerbal"
@@ -1216,7 +1225,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         id: 1657824975187,
                         completionData: {
                             completionDates: [1669900846000],
-                            isFinished: false
+                            isFinished: false,
+                            reopeningDates: [1669900946000]
                         },
                         observations: [],
                         street: "Argerich"
@@ -1310,7 +1320,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         id: 1657828465443,
                         completionData: {
                             completionDates: [1669900846000],
-                            isFinished: false
+                            isFinished: false,
+                            reopeningDates: [1669900946000]
                         },
                         observations: [],
                         street: "Av Rivadavia"
@@ -1413,7 +1424,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                         id: 1657828650330,
                         completionData: {
                             completionDates: [1669900846000],
-                            isFinished: false
+                            isFinished: false,
+                            reopeningDates: [1669900946000]
                         },
                         observations: [
                             {

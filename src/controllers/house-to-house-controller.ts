@@ -81,9 +81,10 @@ export const houseToHouseController: Router = express.Router()
         const block: typeBlock = req.params.block as typeBlock
         const face: typeFace = req.params.face as typeFace
         const polygonId: number = req.body.polygonId
+        const isAll: boolean = req.body.isAll as boolean
         const isFinish: boolean = req.body.isFinish as boolean
         const territoryNumber: typeTerritoryNumber = req.params.territoryNumber as unknown as typeTerritoryNumber
-        const success: boolean = await hTHServices.setHTHIsFinishedService(req.user, territoryNumber, block, face, polygonId, isFinish)
+        const success: boolean = await hTHServices.setHTHIsFinishedService(req.user, territoryNumber, block, face, polygonId, isFinish, isAll)
         res.json({ success })
     })
 

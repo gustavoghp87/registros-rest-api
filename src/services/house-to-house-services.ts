@@ -89,8 +89,6 @@ export const addHTHPolygonFaceService = async (requesterUser: typeUser, territor
 export const changeStateToHTHHouseholdService = async (requesterUser: typeUser, territoryNumber: typeTerritoryNumber,
  block: typeBlock, face: typeFace, streetNumber: number, householdId: number, isChecked: boolean): Promise<boolean> => {
     // freed
-    console.log(territoryNumber, block, face, streetNumber, householdId, isChecked);
-    
     if (!territoryNumber || !block || !face || !householdId || typeof householdId !== 'number') return false
     isChecked = !!isChecked
     const success: boolean = await houseToHouseDbConnection.EditStateHTHHousehold(territoryNumber, block, face, streetNumber, householdId, isChecked)
@@ -248,13 +246,35 @@ export const getHTHStreetsByTerritoryService = async (requesterUser: typeUser, t
 }
 
 export const setHTHIsFinishedService = async (requesterUser: typeUser, territoryNumber: typeTerritoryNumber,
- block: typeBlock, face: typeFace, polygonId: number, isFinished: boolean): Promise<boolean> => {
+ block: typeBlock, face: typeFace, polygonId: number, isFinished: boolean, isAll: boolean): Promise<boolean> => {
     if (!requesterUser) return false
-    if (!territoryNumber || !block || !face || isFinished === undefined || !polygonId) return false
-    const success: boolean = await houseToHouseDbConnection.SetHTHIsFinished(territoryNumber, block, face, polygonId, isFinished)
-    if (success) logger.Add(`${requesterUser.email} ${isFinished ? "cerró" : "abrió"} territorio ${territoryNumber} manzana ${block} cara ${face}`, houseToHouseLogs)
-    else logger.Add(`${requesterUser.email} no pudo ${isFinished ? "cerrar" : "abrir"} territorio ${territoryNumber} manzana ${block} cara ${face}`, errorLogs)
-    return success
+    if (!territoryNumber || isFinished === undefined) return false
+    if (isAll) {
+        const territory = await getHTHTerritoryServiceWithoutPermissions(territoryNumber)
+        if (!territory) return false
+        let success: boolean = true
+        if (isFinished) {
+            territory.map.polygons.forEach(async x => {
+                if (x.completionData.isFinished) return
+                const success1: boolean = await houseToHouseDbConnection.SetHTHIsFinished(territoryNumber, x.block, x.face, x.id, true)
+                if (!success1) success = false
+            })
+        } else {
+            territory.map.polygons.forEach(async x => {
+                if (!x.completionData.isFinished) return
+                const success1: boolean = await houseToHouseDbConnection.SetHTHIsFinished(territoryNumber, x.block, x.face, x.id, false)
+                if (!success1) success = false
+            })
+        }
+        if (success) logger.Add(`${requesterUser.email} ${isFinished ? "cerró" : "abrió"} todo el territorio ${territoryNumber}`, houseToHouseLogs)
+        else logger.Add(`${requesterUser.email} no pudo ${isFinished ? "cerrar" : "abrir"} todo el territorio ${territoryNumber}`, errorLogs)
+        return success
+    } else {
+        const success: boolean = await houseToHouseDbConnection.SetHTHIsFinished(territoryNumber, block, face, polygonId, isFinished)
+        if (success) logger.Add(`${requesterUser.email} ${isFinished ? "cerró" : "abrió"} territorio ${territoryNumber} manzana ${block} cara ${face}`, houseToHouseLogs)
+        else logger.Add(`${requesterUser.email} no pudo ${isFinished ? "cerrar" : "abrir"} territorio ${territoryNumber} manzana ${block} cara ${face}`, errorLogs)
+        return success
+    }
 }
 
 export const setHTHIsSharedBuildingsService = async (requesterUser: typeUser, territoryNumber: typeTerritoryNumber,

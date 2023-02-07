@@ -72,6 +72,7 @@ export const getTelephonicLocalStatisticsService = async (requesterUser: typeUse
             numberOf_NoLlamar: 0,
             numberOf_FreePhones: 0,
             numberOfHouseholds: 0,
+            stateOfTerritory: { isFinished: false, resetDates: [] },
             territoryNumber: (i + 1).toString() as typeTerritoryNumber
         }
         telephonicTerritories[i].households.forEach(x => {
@@ -83,6 +84,7 @@ export const getTelephonicLocalStatisticsService = async (requesterUser: typeUse
             else if (x.callingState === 'No llamar' && !x.notSubscribed) localStatistics.numberOf_NoLlamar++
             if (x.notSubscribed) localStatistics.numberOf_NoAbonado++
         })
+        localStatistics.stateOfTerritory = telephonicTerritories[i].stateOfTerritory
         telephonicLocalStatistics.push(localStatistics)
     }
     return telephonicLocalStatistics

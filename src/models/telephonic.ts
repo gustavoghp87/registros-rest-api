@@ -5,7 +5,7 @@ export type typeCallingState = "No predicado" | "No contestó" | "Contestó" | "
 export type typeTelephonicTerritory = {
     households: typeHousehold[]
     mapId: string
-    stateOfTerritory: typeStateOfTerritory
+    stateOfTerritory: typeStateOfTelephonicTerritory
     territoryNumber: typeTerritoryNumber
 }
 
@@ -23,7 +23,7 @@ export type typeHousehold = {
     streetNumber: number
 }
 
-type typeStateOfTerritory = {
+type typeStateOfTelephonicTerritory = {
     isFinished: boolean
     resetDates: typeResetDate[]
 }
@@ -47,5 +47,6 @@ export type typeTelephonicStatistic = {
 
 export interface typeLocalTelephonicStatistic extends typeTelephonicStatistic {
     isFinished: boolean
+    stateOfTerritory: typeStateOfTelephonicTerritory
     territoryNumber: typeTerritoryNumber
 }

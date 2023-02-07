@@ -5,24 +5,23 @@ import { typeCongregationItem, typeUser } from '../models'
 
 export const getCongregationItems = async (requesterUser: typeUser): Promise<typeCongregationItem[]|null> => {
     if (!requesterUser) return null
-    const siteUrl: string = 'https://sites.google.com' + googleSiteUrl
+    const siteUrl: string = 'https://sites.google.com'
     try {
-        const { data } = await Axios.get(siteUrl)
+        const { data } = await Axios.get(siteUrl + googleSiteUrl)
         const items: string[] = []
-        const urlElements: string[] = data.split('href="' + googleSiteUrl)
-        urlElements.shift()
-        urlElements.forEach(x => {
-            const item: string = x.split('"')[0]
-            if (item !== 'inicio' && !items.includes(item)) items.push(item)
-        })
-        let congregationItems: typeCongregationItem[] = []
+        const urlElements: string[] = data.split('data-url="')
+        urlElements.forEach(x => items.push(x.split('"')[0]))
+        items.shift()
+        items.shift()
         const promisesArray: any[] = []
         for (let i = 0; i < items.length; i++) {
             promisesArray.push(new Promise(async (resolve, reject) => {
                 try {
                     const { data } = await Axios.get(siteUrl + items[i])
-                    const titleElements: string[] = data.split('</h2>')[0].split('>')
-                    const title: string = titleElements[titleElements.length - 1]
+                    // const titleElements: string[] = data.split('</h2>')[0].split('>')
+                    // const title: string = titleElements[titleElements.length - 1]
+                    let title: string = items[i].split('/')[3].replace('-', ' ').replace('-', ' ').replace('-', ' ')
+                    title = title.charAt(0).toUpperCase() + title.slice(1);
                     let ids: string[] = data.split('data-embed-doc-id="')
                     ids.shift()
                     ids = ids.map(x => x.split('"')[0])
@@ -36,7 +35,7 @@ export const getCongregationItems = async (requesterUser: typeUser): Promise<typ
                 }
             }))
         }
-        congregationItems = await Promise.all(promisesArray)
+        const congregationItems: typeCongregationItem[] = await Promise.all(promisesArray)
         return congregationItems
     } catch (error) {
         logger.Add(`Falló la conexión con el sitio Google de los PDF: ${error}`, 'ErrorLogs')

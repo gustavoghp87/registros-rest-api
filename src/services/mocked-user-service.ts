@@ -1460,6 +1460,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
             numberOf_NoLlamar: 100,
             numberOfHouseholds: 5401,
             isFinished: false,
+            stateOfTerritory: { isFinished: false, resetDates: [] },
             territoryNumber: '1'
         }],
         modifiedCount: 1,

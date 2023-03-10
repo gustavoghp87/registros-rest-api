@@ -128,7 +128,7 @@ export class UserDb {
     }
     async GetAllUsers(): Promise<typeUser[]|null> {
         try {
-            const users: typeUser[] = await getCollection().find().toArray() as typeUser[]
+            const users: typeUser[] = await getCollection().find().toArray() as unknown as typeUser[]
             return users
         } catch (error) {
             logger.Add(`Falló GetAllUsers(): ${error}`, errorLogs)
@@ -137,7 +137,7 @@ export class UserDb {
     }
     async GetUserByEmail(email: string): Promise<typeUser|null> {
         try {
-            const user: typeUser|null = await getCollection().findOne({ email }) as typeUser
+            const user: typeUser|null = await getCollection().findOne({ email }) as unknown as typeUser
             if (!user) return null
             return user
         } catch (error) {
@@ -147,7 +147,7 @@ export class UserDb {
     }
     async GetUserById(id: number): Promise<typeUser|null> {
         try {
-            const user: typeUser|null = await getCollection().findOne({ id }) as typeUser
+            const user: typeUser|null = await getCollection().findOne({ id }) as unknown as typeUser
             return user
         } catch (error) {
             logger.Add(`Falló GetUserById() ${id}: ${error}`, errorLogs)

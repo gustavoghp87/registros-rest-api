@@ -203,7 +203,7 @@ export class HouseToHouseDb {
     }
     async GetHTHTerritories(): Promise<typeHTHTerritory[]|null> {
         try {
-            const hthTerritories: typeHTHTerritory[] = await getCollection().find()?.toArray() as typeHTHTerritory[]
+            const hthTerritories: typeHTHTerritory[] = await getCollection().find()?.toArray() as unknown as typeHTHTerritory[]
             return hthTerritories ?? null
         } catch (error) {
             logger.Add(`Falló GetHTHTerritories()`, errorLogs)
@@ -213,7 +213,7 @@ export class HouseToHouseDb {
     async GetHTHTerritory(territoryNumber: typeTerritoryNumber): Promise<typeHTHTerritory|null> {
         try {
             if (!territoryNumber) throw new Error("No llegó territorio")
-            const hthTerritory: typeHTHTerritory = await getCollection().findOne({ territoryNumber }) as typeHTHTerritory
+            const hthTerritory: typeHTHTerritory = await getCollection().findOne({ territoryNumber }) as unknown as typeHTHTerritory
             return hthTerritory ?? null
         } catch (error) {
             logger.Add(`Falló GetHTHTerritory() territorio ${territoryNumber}`, errorLogs)

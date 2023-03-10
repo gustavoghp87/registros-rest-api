@@ -18,7 +18,7 @@ export class CampaignDb {
                 ]},
                 { $set: { assignedTo: email }
             })
-            const pack: typeCampaignPack = await getCollection().findOne({ assignedTo: email }) as typeCampaignPack
+            const pack: typeCampaignPack = await getCollection().findOne({ assignedTo: email }) as Document as typeCampaignPack
             return pack?.id
         } catch (error) {
             logger.Add(`Falló AskForANewCampaignPack() ${email}: ${error}`, errorLogs)
@@ -80,7 +80,7 @@ export class CampaignDb {
     async GetCampaignPackById(id: number): Promise<typeCampaignPack|null> {
         if (!id) return null
         try {
-            const pack: typeCampaignPack = await getCollection().findOne({ id }) as typeCampaignPack
+            const pack: typeCampaignPack = await getCollection().findOne({ id }) as Document as typeCampaignPack
             return pack ?? null
         } catch (error) {
             logger.Add(`Falló GetCampaignPackById() id ${id}: ${error}`, errorLogs)
@@ -89,7 +89,7 @@ export class CampaignDb {
     }
     async GetCampaignPacks(): Promise<typeCampaignPack[]|null> {
         try {
-            const packs: typeCampaignPack[]|null = await getCollection().find().toArray() as typeCampaignPack[]
+            const packs: typeCampaignPack[]|null = await getCollection().find().toArray() as Document as typeCampaignPack[]
             return packs ?? null
         } catch (error) {
             logger.Add(`Falló GetCampaignPacks(): ${error}`, errorLogs)
@@ -99,7 +99,7 @@ export class CampaignDb {
     async GetCampaignPacksByUser(userEmail: string): Promise<typeCampaignPack[]|null> {
         if (!userEmail) return null
         try {
-            const packs: typeCampaignPack[]|null = await getCollection().find({ assignedTo: userEmail }).toArray() as typeCampaignPack[]
+            const packs: typeCampaignPack[]|null = await getCollection().find({ assignedTo: userEmail }).toArray() as Document as typeCampaignPack[]
             return packs ?? null
         } catch (error) {
             logger.Add(`Falló GetCampaignPacksByUser() usuario ${userEmail}: ${error}`, errorLogs)

@@ -1,6 +1,6 @@
 import express, { Request, Response, Router } from 'express'
 import * as territoryServices from '../services/telephonic-services'
-import { typeHousehold, typeTerritoryNumber, typeTelephonicTerritory, typeLocalTelephonicStatistic, typeTelephonicStatistic } from '../models'
+import { typeHousehold, typeTerritoryNumber, typeTelephonicTerritory, typeLocalTelephonicStatistic, typeTelephonicStatistic, typeTerritoryRow } from '../models'
 
 export const telephonicController: Router = express.Router()
 
@@ -45,5 +45,11 @@ export const telephonicController: Router = express.Router()
     .get('/statistic/global', async (req: Request, res: Response) => {
         const globalStatistics: typeTelephonicStatistic|null = await territoryServices.getTelephonicGlobalStatisticsService(req.user)
         res.json({ success: !!globalStatistics, globalStatistics })
+    })
+
+    // get territories table data
+    .get('/statistics/table', async (req: Request, res: Response) => {
+        const territoriesTableData: typeTerritoryRow[]|null = await territoryServices.getTelephonicStatisticsTableDataService(req.user)
+        res.json({ success: !!territoriesTableData, territoriesTableData })
     })
 ;

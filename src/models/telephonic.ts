@@ -50,3 +50,13 @@ export interface typeLocalTelephonicStatistic extends typeTelephonicStatistic {
     stateOfTerritory: typeStateOfTelephonicTerritory
     territoryNumber: typeTerritoryNumber
 }
+
+export type typeTerritoryRow = {
+    territoryNumber: number
+    assigned: string[]
+    opened: boolean
+    left: number
+    total: number
+    leftRel: string
+    last: string
+}

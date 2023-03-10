@@ -22,7 +22,7 @@ export class WeatherDb {
     }
     async GetWeatherAndForecast(): Promise<{ weather?: typeWeatherResponse, forecast?: typeForecastResponse, date?: number }|null> {
         try {
-            const weatherAndForecast = await getCollection().findOne() as { weather: typeWeatherResponse, forecast: typeForecastResponse, date: number }
+            const weatherAndForecast = await getCollection().findOne() as unknown as { weather: typeWeatherResponse, forecast: typeForecastResponse, date: number }
             if (!weatherAndForecast) throw new Error("No se pudo leer documento")
             return {
                 weather: weatherAndForecast.weather,

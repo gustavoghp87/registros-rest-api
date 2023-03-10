@@ -24,7 +24,7 @@ export class TelephonicDb {
     }
     async GetAllTelephonicTerritories(): Promise<typeTelephonicTerritory[]|null> {
         try {
-            const phoneTerritories = await getCollection().find().toArray() as typeTelephonicTerritory[]
+            const phoneTerritories = await getCollection().find().toArray() as unknown as typeTelephonicTerritory[]
             return phoneTerritories
         } catch (error) {
             logger.Add(`Falló GetAllHouseholds(): ${error}`, errorLogs)
@@ -35,7 +35,7 @@ export class TelephonicDb {
         try {
             const telephonicTerritory = await getCollection().findOne(
                 { territoryNumber }
-            ) as typeTelephonicTerritory
+            ) as unknown as typeTelephonicTerritory
             return telephonicTerritory.households.find(x => x.householdId === householdId) || null    // ...
         } catch (error) {
             logger.Add(`Falló GetHouseholdById(): ${error}`, errorLogs)
@@ -44,7 +44,7 @@ export class TelephonicDb {
     }
     async GetTerritory(territoryNumber: string): Promise<typeTelephonicTerritory|null> {
         try {
-            const telephonicTerritory = await getCollection().findOne({ territoryNumber }) as typeTelephonicTerritory
+            const telephonicTerritory = await getCollection().findOne({ territoryNumber }) as unknown as typeTelephonicTerritory
             return telephonicTerritory
         } catch (error) {
             logger.Add(`Falló GetTerritory() territorio ${territoryNumber}: ${error}`, errorLogs)

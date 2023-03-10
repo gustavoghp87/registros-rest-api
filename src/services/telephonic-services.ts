@@ -1,8 +1,8 @@
 import { logger } from '../server'
-import { deallocateMyTLPTerritoryService } from './user-services'
+import { deallocateMyTLPTerritoryService, getUsersNotAuthService } from './user-services'
 import { errorLogs, telephonicLogs, telephonicStateLogs } from './log-services'
 import { TelephonicDb } from '../services-db/telephonicDbConnection'
-import { typeCallingState, typeHousehold, typeLocalTelephonicStatistic, typeTelephonicStatistic, typeTelephonicTerritory, typeTerritoryNumber, typeUser } from '../models'
+import { typeCallingState, typeHousehold, typeLocalTelephonicStatistic, typeTelephonicStatistic, typeTelephonicTerritory, typeTerritoryNumber, typeTerritoryRow, typeUser } from '../models'
 import { filterHouses, isTerritoryAssignedToUserService } from './helpers'
 
 const telephonicDbConnection: TelephonicDb = new TelephonicDb()
@@ -22,7 +22,7 @@ export const changeStateOfTerritoryService = async (
     return true
 }
 
-export const getAllTelephonicTerritoriesService = async (): Promise<typeTelephonicTerritory[]|null> => {
+export const getAllTelephonicTerritoriesNotAuthService = async (): Promise<typeTelephonicTerritory[]|null> => {
     // without permission filter / 
     const phoneTerritories: typeTelephonicTerritory[]|null = await telephonicDbConnection.GetAllTelephonicTerritories()
     return phoneTerritories
@@ -88,6 +88,39 @@ export const getTelephonicLocalStatisticsService = async (requesterUser: typeUse
         telephonicLocalStatistics.push(localStatistics)
     }
     return telephonicLocalStatistics
+}
+
+export const getTelephonicStatisticsTableDataService = async (requesterUser: typeUser): Promise<typeTerritoryRow[]|null> => {
+    if (!requesterUser || requesterUser.role !== 1) return null
+    const territories = await getAllTelephonicTerritoriesNotAuthService()
+    const users = await getUsersNotAuthService()
+    if (!territories || !users) return null
+    let territoriesTableData: typeTerritoryRow[] = []
+    territories.forEach(t => {
+        const left = t.households.filter(x => x.doorBell && x.callingState === 'No predicado' && !x.notSubscribed).length
+        const total = t.households.filter(x => x.doorBell).length
+        const leftRel = total === 0 ? '-' : (left/total * 100).toFixed(1) + '%'
+        const lastDate = new Date(t.households.reduce((a, b) => a.dateOfLastCall > b.dateOfLastCall ? a : b)?.dateOfLastCall)
+        const last = `${lastDate.getFullYear()}-${('0' + (lastDate.getMonth() + 1)).slice(-2)}-${('0' + lastDate.getDate()).slice(-2)}`
+        let row: typeTerritoryRow = {
+            territoryNumber: parseInt(t.territoryNumber),
+            assigned: [],
+            opened: !t.stateOfTerritory.isFinished,
+            left,
+            total,
+            leftRel,
+            last
+        }
+        territoriesTableData.push(row)
+    })
+    users.forEach(u => {
+        if (u.phoneAssignments?.length) {
+            u.phoneAssignments.forEach(a => {
+                territoriesTableData[a - 1]?.assigned.push(u.email)
+            })
+        }
+    })
+    return territoriesTableData
 }
 
 export const getTerritoryStreetsService = async (territoryNumber: typeTerritoryNumber): Promise<string[]|null> => {

@@ -34,7 +34,7 @@ export class LogDb {
     }
     async Get(type: typeLogType): Promise<typeLogsPackage|null> {
         try {
-            const logs: typeLogsPackage = await getCollection().findOne({ type }) as typeLogsPackage
+            const logs: typeLogsPackage = await getCollection().findOne({ type }) as unknown as typeLogsPackage
             return logs
         } catch (error) {
             logger.Add(`Falló Get() logs ${type}: ${error}`, errorLogs)
@@ -43,14 +43,14 @@ export class LogDb {
     }
     async GetAll(): Promise<typeAllLogsObj|null> {
         try {
-            const campaignLogs: typeLogsPackage = await getCollection().findOne({ type: this.CampaignLogs }) as typeLogsPackage
-            const errorLogs: typeLogsPackage = await getCollection().findOne({ type: this.ErrorLogs }) as typeLogsPackage
-            const houseToHouseAdminLogs: typeLogsPackage = await getCollection().findOne({ type: this.HouseToHouseAdminLogs }) as typeLogsPackage
-            const houseToHouseLogs: typeLogsPackage = await getCollection().findOne({ type: this.HouseToHouseLogs }) as typeLogsPackage
-            const loginLogs: typeLogsPackage = await getCollection().findOne({ type: this.LoginLogs }) as typeLogsPackage
-            const telephonicLogs: typeLogsPackage = await getCollection().findOne({ type: this.TelephonicLogs }) as typeLogsPackage
-            const telephonicStateLogs: typeLogsPackage = await getCollection().findOne({ type: this.TelephonicStateLogs }) as typeLogsPackage
-            const userLogs: typeLogsPackage = await getCollection().findOne({ type: this.UserLogs }) as typeLogsPackage
+            const campaignLogs: typeLogsPackage = await getCollection().findOne({ type: this.CampaignLogs }) as unknown as typeLogsPackage
+            const errorLogs: typeLogsPackage = await getCollection().findOne({ type: this.ErrorLogs }) as unknown as typeLogsPackage
+            const houseToHouseAdminLogs: typeLogsPackage = await getCollection().findOne({ type: this.HouseToHouseAdminLogs }) as unknown as typeLogsPackage
+            const houseToHouseLogs: typeLogsPackage = await getCollection().findOne({ type: this.HouseToHouseLogs }) as unknown as typeLogsPackage
+            const loginLogs: typeLogsPackage = await getCollection().findOne({ type: this.LoginLogs }) as unknown as typeLogsPackage
+            const telephonicLogs: typeLogsPackage = await getCollection().findOne({ type: this.TelephonicLogs }) as unknown as typeLogsPackage
+            const telephonicStateLogs: typeLogsPackage = await getCollection().findOne({ type: this.TelephonicStateLogs }) as unknown as typeLogsPackage
+            const userLogs: typeLogsPackage = await getCollection().findOne({ type: this.UserLogs }) as unknown as typeLogsPackage
             return {
                 campaignLogs,
                 errorLogs,

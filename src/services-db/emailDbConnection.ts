@@ -9,7 +9,7 @@ const getCollection = () => dbClient.Client.db(dbClient.DbMW).collection(dbClien
 export class EmailDb {
     async GetEmailLastTime(): Promise<number|null> {
         try {
-            const lastEmailObj: typeEmailObj = await getCollection().findOne() as typeEmailObj
+            const lastEmailObj: typeEmailObj = await getCollection().findOne() as unknown as typeEmailObj
             if (!lastEmailObj) throw new Error("No se pudo leer documento")
             if (!lastEmailObj.lastEmailDate) throw new Error("No está la fecha")
             return lastEmailObj.lastEmailDate
@@ -20,7 +20,7 @@ export class EmailDb {
     }
     async GetEmailObject(): Promise<typeEmailObj|null> {
         try {
-            const lastEmailObj: typeEmailObj = await getCollection().findOne() as typeEmailObj
+            const lastEmailObj: typeEmailObj = await getCollection().findOne() as unknown as typeEmailObj
             if (!lastEmailObj) throw new Error("No se pudo leer documento")
             return lastEmailObj
         } catch (error) {
@@ -30,7 +30,7 @@ export class EmailDb {
     }
     async GetGmailTokens(): Promise<Credentials|null> {
         try {
-            const lastEmailObj: typeEmailObj = await getCollection().findOne() as typeEmailObj
+            const lastEmailObj: typeEmailObj = await getCollection().findOne() as unknown as typeEmailObj
             if (!lastEmailObj) throw new Error("No se pudo leer documento")
             return {
                 access_token: lastEmailObj.accessToken,

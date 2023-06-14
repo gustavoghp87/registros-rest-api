@@ -1,5 +1,6 @@
 FROM node:16-alpine
 ENV NODE_ENV=production
+ENV PORT 8080
 RUN apk update
 WORKDIR /app
 COPY package*.json ./

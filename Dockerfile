@@ -1,10 +1,12 @@
 FROM node:16-alpine
 ENV NODE_ENV=production
+RUN apk update
 WORKDIR /app
-COPY ["package.json", "package-lock.json*", "./"]
-RUN npm install --production
+COPY package*.json ./
+COPY tsconfig.json ./
 COPY . .
-RUN npm install --save-dev typescript ts-node
+RUN ls -a
+RUN npm install
 RUN npm run build
-EXPOSE 8080
-CMD [ "ts-node", "dist/index.js" ]
+# EXPOSE 8080
+CMD [ "node", "./build/server.js" ]

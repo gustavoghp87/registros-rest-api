@@ -1,0 +1,24 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.yourEmail = exports.refresh_token = exports.project_id = exports.privateKey = exports.port = exports.openWeatherToken = exports.myEmail = exports.jwtString = exports.googleSiteUrl = exports.googleGeocodingAPIKey = exports.environment = exports.databaseUrl = exports.client_secret = exports.client_id = exports.bcryptSalt = exports.access_token = void 0;
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+exports.access_token = process.env.ACCESS_TOKEN || '';
+exports.bcryptSalt = process.env.BCRYPTSALT || '12';
+exports.client_id = process.env.CLIENT_ID || '';
+exports.client_secret = process.env.CLIENT_SECRET || '';
+exports.databaseUrl = process.env.DB_URL || '';
+exports.environment = process.env.ENVIRONMENT || 'dev';
+exports.googleGeocodingAPIKey = process.env.GOOGLE_GEOCODING_CREDENTIAL || '';
+exports.googleSiteUrl = process.env.GOOGLE_SITE_URL || '';
+exports.jwtString = process.env.STRING_JWT || 'ñmksdfpsdmfbpmfbdf651sdfsdsdASagsdASDG354fab2sdf';
+exports.myEmail = process.env.MYEMAIL || '';
+exports.openWeatherToken = process.env.OPEN_WEATHER_TOKEN || '';
+exports.port = process.env.PORT || '4005';
+exports.privateKey = process.env.RECAPTCHA_SECRET || '';
+exports.project_id = process.env.PROJECT_ID || '';
+exports.refresh_token = process.env.REFRESH_TOKEN || '';
+exports.yourEmail = process.env.YOUREMAIL || '';

@@ -1,7 +1,10 @@
-FROM node:9.7.1
-WORKDIR /usr/src/app
-COPY package*.json ./
-RUN npm install
+FROM node:16-alpine
+ENV NODE_ENV=production
+WORKDIR /app
+COPY ["package.json", "package-lock.json*", "./"]
+RUN npm install --production
 COPY . .
-RUN npm run tsc
-CMD ["npm", "start"]
+RUN npm install --save-dev typescript ts-node
+RUN npm run build
+EXPOSE 8080
+CMD [ "ts-node", "dist/index.js" ]

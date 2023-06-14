@@ -94,6 +94,17 @@ export const getTelephonicStatisticsTableDataService = async (requesterUser: typ
     if (!requesterUser || requesterUser.role !== 1) return null
     const territories = await getAllTelephonicTerritoriesNotAuthService()
     const users = await getUsersNotAuthService()
+    // let territoriesTableData: typeTerritoryRow[] = []
+    // const promisesArray: any[] = []
+    // promisesArray.push(new Promise(async (resolve, reject) => {
+    //     const territories = await getAllTelephonicTerritoriesNotAuthService()
+    //     resolve(territories)
+    // }))
+    // promisesArray.push(new Promise(async (resolve, reject) => {
+    //     const users = await getUsersNotAuthService()
+    //     resolve(users)
+    // }))
+    // const [territories, users] = await Promise.all(promisesArray) as [typeTelephonicTerritory[], typeUser[]]
     if (!territories || !users) return null
     let territoriesTableData: typeTerritoryRow[] = []
     territories.forEach(t => {

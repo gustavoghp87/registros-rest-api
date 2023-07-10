@@ -50,6 +50,7 @@ export const telephonicController: Router = express.Router()
     // get territories table data
     .get('/statistics/table', async (req: Request, res: Response) => {
         const territoriesTableData: typeTerritoryRow[]|null = await territoryServices.getTelephonicStatisticsTableDataService(req.user)
+        console.log("Response table:", territoriesTableData?.length);
         res.json({ success: !!territoriesTableData, territoriesTableData })
     })
 ;

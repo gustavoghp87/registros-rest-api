@@ -112,7 +112,9 @@ const getTelephonicStatisticsTableDataService = async (requesterUser) => {
     if (!requesterUser || requesterUser.role !== 1)
         return null;
     const territories = await (0, exports.getAllTelephonicTerritoriesNotAuthService)();
+    console.log("Territories OK", territories === null || territories === void 0 ? void 0 : territories.length);
     const users = await (0, user_services_1.getUsersNotAuthService)();
+    console.log("Users OK", users === null || users === void 0 ? void 0 : users.length);
     // let territoriesTableData: typeTerritoryRow[] = []
     // const promisesArray: any[] = []
     // promisesArray.push(new Promise(async (resolve, reject) => {
@@ -145,6 +147,7 @@ const getTelephonicStatisticsTableDataService = async (requesterUser) => {
         };
         territoriesTableData.push(row);
     });
+    console.log("Foreach1");
     users.forEach(u => {
         var _a;
         if ((_a = u.phoneAssignments) === null || _a === void 0 ? void 0 : _a.length) {
@@ -154,6 +157,7 @@ const getTelephonicStatisticsTableDataService = async (requesterUser) => {
             });
         }
     });
+    console.log("Foreach2", territoriesTableData === null || territoriesTableData === void 0 ? void 0 : territoriesTableData.length);
     return territoriesTableData;
 };
 exports.getTelephonicStatisticsTableDataService = getTelephonicStatisticsTableDataService;

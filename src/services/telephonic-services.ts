@@ -93,7 +93,9 @@ export const getTelephonicLocalStatisticsService = async (requesterUser: typeUse
 export const getTelephonicStatisticsTableDataService = async (requesterUser: typeUser): Promise<typeTerritoryRow[]|null> => {
     if (!requesterUser || requesterUser.role !== 1) return null
     const territories = await getAllTelephonicTerritoriesNotAuthService()
+    console.log("Territories OK", territories?.length)
     const users = await getUsersNotAuthService()
+    console.log("Users OK", users?.length)
     // let territoriesTableData: typeTerritoryRow[] = []
     // const promisesArray: any[] = []
     // promisesArray.push(new Promise(async (resolve, reject) => {
@@ -124,6 +126,7 @@ export const getTelephonicStatisticsTableDataService = async (requesterUser: typ
         }
         territoriesTableData.push(row)
     })
+    console.log("Foreach1");
     users.forEach(u => {
         if (u.phoneAssignments?.length) {
             u.phoneAssignments.forEach(a => {
@@ -131,6 +134,7 @@ export const getTelephonicStatisticsTableDataService = async (requesterUser: typ
             })
         }
     })
+    console.log("Foreach2", territoriesTableData?.length);
     return territoriesTableData
 }
 

@@ -126,7 +126,7 @@ export const getTelephonicStatisticsTableDataService = async (requesterUser: typ
         }
         territoriesTableData.push(row)
     })
-    territoriesTableData.sort((a, b) => a.territoryNumber - b.territoryNumber)
+    territoriesTableData = territoriesTableData.sort((a, b) => a.territoryNumber - b.territoryNumber)
     console.log("Foreach1");
     users.forEach(u => {
         if (u.phoneAssignments?.length) {

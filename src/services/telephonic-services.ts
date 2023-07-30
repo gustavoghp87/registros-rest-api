@@ -126,17 +126,17 @@ export const getTelephonicStatisticsTableDataService = async (requesterUser: typ
         }
         territoriesTableData.push(row)
     })
-    territoriesTableData = territoriesTableData.sort((a, b) => a.territoryNumber - b.territoryNumber)
+    const territoriesTableData1 = [...territoriesTableData].sort((a, b) => a.territoryNumber - b.territoryNumber)
     console.log("Foreach1");
     users.forEach(u => {
         if (u.phoneAssignments?.length) {
             u.phoneAssignments.forEach(a => {
-                territoriesTableData[a - 1]?.assigned.push(u.email)
+                territoriesTableData1[a - 1]?.assigned.push(u.email)
             })
         }
     })
-    console.log("Foreach2", territoriesTableData?.length);
-    return territoriesTableData
+    console.log("Foreach2", territoriesTableData1?.length);
+    return territoriesTableData1
 }
 
 export const getTerritoryStreetsService = async (territoryNumber: typeTerritoryNumber): Promise<string[]|null> => {

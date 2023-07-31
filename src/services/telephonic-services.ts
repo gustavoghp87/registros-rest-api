@@ -110,12 +110,12 @@ export const getTelephonicStatisticsTableDataService = async (requesterUser: typ
     if (!territories || !users) return null
     let territoriesTableData: typeTerritoryRow[] = []
     territories.forEach(t => {
-        const left = t.households.filter(x => x.doorBell && x.callingState === 'No predicado' && !x.notSubscribed).length
-        const total = t.households.filter(x => x.doorBell).length
+        const left = { ...t }.households.filter(x => x.doorBell && x.callingState === 'No predicado' && !x.notSubscribed).length
+        const total = { ...t }.households.filter(x => x.doorBell).length
         const leftRel = total === 0 ? '-' : (left/total * 100).toFixed(1) + '%'
-        const lastDate = new Date(t.households.reduce((a, b) => a.dateOfLastCall > b.dateOfLastCall ? a : b)?.dateOfLastCall)
+        const lastDate = new Date({ ...t }.households.reduce((a, b) => a.dateOfLastCall > b.dateOfLastCall ? a : b)?.dateOfLastCall)
         const last = `${lastDate.getFullYear()}-${('0' + (lastDate.getMonth() + 1)).slice(-2)}-${('0' + lastDate.getDate()).slice(-2)}`
-        let row: typeTerritoryRow = {
+        const row: typeTerritoryRow = {
             territoryNumber: parseInt(t.territoryNumber),
             assigned: [],
             opened: !t.stateOfTerritory.isFinished,
@@ -131,7 +131,7 @@ export const getTelephonicStatisticsTableDataService = async (requesterUser: typ
     users.forEach(u => {
         if (u.phoneAssignments?.length) {
             u.phoneAssignments.forEach(a => {
-                territoriesTableData1[a - 1]?.assigned.push(u.email)
+                territoriesTableData1.find(x => x.territoryNumber === a)?.assigned.push(u.email)
             })
         }
     })

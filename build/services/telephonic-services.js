@@ -131,12 +131,12 @@ const getTelephonicStatisticsTableDataService = async (requesterUser) => {
     let territoriesTableData = [];
     territories.forEach(t => {
         var _a;
-        const left = t.households.filter(x => x.doorBell && x.callingState === 'No predicado' && !x.notSubscribed).length;
-        const total = t.households.filter(x => x.doorBell).length;
+        const left = { ...t }.households.filter(x => x.doorBell && x.callingState === 'No predicado' && !x.notSubscribed).length;
+        const total = { ...t }.households.filter(x => x.doorBell).length;
         const leftRel = total === 0 ? '-' : (left / total * 100).toFixed(1) + '%';
-        const lastDate = new Date((_a = t.households.reduce((a, b) => a.dateOfLastCall > b.dateOfLastCall ? a : b)) === null || _a === void 0 ? void 0 : _a.dateOfLastCall);
+        const lastDate = new Date((_a = { ...t }.households.reduce((a, b) => a.dateOfLastCall > b.dateOfLastCall ? a : b)) === null || _a === void 0 ? void 0 : _a.dateOfLastCall);
         const last = `${lastDate.getFullYear()}-${('0' + (lastDate.getMonth() + 1)).slice(-2)}-${('0' + lastDate.getDate()).slice(-2)}`;
-        let row = {
+        const row = {
             territoryNumber: parseInt(t.territoryNumber),
             assigned: [],
             opened: !t.stateOfTerritory.isFinished,
@@ -147,18 +147,19 @@ const getTelephonicStatisticsTableDataService = async (requesterUser) => {
         };
         territoriesTableData.push(row);
     });
+    const territoriesTableData1 = [...territoriesTableData].sort((a, b) => a.territoryNumber - b.territoryNumber);
     console.log("Foreach1");
     users.forEach(u => {
         var _a;
         if ((_a = u.phoneAssignments) === null || _a === void 0 ? void 0 : _a.length) {
             u.phoneAssignments.forEach(a => {
                 var _a;
-                (_a = territoriesTableData[a - 1]) === null || _a === void 0 ? void 0 : _a.assigned.push(u.email);
+                (_a = territoriesTableData1.find(x => x.territoryNumber === a)) === null || _a === void 0 ? void 0 : _a.assigned.push(u.email);
             });
         }
     });
-    console.log("Foreach2", territoriesTableData === null || territoriesTableData === void 0 ? void 0 : territoriesTableData.length);
-    return territoriesTableData;
+    console.log("Foreach2", territoriesTableData1 === null || territoriesTableData1 === void 0 ? void 0 : territoriesTableData1.length);
+    return territoriesTableData1;
 };
 exports.getTelephonicStatisticsTableDataService = getTelephonicStatisticsTableDataService;
 const getTerritoryStreetsService = async (territoryNumber) => {

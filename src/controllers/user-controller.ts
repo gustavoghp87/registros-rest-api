@@ -54,11 +54,10 @@ export const userController: Router = express.Router()
         res.json({ success: true, user })
     })
 
-    // recover account by a link in email box
+    // send recover account link by email
     .patch('/', async (req: Request, res: Response) => {
         const email: string = req.body.email || ""
-        const congregationString: string = req.body.team || ""
-        const response: string = await userServices.recoverAccountService(congregationString, email)
+        const response: string = await userServices.recoverAccountService(email)
         if (response === "no user") res.json({ success: false, noUser: true })
         else if (response === "not sent") res.json({ success: false, notSent: true })
         else if (response === "ok") res.json({ success: true })

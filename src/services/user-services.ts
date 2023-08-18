@@ -218,23 +218,15 @@ export const logoutAllService = async (requesterUser: typeUser): Promise<string|
     return newToken
 }
 
-export const recoverAccountService = async (congregationString: string, email: string): Promise<string> => {
-    if (!congregationString || !email) return 'no user'
-    let congregation = 0
-    try {
-        congregation = parseInt(congregationString)
-        if (isNaN(congregation)) throw new Error()
-    } catch {
-        logger.Add(0, "No se pudo capturar la congregación del link del email", errorLogs)
-        return 'no user'
-    }
-    const user: typeUser|null = await getUserByEmailService(congregation, email)
+export const recoverAccountService = async (email: string): Promise<string> => {
+    if (!email) return 'no user'
+    const user: typeUser|null = await getUserByEmailEveryCongregationService(email)
     if (!user) return 'no user'
     const id: string = getRandomId24()
-    let success: boolean = await userDbConnection.AddRecoveryOption(congregation, email, id)
+    let success: boolean = await userDbConnection.AddRecoveryOption(user.congregation, email, id)
     if (!success) return ''
-    logger.Add(congregation, `${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} solicitó un email de recuperación de contraseña`, loginLogs)
-    success = await sendRecoverAccountEmailService(congregation, email, id)
+    logger.Add(user.congregation, `${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} solicitó un email de recuperación de contraseña`, loginLogs)
+    success = await sendRecoverAccountEmailService(user.congregation, email, id)
     if (!success) return 'not sent'
     return 'ok'
 }

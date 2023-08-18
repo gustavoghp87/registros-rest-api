@@ -1,11 +1,12 @@
 export type typeLogsPackage = {
+    congregation: number
     logs: typeLogObj[]
     type: typeLogType
 }
 
 export type typeLogObj = {
-    timestamp: number
     logText: string
+    timestamp: number
 }
 
 export type typeAllLogsObj = {

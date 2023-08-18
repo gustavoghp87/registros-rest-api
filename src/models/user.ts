@@ -1,4 +1,5 @@
 export type typeUser = {
+    congregation: number
     email: string
     group: number
     hthAssignments: number[]
@@ -18,6 +19,7 @@ export type typeRecoveryOption = {
 }
 
 export type typeJWTObjectForUser = {
+    congregation: number
     exp: number
     iat: number
     tokenId: number

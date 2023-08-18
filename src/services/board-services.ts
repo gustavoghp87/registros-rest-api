@@ -1,9 +1,9 @@
-import Axios from 'axios'
-import { logger } from '../server'
 import { googleSiteUrl } from '../env-variables'
-import { typeCongregationItem, typeUser } from '../models'
+import { logger } from '../server'
+import { typeBoardItem, typeUser } from '../models'
+import Axios from 'axios'
 
-export const getCongregationItems = async (requesterUser: typeUser): Promise<typeCongregationItem[]|null> => {
+export const getBoardItems = async (requesterUser: typeUser): Promise<typeBoardItem[]|null> => {
     if (!requesterUser) return null
     const siteUrl: string = 'https://sites.google.com'
     try {
@@ -30,15 +30,15 @@ export const getCongregationItems = async (requesterUser: typeUser): Promise<typ
                         title
                     })
                 } catch (error) {
-                    logger.Add(`No se pudo traer el identificador del PDF: ${error}`, 'ErrorLogs')
+                    logger.Add(requesterUser.congregation, `No se pudo traer el identificador del PDF: ${error}`, 'ErrorLogs')
                     reject()
                 }
             }))
         }
-        const congregationItems: typeCongregationItem[] = await Promise.all(promisesArray)
-        return congregationItems
+        const boardItems: typeBoardItem[] = await Promise.all(promisesArray)
+        return boardItems
     } catch (error) {
-        logger.Add(`Falló la conexión con el sitio Google de los PDF: ${error}`, 'ErrorLogs')
+        logger.Add(requesterUser.congregation, `Falló la conexión con el sitio Google de los PDF: ${error}`, 'ErrorLogs')
         return null
     }
 }

@@ -3,6 +3,7 @@ import { typeBlock, typeTerritoryNumber } from '.'
 export type typeCallingState = "No predicado" | "No contestó" | "Contestó" | "No llamar" | "A dejar carta"
 
 export type typeTelephonicTerritory = {
+    congregation: number
     households: typeHousehold[]
     mapId: string
     stateOfTerritory: typeStateOfTelephonicTerritory
@@ -46,17 +47,19 @@ export type typeTelephonicStatistic = {
 }
 
 export interface typeLocalTelephonicStatistic extends typeTelephonicStatistic {
+    congregation: number
     isFinished: boolean
     stateOfTerritory: typeStateOfTelephonicTerritory
     territoryNumber: typeTerritoryNumber
 }
 
 export type typeTerritoryRow = {
-    territoryNumber: number
     assigned: string[]
-    opened: boolean
-    left: number
-    total: number
-    leftRel: string
+    congregation: number
     last: string
+    left: number
+    leftRel: string
+    opened: boolean
+    territoryNumber: number
+    total: number
 }

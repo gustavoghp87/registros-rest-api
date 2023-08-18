@@ -1,6 +1,6 @@
-import express, { Request, Response, Router } from 'express'
 import { Credentials } from 'google-auth-library'
 import { getGmailRequestService, getGmailUrlService, saveNewGmailAPITokenToDBService } from '../services/email-services'
+import express, { Request, Response, Router } from 'express'
 
 export const emailController: Router = express.Router()
 

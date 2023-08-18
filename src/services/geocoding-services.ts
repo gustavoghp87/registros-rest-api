@@ -22,7 +22,7 @@ export const getGeocodingFromAddressService = async (requesterUser: typeUser, ad
             lng: response[0].longitude
         }
     } catch (error) {
-        logger.Add(`No se pudo geolocalizar desde dirección ${address}: ${error}`, errorLogs)
+        logger.Add(requesterUser.congregation, `No se pudo geolocalizar desde dirección ${address}: ${error}`, errorLogs)
         return null
     }
 }
@@ -42,7 +42,7 @@ export const getGeocodingFromCoordinatesService = async (requesterUser: typeUser
         if (!response || !response[0] || !response[0].formattedAddress) return null
         return response[0].formattedAddress
     } catch (error) {
-        logger.Add(`No se pudo geolocalizar desde coordenadas ${coordinates?.lat} ${coordinates?.lng}: ${error}`, errorLogs)
+        logger.Add(requesterUser.congregation, `No se pudo geolocalizar desde coordenadas ${coordinates?.lat} ${coordinates?.lng}: ${error}`, errorLogs)
         return null
     }
 }

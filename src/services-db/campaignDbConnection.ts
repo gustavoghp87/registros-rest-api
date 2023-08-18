@@ -1,5 +1,5 @@
-import { Document, UpdateResult } from 'mongodb'
 import { dbClient, logger } from '../server'
+import { Document, UpdateResult } from 'mongodb'
 import { errorLogs } from '../services/log-services'
 import { nadie, typeCampaignPack } from '../models'
 
@@ -9,100 +9,109 @@ export class CampaignDb {
 
     private noAsignado: string = "No asignado"
 
-    async AskForANewCampaignPack(email: string): Promise<number|null> {
+    async AskForANewCampaignPack(congregation: number, email: string): Promise<number|null> {
         try {
+            if (!congregation) throw new Error("No llegó congregación")
             await getCollection().updateOne(
                 { $and: [
+                    { congregation },
                     { $or: [{ isFinished: null}, { isFinished: false }] },
                     { $or: [{ assignedTo: null}, { assignedTo: "" }, { assignedTo: this.noAsignado }] }
                 ]},
                 { $set: { assignedTo: email }
             })
-            const pack: typeCampaignPack = await getCollection().findOne({ assignedTo: email }) as Document as typeCampaignPack
+            const pack: typeCampaignPack = await getCollection().findOne({ congregation, assignedTo: email }) as Document as typeCampaignPack
             return pack?.id
         } catch (error) {
-            logger.Add(`Falló AskForANewCampaignPack() ${email}: ${error}`, errorLogs)
+            logger.Add(congregation, `Falló AskForANewCampaignPack() ${email}: ${error}`, errorLogs)
             return null
         }
     }
-    async AssignCampaignPackByEmail(id: number, email: string): Promise<boolean> {
+    async AssignCampaignPackByEmail(congregation: number, id: number, email: string): Promise<boolean> {
         try {
+            if (!congregation) throw new Error("No llegó congregación")
             let result: UpdateResult
             if (email === nadie)
-                result = await getCollection().updateOne({ id }, { $set: { assignedTo: this.noAsignado } })
+                result = await getCollection().updateOne({ congregation, id }, { $set: { assignedTo: this.noAsignado } })
             else
-                result = await getCollection().updateOne({ id }, { $set: { assignedTo: email } })
+                result = await getCollection().updateOne({ congregation, id }, { $set: { assignedTo: email } })
             return !!result.modifiedCount
         } catch (error) {
-            logger.Add(`Falló AssignCampaignPackByEmail() ${id} ${email}: ${error}`, errorLogs)
+            logger.Add(congregation, `Falló AssignCampaignPackByEmail() ${id} ${email}: ${error}`, errorLogs)
             return false
         }
     }
-    async ChangeAccesibilityMode(id: number, isAccessible: boolean): Promise<boolean> {
+    async ChangeAccesibilityMode(congregation: number, id: number, isAccessible: boolean): Promise<boolean> {
         try {
+            if (!congregation) throw new Error("No llegó congregación")
             const result: UpdateResult = await getCollection().updateOne(
-                { id },
+                { congregation, id },
                 { $set: { isAccessible } }
             )
             return !!result.modifiedCount
         } catch (error) {
-            logger.Add(`Falló ChangeAccesibilityMode() ${id} ${isAccessible}: ${error}`, errorLogs)
+            logger.Add(congregation, `Falló ChangeAccesibilityMode() ${id} ${isAccessible}: ${error}`, errorLogs)
             return false
         }
     }
-    async CloseCampaignPack(id: number): Promise<boolean> {
+    async CloseCampaignPack(congregation: number, id: number): Promise<boolean> {
         try {
+            if (!congregation) throw new Error("No llegó congregación")
             const result: UpdateResult = await getCollection().updateOne(
-                { id },
+                { congregation, id },
                 { $set: { assignedTo: this.noAsignado, isFinished: true } }
             )
             return !!result.modifiedCount
         } catch (error) {
-            logger.Add(`Falló CloseCampaignPack() id ${id}: ${error}`, errorLogs)
+            logger.Add(congregation, `Falló CloseCampaignPack() id ${id}: ${error}`, errorLogs)
             return false
         }
     }
-    async EditCampaignPackById(id: number, phoneNumber: number, checked: boolean): Promise<boolean> {
+    async EditCampaignPackById(congregation: number, id: number, phoneNumber: number, checked: boolean): Promise<boolean> {
         try {
+            if (!congregation) throw new Error("No llegó congregación")
             let result: UpdateResult
             if (checked) {
-                result = await getCollection().updateOne({ id }, { $addToSet: { calledPhones: phoneNumber } })
+                result = await getCollection().updateOne({ congregation, id }, { $addToSet: { calledPhones: phoneNumber } })
             } else {
-                result = await getCollection().updateOne({ id }, { $pull: { calledPhones: phoneNumber } })
-                await getCollection().updateOne({ id }, { $set: { isFinished: false } })
+                result = await getCollection().updateOne({ congregation, id }, { $pull: { calledPhones: phoneNumber } })
+                await getCollection().updateOne({ congregation, id }, { $set: { isFinished: false } })
             }
             return !!result.modifiedCount
         } catch (error) {
-            logger.Add(`Falló EditCampaignPackById() ${id} ${phoneNumber} ${checked}: ${error}`, errorLogs)
+            logger.Add(congregation, `Falló EditCampaignPackById() ${id} ${phoneNumber} ${checked}: ${error}`, errorLogs)
             return false
         }
     }
-    async GetCampaignPackById(id: number): Promise<typeCampaignPack|null> {
-        if (!id) return null
+    async GetCampaignPackById(congregation: number, id: number): Promise<typeCampaignPack|null> {
         try {
-            const pack: typeCampaignPack = await getCollection().findOne({ id }) as Document as typeCampaignPack
+            if (!id) throw new Error("No llegó ID")
+            if (!congregation) throw new Error("No llegó congregación")
+            const pack: typeCampaignPack = await getCollection().findOne({ congregation, id }) as Document as typeCampaignPack
             return pack ?? null
         } catch (error) {
-            logger.Add(`Falló GetCampaignPackById() id ${id}: ${error}`, errorLogs)
+            logger.Add(congregation, `Falló GetCampaignPackById() id ${id}: ${error}`, errorLogs)
             return null
         }
     }
-    async GetCampaignPacks(): Promise<typeCampaignPack[]|null> {
+    async GetCampaignPacks(congregation: number): Promise<typeCampaignPack[]|null> {
         try {
-            const packs: typeCampaignPack[]|null = await getCollection().find().toArray() as Document as typeCampaignPack[]
+            if (!congregation) throw new Error("No llegó congregación")
+            const packs: typeCampaignPack[]|null = await getCollection().find({ congregation }).toArray() as Document as typeCampaignPack[]
             return packs ?? null
         } catch (error) {
-            logger.Add(`Falló GetCampaignPacks(): ${error}`, errorLogs)
+            logger.Add(congregation, `Falló GetCampaignPacks(): ${error}`, errorLogs)
             return null
         }
     }
-    async GetCampaignPacksByUser(userEmail: string): Promise<typeCampaignPack[]|null> {
-        if (!userEmail) return null
+    async GetCampaignPacksByUser(congregation: number, userEmail: string): Promise<typeCampaignPack[]|null> {
         try {
-            const packs: typeCampaignPack[]|null = await getCollection().find({ assignedTo: userEmail }).toArray() as Document as typeCampaignPack[]
+            if (!userEmail) throw new Error("No llegó usuario")
+            if (!congregation) throw new Error("No llegó congregación")
+            const packs: typeCampaignPack[]|null = await getCollection().find({ congregation, assignedTo: userEmail }).toArray() as Document as typeCampaignPack[]
             return packs ?? null
         } catch (error) {
-            logger.Add(`Falló GetCampaignPacksByUser() usuario ${userEmail}: ${error}`, errorLogs)
+            logger.Add(congregation, `Falló GetCampaignPacksByUser() usuario ${userEmail}: ${error}`, errorLogs)
             return null
         }
     }

@@ -1,5 +1,5 @@
-import { MongoClient } from 'mongodb'
 import { databaseUrl } from '../env-variables'
+import { MongoClient } from 'mongodb'
 
 type typeCollection =
     'Campaigns' |

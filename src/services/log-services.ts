@@ -19,7 +19,7 @@ export class Logger {
         this.LogDbConnection = new LogDb()
     }
 
-    public async Add(logText: string, type: typeLogType): Promise<boolean> {
+    public async Add(congregation: number, logText: string, type: typeLogType): Promise<boolean> {
         const newDateTs: number = isProduction ? new Date().getTime() - 3*60*60*1000 : new Date().getTime()
         const newDate = new Date().setTime(newDateTs)
         logText = new Date(newDate).toLocaleString('es-AR') + " | " + logText
@@ -29,19 +29,19 @@ export class Logger {
             timestamp: + new Date(),
             logText
         }
-        const success: boolean = await this.LogDbConnection.Add(log, type)
+        const success: boolean = await this.LogDbConnection.Add(congregation, log, type)
         return success
     }
 
-    public async Get(requesterUser: typeUser, type: typeLogType): Promise<typeLogsPackage|null> {
-        if (!requesterUser || requesterUser.role !== 1) return null
-        const logs: typeLogsPackage|null = await this.LogDbConnection.Get(type)
+    public async Get(congregation: number, requesterUser: typeUser, type: typeLogType): Promise<typeLogsPackage|null> {
+        if (!congregation || !requesterUser || requesterUser.role !== 1) return null
+        const logs: typeLogsPackage|null = await this.LogDbConnection.Get(congregation, type)
         return logs
     }
 
     public async GetAll(requesterUser: typeUser): Promise<typeAllLogsObj|null> {
         if (!requesterUser || requesterUser.role !== 1) return null
-        const logs: typeAllLogsObj|null = await this.LogDbConnection.GetAll()
+        const logs: typeAllLogsObj|null = await this.LogDbConnection.GetAll(requesterUser.congregation)
         return logs
     }
 }

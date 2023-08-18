@@ -7,10 +7,10 @@ export type typeResponseData = {
     address: string
     allLogsObj: type.typeAllLogsObj
     alreadyExists: boolean
+    boardsItems: type.typeBoardItem[]
     campaignAssignments: number[]
     campaignPack: type.typeCampaignPack
     campaignPacks: type.typeCampaignPack[]
-    congregationItems: type.typeCongregationItem[]
     coordinates: type.typeCoords
     dataError: boolean
     email: string

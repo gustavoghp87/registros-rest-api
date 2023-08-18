@@ -1,19 +1,19 @@
-import { logger } from '../server'
 import { CampaignDb } from '../services-db/campaignDbConnection'
 import { campaignLogs, errorLogs } from './log-services'
+import { logger } from '../server'
 import { typeCampaignPack, typeUser } from '../models'
 
 const campaignDbConnection: CampaignDb = new CampaignDb()
 
 export const getCampaignPacksService = async (requesterUser: typeUser): Promise<typeCampaignPack[]|null> => {
     if (!requesterUser || requesterUser.role !== 1) return null
-    const packs: typeCampaignPack[]|null = await campaignDbConnection.GetCampaignPacks()
+    const packs: typeCampaignPack[]|null = await campaignDbConnection.GetCampaignPacks(requesterUser.congregation)
     return packs
 }
 
 export const getCampaignPacksByUserService = async (requesterUser: typeUser): Promise<number[]|null> => {
     if (!requesterUser) return null
-    const packs: typeCampaignPack[]|null = await campaignDbConnection.GetCampaignPacksByUser(requesterUser.email)
+    const packs: typeCampaignPack[]|null = await campaignDbConnection.GetCampaignPacksByUser(requesterUser.congregation, requesterUser.email)
     if (!packs) return null
     let campaignAssignments: number[] = []
     packs.forEach(x => campaignAssignments.push(x.id))
@@ -24,7 +24,7 @@ export const getCampaignPackService = async (requesterUser: typeUser, idString: 
     // accessible
     let id: number = parseInt(idString)
     if (!id || isNaN(id)) return null
-    const pack: typeCampaignPack|null = await campaignDbConnection.GetCampaignPackById(id)
+    const pack: typeCampaignPack|null = await campaignDbConnection.GetCampaignPackById(requesterUser.congregation, id)
     if (!pack) return null
     if (pack.isAccessible) return pack
     if (!requesterUser) return null
@@ -35,28 +35,29 @@ export const getCampaignPackService = async (requesterUser: typeUser, idString: 
 export const editCampaignPackService = async (requesterUser: typeUser, id: number, phoneNumber: number, checked: boolean): Promise<typeCampaignPack|null> => {
     // accessible
     if (!id || !phoneNumber) return null
-    let pack: typeCampaignPack|null = await campaignDbConnection.GetCampaignPackById(id)
+    let pack: typeCampaignPack|null = await campaignDbConnection.GetCampaignPackById(requesterUser.congregation, id)
     if (!pack) return null
     if (!pack.isAccessible && (!requesterUser || (pack.assignedTo !== requesterUser.email && requesterUser.role !== 1))) return null
     if (!requesterUser) requesterUser = anonymousUser
     checked = !!checked
-    const success: boolean = await campaignDbConnection.EditCampaignPackById(id, phoneNumber, checked)
+    const success: boolean = await campaignDbConnection.EditCampaignPackById(requesterUser.congregation, id, phoneNumber, checked)
     if (!success) {
-        logger.Add(`${requesterUser.role === 1 ? 'Admin' : 'Usuario'} ${requesterUser?.email} no pudo cambiar teléfono de paquete ${id} ${phoneNumber} a ${checked}`, errorLogs)
+        logger.Add(requesterUser.congregation, `${requesterUser.role === 1 ? 'Admin' : 'Usuario'} ${requesterUser?.email} no pudo cambiar teléfono de paquete ${id} ${phoneNumber} a ${checked}`, errorLogs)
         return null
     }
     // checkIfTerritoryIsFinishedService
-    pack = await campaignDbConnection.GetCampaignPackById(id)
+    pack = await campaignDbConnection.GetCampaignPackById(requesterUser.congregation, id)
     if (pack && pack.calledPhones.length === 50) {
-        const success1: boolean = await campaignDbConnection.CloseCampaignPack(id)
-        if (success1) logger.Add(`${requesterUser.role === 1 ? 'Admin' : 'Usuario'} ${requesterUser?.email} terminó el paquete ${id}`, campaignLogs)
-        else logger.Add(`${requesterUser.role === 1 ? 'Admin' : 'Usuario'} ${requesterUser?.email} no pudo cerrar el paquete ${id} después de terminarlo`, errorLogs)
+        const success1: boolean = await campaignDbConnection.CloseCampaignPack(requesterUser.congregation, id)
+        if (success1) logger.Add(requesterUser.congregation, `${requesterUser.role === 1 ? 'Admin' : 'Usuario'} ${requesterUser?.email} terminó el paquete ${id}`, campaignLogs)
+        else logger.Add(requesterUser.congregation, `${requesterUser.role === 1 ? 'Admin' : 'Usuario'} ${requesterUser?.email} no pudo cerrar el paquete ${id} después de terminarlo`, errorLogs)
     }
-    pack = await campaignDbConnection.GetCampaignPackById(id)
+    pack = await campaignDbConnection.GetCampaignPackById(requesterUser.congregation, id)
     return pack
 }
 
 const anonymousUser: typeUser = {
+    congregation: 0,
     email: "anónimo por accesibilidad",
     group: 0,
     hthAssignments: [],
@@ -69,14 +70,14 @@ const anonymousUser: typeUser = {
 }
 
 export const closeCampaignPackService = async (requesterUser: typeUser, id: number): Promise<boolean> => {
-    // accessible
+    // accessible   BROKEN FOR MULTICONGREGATIONAL VERSION
     if (!id) return false
-    const pack: typeCampaignPack|null = await campaignDbConnection.GetCampaignPackById(id)
+    const pack: typeCampaignPack|null = await campaignDbConnection.GetCampaignPackById(requesterUser.congregation, id)
     if (!pack) return false
     if (!pack.isAccessible && (!requesterUser || (pack.assignedTo !== requesterUser.email && requesterUser.role !== 1))) return false
-    const success: boolean = await campaignDbConnection.CloseCampaignPack(id)
+    const success: boolean = await campaignDbConnection.CloseCampaignPack(requesterUser.congregation, id)
     if (!requesterUser) requesterUser = anonymousUser
-    if (success) logger.Add(`${requesterUser.role === 1 ? 'Admin' : 'Usuario'} ${requesterUser?.email} marcó como terminado el paquete ${id}`, campaignLogs)
+    if (success) logger.Add(requesterUser.congregation, `${requesterUser.role === 1 ? 'Admin' : 'Usuario'} ${requesterUser?.email} marcó como terminado el paquete ${id}`, campaignLogs)
     return success
 }
 
@@ -84,16 +85,16 @@ export const assignCampaignPackService = async (requesterUser: typeUser, idStrin
     let id: number = parseInt(idString)
     if (!requesterUser || requesterUser.role !== 1) return false
     if (!id || isNaN(id) || !email) return false
-    const success: boolean = await campaignDbConnection.AssignCampaignPackByEmail(id, email)
-    if (success) logger.Add(`${requesterUser.role === 1 ? 'Admin' : 'Usuario'} ${requesterUser.email} asignó el paquete ${id} a ${email}`, campaignLogs)
-    else logger.Add(`${requesterUser.role === 1 ? 'Admin' : 'Usuario'} ${requesterUser.email} no pudo asignar el paquete ${id} a ${email}`, errorLogs)
+    const success: boolean = await campaignDbConnection.AssignCampaignPackByEmail(requesterUser.congregation, id, email)
+    if (success) logger.Add(requesterUser.congregation, `${requesterUser.role === 1 ? 'Admin' : 'Usuario'} ${requesterUser.email} asignó el paquete ${id} a ${email}`, campaignLogs)
+    else logger.Add(requesterUser.congregation, `${requesterUser.role === 1 ? 'Admin' : 'Usuario'} ${requesterUser.email} no pudo asignar el paquete ${id} a ${email}`, errorLogs)
     return success
 }
 
 export const askForANewCampaignPackService = async (requesterUser: typeUser): Promise<boolean> => {
     if (!requesterUser) return false
-    const id: number|null = await campaignDbConnection.AskForANewCampaignPack(requesterUser.email)
-    if (id) logger.Add(`${requesterUser.role === 1 ? 'Admin' : 'Usuario'} ${requesterUser.email} recibió el paquete ${id} por solicitud automática`, campaignLogs)
+    const id: number|null = await campaignDbConnection.AskForANewCampaignPack(requesterUser.congregation, requesterUser.email)
+    if (id) logger.Add(requesterUser.congregation, `${requesterUser.role === 1 ? 'Admin' : 'Usuario'} ${requesterUser.email} recibió el paquete ${id} por solicitud automática`, campaignLogs)
     return !!id
 }
 
@@ -101,11 +102,11 @@ export const enableAccesibilityModeService = async (requesterUser: typeUser, id:
     if (!requesterUser || requesterUser.role !== 1) return false
     if (!id) return false
     accessible = !!accessible
-    const success: boolean = await campaignDbConnection.ChangeAccesibilityMode(id, accessible)
+    const success: boolean = await campaignDbConnection.ChangeAccesibilityMode(requesterUser.congregation, id, accessible)
     if (!success) {
-        logger.Add(`Admin ${requesterUser.email} no pudo habilitar el modo de accesibilidad para el paquete ${id} ${accessible}`, campaignLogs)
+        logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} no pudo habilitar el modo de accesibilidad para el paquete ${id} ${accessible}`, campaignLogs)
         return false
     }
-    logger.Add(`Admin ${requesterUser.email} ${accessible ? "habilitó" : "deshabilitó"} el modo de accesibilidad para el paquete ${id} ${accessible}`, campaignLogs)
+    logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} ${accessible ? "habilitó" : "deshabilitó"} el modo de accesibilidad para el paquete ${id} ${accessible}`, campaignLogs)
     return true
 }

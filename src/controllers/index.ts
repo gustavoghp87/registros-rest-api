@@ -1,5 +1,5 @@
+export { boardController } from './board-controller'
 export { campaignController } from './campaign-controller'
-export { congregationController } from './congregation-controller'
 export { emailController } from './email-controller'
 export { geocodingController } from './geocoding-controller'
 export { houseToHouseController} from './house-to-house-controller'

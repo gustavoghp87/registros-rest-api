@@ -1,69 +1,70 @@
-import { UpdateResult } from 'mongodb'
 import { dbClient, logger } from '../server'
 import { errorLogs } from '../services/log-services'
 import { typeBlock, typeCoords, typeDoNotCall, typeFace, typeHTHBuilding, typeHTHTerritory, typeObservation, typePolygon, typeTerritoryNumber } from '../models'
+import { UpdateResult } from 'mongodb'
 
 const getCollection = () => dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollHTHTerritories)
 
 export class HouseToHouseDb {
-    async AddHTHBuilding(territoryNumber: typeTerritoryNumber, block: typeBlock, face: typeFace, building: typeHTHBuilding): Promise<boolean> {
+    async AddHTHBuilding(congregation: number, territoryNumber: typeTerritoryNumber, block: typeBlock, face: typeFace, building: typeHTHBuilding): Promise<boolean> {
         try {
-            if (!territoryNumber || !block || !face || !building) throw new Error("No llegaron datos")
+            if (!congregation || !territoryNumber || !block || !face || !building) throw new Error("No llegaron datos")
             const result: UpdateResult = await getCollection().updateOne(
-                { territoryNumber },
+                { congregation, territoryNumber },
                 { $push: { 'map.polygons.$[x].buildings': building } },
                 { arrayFilters: [{ 'x.block': block, 'x.face': face }] }
             )
             return !!result.modifiedCount
         } catch (error) {
-            logger.Add(`Falló AddHTHBuilding() territorio ${territoryNumber}: ${error}`, errorLogs)
+            logger.Add(congregation, `Falló AddHTHBuilding() territorio ${territoryNumber}: ${error}`, errorLogs)
             return false
         }
     }
-    async AddHTHDoNotCall(territoryNumber: typeTerritoryNumber,
+    async AddHTHDoNotCall(congregation: number, territoryNumber: typeTerritoryNumber,
      doNotCall: typeDoNotCall, block: typeBlock, face: typeFace, polygonId: number): Promise<boolean> {
         try {
-            if (!doNotCall || !territoryNumber || !block || !face) throw new Error("No llegó no tocar o territorio")
+            if (!congregation || !doNotCall || !territoryNumber || !block || !face)
+                throw new Error("No llegaron datos")
             const result: UpdateResult = await getCollection().updateOne(
-                { territoryNumber },
+                { congregation, territoryNumber },
                 { $push: { 'map.polygons.$[x].doNotCalls': doNotCall } },
                 { arrayFilters: [{ 'x.block': block, 'x.face': face, 'x.id': polygonId }] }
             )
             return !!result.modifiedCount
         } catch (error) {
-            logger.Add(`Falló AddHTHDoNotCall() territorio ${territoryNumber}: ${error}`, errorLogs)
+            logger.Add(congregation, `Falló AddHTHDoNotCall() territorio ${territoryNumber}: ${error}`, errorLogs)
             return false
         }
     }
-    async AddHTHObservation(territoryNumber: typeTerritoryNumber,
+    async AddHTHObservation(congregation: number, territoryNumber: typeTerritoryNumber,
      observation: typeObservation, block: typeBlock, face: typeFace, polygonId: number): Promise<boolean> {
         try {
-            if (!observation || !territoryNumber || !block || !face) throw new Error("No llegó observación o territorio")
+            if (!congregation || !observation || !territoryNumber || !block || !face) throw new Error("No llegaron datos")
             const result: UpdateResult = await getCollection().updateOne(
-                { territoryNumber },
+                { congregation, territoryNumber },
                 { $push: { 'map.polygons.$[x].observations': observation } },
                 { arrayFilters: [{ 'x.block': block, 'x.face': face, 'x.id': polygonId }] }
             )
             return !!result.modifiedCount
         } catch (error) {
-            logger.Add(`Falló AddHTHObservation() territorio ${territoryNumber}: ${error}`, errorLogs)
+            logger.Add(congregation, `Falló AddHTHObservation() territorio ${territoryNumber}: ${error}`, errorLogs)
             return false
         }
     }
-    async AddHTHPolygonFace(territoryNumber: typeTerritoryNumber, polygon: typePolygon): Promise<boolean> {
+    async AddHTHPolygonFace(congregation: number, territoryNumber: typeTerritoryNumber, polygon: typePolygon): Promise<boolean> {
         try {
-            if (!polygon || !territoryNumber) throw new Error("No llegó polígono o territorio")
+            if (!congregation || !polygon || !territoryNumber) throw new Error("No llegó polígono o territorio")
             const result: UpdateResult = await getCollection().updateOne(
-                { territoryNumber },
+                { congregation, territoryNumber },
                 { $push: { 'map.polygons': polygon } }
             )
             return !!result.modifiedCount
         } catch (error) {
-            logger.Add(`Falló AddHTHObservation() territorio ${territoryNumber}: ${error}`, errorLogs)
+            logger.Add(congregation, `Falló AddHTHObservation() territorio ${territoryNumber}: ${error}`, errorLogs)
             return false
         }
     }
-    async CreateHTHTerritories(email: string): Promise<boolean> {
+    async CreateHTHTerritories(congregation: number, email: string): Promise<boolean> {
         try {
             for (let i = 1; i <= 56; i++) {
                 console.log("Creating hth territory", i)
@@ -78,7 +79,8 @@ export class HouseToHouseDb {
                         polygons: [],
                         zoom: 17
                     },
-                    territoryNumber: i.toString() as typeTerritoryNumber
+                    territoryNumber: i.toString() as typeTerritoryNumber,
+                    congregation
                 }
                 await getCollection().insertOne(hthTerritory)
             }
@@ -87,80 +89,91 @@ export class HouseToHouseDb {
             return false
         }
     }
-    async DeleteHTHBuilding(territoryNumber: typeTerritoryNumber, block: typeBlock, face: typeFace, streetNumber: number): Promise<boolean> {
+    async DeleteHTHBuilding(congregation: number, territoryNumber: typeTerritoryNumber,
+     block: typeBlock, face: typeFace, streetNumber: number): Promise<boolean> {
         try {
-            if (!territoryNumber || !block || !face || !streetNumber) return false
+            if (!congregation || !territoryNumber || !block || !face || !streetNumber) return false
             const result: UpdateResult = await getCollection().updateOne(
-                { territoryNumber },
+                { congregation, territoryNumber },
                 { $pull: { 'map.polygons.$[x].buildings': { streetNumber } } },
                 { arrayFilters: [{ 'x.block': block, 'x.face': face }] }
             )
             return !!result.modifiedCount
         } catch (error) {
-            logger.Add(`Falló DeleteHTHBuilding() territorio ${territoryNumber}: ${error}`, errorLogs)
+            logger.Add(congregation, `Falló DeleteHTHBuilding() territorio ${territoryNumber}: ${error}`, errorLogs)
             return false
         }
     }
-    async DeleteHTHDoNotCall(territoryNumber: typeTerritoryNumber, block: typeBlock, face: typeFace, doNotCallId: number): Promise<boolean> {
+    async DeleteHTHDoNotCall(congregation: number, territoryNumber: typeTerritoryNumber,
+     block: typeBlock, face: typeFace, doNotCallId: number): Promise<boolean> {
         try {
-            if (!doNotCallId || !territoryNumber || !block || !face) throw new Error("No llegó no tocar id o territorio")
+            if (!congregation || !doNotCallId || !territoryNumber || !block || !face)
+                throw new Error("No llegaron datos")
             const result: UpdateResult = await getCollection().updateOne(
-                { territoryNumber },
+                { congregation, territoryNumber },
                 { $set: { 'map.polygons.$[i].doNotCalls.$[j].deleted': true } },
                 { arrayFilters: [{ 'i.block': block, 'i.face': face }, { 'j.id': doNotCallId }] }
             )
             return !!result.modifiedCount
         } catch (error) {
-            logger.Add(`Falló DeleteHTHDoNotCall() territorio ${territoryNumber} id ${doNotCallId}: ${error}`, errorLogs)
+            logger.Add(congregation, `Falló DeleteHTHDoNotCall() territorio ${territoryNumber} id ${doNotCallId}: ${error}`, errorLogs)
             return false
         }
     }
-    async DeleteHTHObservation(territoryNumber: typeTerritoryNumber, block: typeBlock, face: typeFace, observationId: number): Promise<boolean> {
+    async DeleteHTHObservation(congregation: number, territoryNumber: typeTerritoryNumber,
+     block: typeBlock, face: typeFace, observationId: number): Promise<boolean> {
         try {
-            if (!observationId || !territoryNumber || !block || !face) throw new Error("No llegó observación id o territorio")
+            if (!congregation || !observationId || !territoryNumber || !block || !face)
+                throw new Error("No llegaron datos")
             const result: UpdateResult = await getCollection().updateOne(
-                { territoryNumber },
+                { congregation, territoryNumber },
                 { $set: { 'map.polygons.$[i].observations.$[j].deleted': true } },
                 { arrayFilters: [{ 'i.block': block, 'i.face': face }, { 'j.id': observationId }] }
             )
             return !!result.modifiedCount
         } catch (error) {
-            logger.Add(`Falló DeleteHTHObservation() territorio ${territoryNumber} id ${observationId}: ${error}`, errorLogs)
+            logger.Add(congregation, `Falló DeleteHTHObservation() territorio ${territoryNumber} id ${observationId}: ${error}`, errorLogs)
             return false
         }
     }
-    async DeleteHTHPolygonFace(territoryNumber: typeTerritoryNumber, block: typeBlock, face: typeFace, faceId: number): Promise<boolean> {
+    async DeleteHTHPolygonFace(congregation: number, territoryNumber: typeTerritoryNumber,
+     block: typeBlock, face: typeFace, faceId: number): Promise<boolean> {
         try {
-            if (!territoryNumber || !block || !face || !faceId) throw new Error("Faltan datos")
+            if (!congregation || !territoryNumber || !block || !face || !faceId)
+                throw new Error("Faltan datos")
             const result: UpdateResult = await getCollection().updateOne(
-                { territoryNumber },
+                { congregation, territoryNumber },
                 { $pull: { 'map.polygons': { block, face, id: faceId } } }
             )
             return !!result.modifiedCount
         } catch (error) {
-            logger.Add(`Falló DeleteHTHPolygonFace() territorio ${territoryNumber}: ${error}`, errorLogs)
+            logger.Add(congregation, `Falló DeleteHTHPolygonFace() territorio ${territoryNumber}: ${error}`, errorLogs)
             return false
         }
     }
-    async EditHTHObservation(territoryNumber: typeTerritoryNumber, block: typeBlock, face: typeFace, observation: typeObservation): Promise<boolean> {
+    async EditHTHObservation(congregation: number, territoryNumber: typeTerritoryNumber,
+     block: typeBlock, face: typeFace, observation: typeObservation): Promise<boolean> {
         try {
-            if (!observation || !territoryNumber || !block || !face) throw new Error("No llegaron observaciones o territorio")
+            if (!congregation || !observation || !territoryNumber || !block || !face)
+                throw new Error("No llegaron datos")
             const result: UpdateResult = await getCollection().updateOne(
-                { territoryNumber },
+                { congregation, territoryNumber },
                 { $set: { 'map.polygons.$[i].observations.$[j].text': observation.text } },
                 { arrayFilters: [{ 'i.block': block, 'i.face': face }, { 'j.id': observation.id }] }
             )
             return !!result.modifiedCount
         } catch (error) {
-            logger.Add(`Falló EditHTHObservation() territorio ${territoryNumber}: ${error}`, errorLogs)
+            logger.Add(congregation, `Falló EditHTHObservation() territorio ${territoryNumber}: ${error}`, errorLogs)
             return false
         }
     }
-    async EditHTHPolygon(territoryNumber: typeTerritoryNumber, polygon: typePolygon): Promise<boolean> {
+    async EditHTHPolygon(congregation: number, territoryNumber: typeTerritoryNumber,
+     polygon: typePolygon): Promise<boolean> {
         try {
-            if (!polygon || !territoryNumber) throw new Error("No llegaron el polígono o el territorio")
+            if (!congregation || !polygon || !territoryNumber)
+                throw new Error("No llegaron datos")
             const result: UpdateResult = await getCollection().updateOne(
-                { territoryNumber},
+                { congregation, territoryNumber},
                 { $set: {
                     'map.polygons.$[x].coordsPoint1': polygon.coordsPoint1,
                     'map.polygons.$[x].coordsPoint2': polygon.coordsPoint2,
@@ -170,33 +183,19 @@ export class HouseToHouseDb {
             )
             return true  // do not use .modifiedCount
         } catch (error) {
-            logger.Add(`Falló EditHTHPolygon() territorio ${territoryNumber}: ${error}`, errorLogs)
+            logger.Add(congregation, `Falló EditHTHPolygon() territorio ${territoryNumber}: ${error}`, errorLogs)
             return false
         }
     }
-    async EditStateHTHHousehold(territoryNumber: typeTerritoryNumber, block: typeBlock, face: typeFace, streetNumber: number, householdId: number, isChecked: boolean): Promise<boolean> {
+    async EditStateHTHHousehold(congregation: number, territoryNumber: typeTerritoryNumber,
+     block: typeBlock, face: typeFace, streetNumber: number, householdId: number, isChecked: boolean): Promise<boolean> {
         try {
-            if (!territoryNumber || !block || !face || !streetNumber || !householdId) throw new Error("No llegaron datos")
-            const result: UpdateResult = await getCollection().updateOne(
-                { territoryNumber },
-                { $set: { 'map.polygons.$[x].buildings.$[y].households.$[z].isChecked': isChecked } },
-                { arrayFilters: [{ 'x.block': block, 'x.face': face }, { 'y.streetNumber': streetNumber }, { 'z.id': householdId }] }
-            )
-            return !!result.modifiedCount
-        } catch (error) {
-            logger.Add(`Falló EditStateHTHHousehold() territorio ${territoryNumber}: ${error}`, errorLogs)
-            return false
-        }
-    }
-    async EditStateHTHManagerHousehold(congregation: number, territoryNumber: typeTerritoryNumber,
-     block: typeBlock, face: typeFace, streetNumber: number, isChecked: boolean): Promise<boolean> {
-        try {
-            if (!congregation || !territoryNumber || !block || !face || !streetNumber)
+            if (!congregation || !territoryNumber || !block || !face || !streetNumber || !householdId)
                 throw new Error("No llegaron datos")
             const result: UpdateResult = await getCollection().updateOne(
                 { congregation, territoryNumber },
-                { $set: { 'map.polygons.$[x].buildings.$[y].manager.isChecked': isChecked } },
-                { arrayFilters: [{ 'x.block': block, 'x.face': face }, { 'y.streetNumber': streetNumber }] }
+                { $set: { 'map.polygons.$[x].buildings.$[y].households.$[z].isChecked': isChecked } },
+                { arrayFilters: [{ 'x.block': block, 'x.face': face }, { 'y.streetNumber': streetNumber }, { 'z.id': householdId }] }
             )
             return !!result.modifiedCount
         } catch (error) {
@@ -204,46 +203,65 @@ export class HouseToHouseDb {
             return false
         }
     }
-    async EditViewHTHMap(territoryNumber: typeTerritoryNumber, centerCoords: typeCoords, zoom: number, lastEditor: string): Promise<boolean> {
+    async EditStateHTHManagerHousehold(congregation: number, territoryNumber: typeTerritoryNumber,
+        block: typeBlock, face: typeFace, streetNumber: number, isChecked: boolean): Promise<boolean> {
+           try {
+               if (!congregation || !territoryNumber || !block || !face || !streetNumber)
+                   throw new Error("No llegaron datos")
+               const result: UpdateResult = await getCollection().updateOne(
+                   { congregation, territoryNumber },
+                   { $set: { 'map.polygons.$[x].buildings.$[y].manager.isChecked': isChecked } },
+                   { arrayFilters: [{ 'x.block': block, 'x.face': face }, { 'y.streetNumber': streetNumber }] }
+               )
+               return !!result.modifiedCount
+           } catch (error) {
+               logger.Add(congregation, `Falló EditStateHTHHousehold() territorio ${territoryNumber}: ${error}`, errorLogs)
+               return false
+           }
+       }
+    async EditViewHTHMap(congregation: number, territoryNumber: typeTerritoryNumber,
+     centerCoords: typeCoords, zoom: number, lastEditor: string): Promise<boolean> {
         try {
-            if (!centerCoords || !zoom || !territoryNumber) throw new Error("No llegaron coordenadas, zoom o territorio")
+            if (!congregation || !centerCoords || !zoom || !territoryNumber)
+                throw new Error("No llegaron datos")
             const result: UpdateResult = await getCollection().updateOne(
-                { territoryNumber },
+                { congregation, territoryNumber },
                 { $set: { 'map.centerCoords': centerCoords, 'map.zoom': zoom, 'map.lastEditor': lastEditor } }
             )
             return true  // do not use .modifiedCount
         } catch (error) {
-            logger.Add(`Falló EditViewHTHMap() territorio ${territoryNumber} ${centerCoords} ${zoom}: ${error}`, errorLogs)
+            logger.Add(congregation, `Falló EditViewHTHMap() territorio ${territoryNumber} ${centerCoords} ${zoom}: ${error}`, errorLogs)
             return false
         }
     }
-    async GetHTHTerritories(): Promise<typeHTHTerritory[]|null> {
+    async GetHTHTerritories(congregation: number): Promise<typeHTHTerritory[]|null> {
         try {
-            const hthTerritories: typeHTHTerritory[] = await getCollection().find()?.toArray() as unknown as typeHTHTerritory[]
+            if (!congregation) throw new Error("No llegó congregación")
+            const hthTerritories: typeHTHTerritory[] = await getCollection().find({ congregation })?.toArray() as unknown as typeHTHTerritory[]
             return hthTerritories ?? null
         } catch (error) {
-            logger.Add(`Falló GetHTHTerritories()`, errorLogs)
+            logger.Add(congregation, `Falló GetHTHTerritories()`, errorLogs)
             return null
         }
     }
-    async GetHTHTerritory(territoryNumber: typeTerritoryNumber): Promise<typeHTHTerritory|null> {
+    async GetHTHTerritory(congregation: number, territoryNumber: typeTerritoryNumber): Promise<typeHTHTerritory|null> {
         try {
             if (!territoryNumber) throw new Error("No llegó territorio")
-            const hthTerritory: typeHTHTerritory = await getCollection().findOne({ territoryNumber }) as unknown as typeHTHTerritory
+            const hthTerritory = await getCollection().findOne({ congregation, territoryNumber }) as unknown as typeHTHTerritory
             return hthTerritory ?? null
         } catch (error) {
-            logger.Add(`Falló GetHTHTerritory() territorio ${territoryNumber}`, errorLogs)
+            logger.Add(congregation, `Falló GetHTHTerritory() territorio ${territoryNumber}`, errorLogs)
             return null
         }
     }
-    async SetHTHIsFinished(territoryNumber: typeTerritoryNumber,
+    async SetHTHIsFinished(congregation: number, territoryNumber: typeTerritoryNumber,
      block: typeBlock, face: typeFace, polygonId: number, isFinished: boolean): Promise<boolean> {
         try {
-            if (!territoryNumber || !block || !face || isFinished === undefined || !polygonId)
+            if (!congregation || !territoryNumber || !block || !face || isFinished === undefined || !polygonId)
                 throw new Error("No llegaron datos")
             if (isFinished) {
                 const result: UpdateResult = await getCollection().updateOne(
-                    { territoryNumber },
+                    { congregation, territoryNumber },
                     {
                         $set: { 'map.polygons.$[x].completionData.isFinished': isFinished },
                         $addToSet: { 'map.polygons.$[x].completionData.completionDates': +new Date() }
@@ -253,7 +271,7 @@ export class HouseToHouseDb {
                 return !!result.modifiedCount
             } else {
                 const result: UpdateResult = await getCollection().updateOne(
-                    { territoryNumber },
+                    { congregation, territoryNumber },
                     {
                         $set: { 'map.polygons.$[x].completionData.isFinished': isFinished },
                         $addToSet: { 'map.polygons.$[x].completionData.reopeningDates': +new Date() }
@@ -263,18 +281,18 @@ export class HouseToHouseDb {
                 return !!result.modifiedCount
             }
         } catch (error) {
-            logger.Add(`Falló SetHTHIsFinished() territorio ${territoryNumber} ${block} ${face} ${polygonId}: ${error}`, errorLogs)
+            logger.Add(congregation, `Falló SetHTHIsFinished() territorio ${territoryNumber} ${block} ${face} ${polygonId}: ${error}`, errorLogs)
             return false
         }
     }
-    async SetHTHIsSharedBuildings(territoryNumber: typeTerritoryNumber,
+    async SetHTHIsSharedBuildings(congregation: number, territoryNumber: typeTerritoryNumber,
      block: typeBlock, face: typeFace, polygonId: number, streetNumbers: number[]): Promise<boolean> {
         try {
-            if (!territoryNumber || !block || !face || !polygonId || !streetNumbers || !streetNumbers.length) throw new Error("No llegaron datos")
-            console.log("db");
+            if (!congregation || !territoryNumber || !block || !face || !polygonId || !streetNumbers || !streetNumbers.length)
+                throw new Error("No llegaron datos")
             streetNumbers.forEach(async (streetNumber: number) => {
                 const result: UpdateResult = await getCollection().updateOne(
-                    { territoryNumber },
+                    { congregation, territoryNumber },
                     { $set: { 'map.polygons.$[x].buildings.$[y].dateOfLastSharing': +new Date() } },
                     { arrayFilters: [{ 'x.block': block, 'x.face': face, 'x.id': polygonId }, { 'y.streetNumber': streetNumber }]}
                 )
@@ -282,7 +300,7 @@ export class HouseToHouseDb {
             })
             return true
         } catch (error) {
-            logger.Add(`Falló SetHTHIsSharedBuildings() territorio ${territoryNumber} ${block} ${face}: ${error}`, errorLogs)
+            logger.Add(congregation, `Falló SetHTHIsSharedBuildings() territorio ${territoryNumber} ${block} ${face}: ${error}`, errorLogs)
             return false
         }
     }

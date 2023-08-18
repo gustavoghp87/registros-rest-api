@@ -1,8 +1,8 @@
-import express, { Request, Response, Router } from 'express'
-import * as userServices from '../services/user-services'
-import { sendNewPswEmailService } from '../services/email-services'
 import { checkRecaptchaTokenService } from '../services/recaptcha-services'
+import { sendNewPswEmailService } from '../services/email-services'
 import { typeUser } from '../models'
+import * as userServices from '../services/user-services'
+import express, { Request, Response, Router } from 'express'
 
 // const unauthenticatedUser: typeUser = {
 //     isAuth: false,
@@ -33,11 +33,12 @@ export const userController: Router = express.Router()
     // sign up user
     .post('/', async (req: Request, res: Response) => {
         const { email, password, group, recaptchaToken } = req.body
-        const checkRecaptch: boolean = await checkRecaptchaTokenService(recaptchaToken)
+        const congregation: number = req.body.team
+        const checkRecaptch: boolean = await checkRecaptchaTokenService(congregation, recaptchaToken)
         if (!checkRecaptch) return res.json({ success: false, recaptchaFails: true })
-        const user: typeUser|null = await userServices.getUserByEmailService(email)
+        const user: typeUser|null = await userServices.getUserByEmailEveryCongregationService(email)
         if (user) return res.json({ success: false, userExists: true })
-        const success: boolean = await userServices.registerUserService(email, password, group)
+        const success: boolean = await userServices.registerUserService(congregation, email, password, group)
         res.json({ success })
     })
 
@@ -56,7 +57,8 @@ export const userController: Router = express.Router()
     // recover account by a link in email box
     .patch('/', async (req: Request, res: Response) => {
         const email: string = req.body.email || ""
-        const response: string = await userServices.recoverAccountService(email)
+        const congregationString: string = req.body.team || ""
+        const response: string = await userServices.recoverAccountService(congregationString, email)
         if (response === "no user") res.json({ success: false, noUser: true })
         else if (response === "not sent") res.json({ success: false, notSent: true })
         else if (response === "ok") res.json({ success: true })
@@ -103,9 +105,12 @@ export const userController: Router = express.Router()
     })
 
     // get email from email link id
-    .get('/recovery/:id', async (req: Request, res: Response) => {
-        const id: string = req.params.id
-        const user: typeUser|null = await userServices.getUserByEmailLinkService(id)
+    .get('/recovery', async (req: Request, res: Response) => {
+        // const id: string = req.params.id
+        // const congregation: string = req.params.team
+        const id = req.query.id?.toString() || "";
+        const congregation = req.query.team?.toString() || "";
+        const user: typeUser|null = await userServices.getUserByEmailLinkService(congregation, null, id)
         if (!user || !user.email) return res.json({ success: false })
         res.json({ success: true, email: user.email })
     })
@@ -118,7 +123,7 @@ export const userController: Router = express.Router()
             return res.json({ success: false })
         if (newToken === 'recaptchaFailed')
             return res.json({ success: false, recaptchaFails: true })
-        if (newToken === 'isDisabled')
+        if (newToken === 'disabled')
             return res.json({ success: false, isDisabled: true })
         res.json({ success: true, newToken })
     })
@@ -131,15 +136,18 @@ export const userController: Router = express.Router()
 
     // change my password
     .put('/token', async (req: Request, res: Response) => {
-        const { psw, newPsw, id } = req.body
+        const congregation: number = req.body.team
+        const psw: string = req.body.psw
+        const newPsw: string = req.body.newPsw
+        const id: string = req.body.id
         if (psw && newPsw) {
             // change my psw
             const newToken: string|null = await userServices.changePswService(req.user, psw, newPsw)
             if (newToken === "wrongPassword") return res.json({ success: false, wrongPassword: true })
             res.json({ success: !!newToken, newToken })
-        } else if (id && newPsw) {
+        } else if (congregation && id && newPsw) {
             // change my psw by recovery option
-            const newToken: string|null = await userServices.changePswByEmailLinkService(id, newPsw)
+            const newToken: string|null = await userServices.changePswByEmailLinkService(congregation, id, newPsw)
             if (!newToken) return res.json({ success: false })
             if (newToken === "expired") return res.json({ success: false, expired: true })
             if (newToken === "used") return res.json({ success: false, used: true })
@@ -154,7 +162,7 @@ export const userController: Router = express.Router()
         const email: string = req.body.email
         const newPassword: string|null = await userServices.changePswOtherUserService(req.user, email)
         if (!newPassword) return res.json({ success: false })
-        const emailSuccess: boolean = await sendNewPswEmailService(email, newPassword)
+        const emailSuccess: boolean = await sendNewPswEmailService(req.user.congregation, email, newPassword)
         res.json({ success: !!newPassword, newPassword, emailSuccess })
     })
 ;

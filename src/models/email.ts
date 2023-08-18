@@ -1,5 +1,5 @@
 export type typeEmailObj = {
-    lastEmailDate: number
     accessToken: string
+    lastEmailDate: number
     refreshToken: string
 }

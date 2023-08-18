@@ -1,10 +1,10 @@
-import { google } from 'googleapis'
-import { GetTokenResponse } from 'google-auth-library/build/src/auth/oauth2client'
 import { Credentials } from 'google-auth-library'
 import { domain, logger } from '../../server'
 import { EmailDb } from '../../services-db/emailDbConnection'
 import { errorLogs } from '../log-services'
+import { GetTokenResponse } from 'google-auth-library/build/src/auth/oauth2client'
 import { gmailCredentials, sendEmail, sendScope } from '.'
+import { google } from 'googleapis'
 import { typeUser } from '../../models'
 
 const emailDbConnection: EmailDb = new EmailDb()
@@ -23,7 +23,7 @@ export const getGmailUrlService = async (requesterUser: typeUser): Promise<strin
         })
         return url
     } catch (error) {
-        logger.Add("No se pudo generar URL para Gmail", errorLogs)
+        logger.Add(requesterUser.congregation, "No se pudo generar URL para Gmail", errorLogs)
         return null
     }
 }
@@ -39,7 +39,7 @@ export const getGmailRequestService = async (requesterUser: typeUser, code: stri
         if (!keys || !keys.tokens) throw new Error("Respuesta inválida")
         return keys.tokens
     } catch (error) {
-        logger.Add("No se pudo generar Token para Gmail", errorLogs)
+        logger.Add(requesterUser.congregation, "No se pudo generar Token para Gmail", errorLogs)
         return null
     }
 }
@@ -123,7 +123,7 @@ export const saveNewGmailAPITokenToDBService = async (requesterUser: typeUser, a
 //     if (!response) logger.Add(`Falló update last email in db`, errorLogs)
 // }
 
-export const sendNewPswEmailService = async (email: string, newPsw: string): Promise<boolean> => {
+export const sendNewPswEmailService = async (congregation: number, email: string, newPsw: string): Promise<boolean> => {
     const to: string = email
     const subject: string = "Misericordia Web: Recupero de clave"
     const text: string = "Correo solicitado"
@@ -135,13 +135,13 @@ export const sendNewPswEmailService = async (email: string, newPsw: string): Pro
             Se recomienda ingresar a "Mi Usuario" y cambiarla por otra.
         </p>
     `
-    const success: boolean = await sendEmail(to, subject, text, html)
-    if (!success) logger.Add("No se pudo enviar correo por nueva contraseña", errorLogs)
+    const success: boolean = await sendEmail(congregation, to, subject, text, html)
+    if (!success) logger.Add(congregation, "No se pudo enviar correo por nueva contraseña", errorLogs)
     return success
 }
 
-export const sendRecoverAccountEmailService = async (email: string, id: string): Promise<boolean> => {
-    const url: string = `${domain}/recovery/${id}`
+export const sendRecoverAccountEmailService = async (congregation: number, email: string, id: string): Promise<boolean> => {
+    const url: string = `${domain}/recovery?id=${id}&team=${congregation}`
     const to: string = email
     const subject: string = "Misericordia Web: Recupero de cuenta"
     const text: string = "Correo solicitado"
@@ -159,7 +159,7 @@ export const sendRecoverAccountEmailService = async (email: string, id: string):
             y elegir una nueva clave.
         </p>
     `
-    const success: boolean = await sendEmail(to, subject, text, html)
-    if (!success) logger.Add(`No se pudo enviar correo de recuperación de cuenta a ${to}`, errorLogs)
+    const success: boolean = await sendEmail(congregation, to, subject, text, html)
+    if (!success) logger.Add(congregation, `No se pudo enviar correo de recuperación de cuenta a ${to}`, errorLogs)
     return success
 }

@@ -1,5 +1,5 @@
-import { Credentials } from 'google-auth-library'
 import { client_id, client_secret, project_id } from '../../env-variables'
+import { Credentials } from 'google-auth-library'
 import { domain, testingDomain } from '../../server'
 import { GetGmailTokensService } from '.'
 

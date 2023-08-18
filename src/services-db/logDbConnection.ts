@@ -15,15 +15,16 @@ export class LogDb {
     private TelephonicStateLogs: typeLogType = 'TelephonicStateLogs'
     private UserLogs: typeLogType = 'UserLogs'
 
-    async Add(log: typeLogObj, type: typeLogType): Promise<boolean> {
+    async Add(congregation: number, log: typeLogObj, type: typeLogType): Promise<boolean> {
         try {
+            if (!congregation) throw new Error("No llegó congregación")
             //const isAlreadySaved: boolean = collection !== 'TerritoryChangeLogs' && await this.IsAlreadySaved(log, collection)
             // if (isAlreadySaved) {
             //     ("Se evitó un repetido")
             //     return true
             // }
             await getCollection().updateOne(
-                { type },
+                { congregation, type },
                 { $push: { logs: log } }
             )
             return true
@@ -32,25 +33,27 @@ export class LogDb {
             return false
         }
     }
-    async Get(type: typeLogType): Promise<typeLogsPackage|null> {
+    async Get(congregation: number, type: typeLogType): Promise<typeLogsPackage|null> {
         try {
-            const logs: typeLogsPackage = await getCollection().findOne({ type }) as unknown as typeLogsPackage
+            if (!congregation) throw new Error("No llegó congregación")
+            const logs = await getCollection().findOne({ congregation, type }) as unknown as typeLogsPackage
             return logs
         } catch (error) {
-            logger.Add(`Falló Get() logs ${type}: ${error}`, errorLogs)
+            logger.Add(congregation, `Falló Get() logs ${type}: ${error}`, errorLogs)
             return null
         }
     }
-    async GetAll(): Promise<typeAllLogsObj|null> {
+    async GetAll(congregation: number): Promise<typeAllLogsObj|null> {
         try {
-            const campaignLogs: typeLogsPackage = await getCollection().findOne({ type: this.CampaignLogs }) as unknown as typeLogsPackage
-            const errorLogs: typeLogsPackage = await getCollection().findOne({ type: this.ErrorLogs }) as unknown as typeLogsPackage
-            const houseToHouseAdminLogs: typeLogsPackage = await getCollection().findOne({ type: this.HouseToHouseAdminLogs }) as unknown as typeLogsPackage
-            const houseToHouseLogs: typeLogsPackage = await getCollection().findOne({ type: this.HouseToHouseLogs }) as unknown as typeLogsPackage
-            const loginLogs: typeLogsPackage = await getCollection().findOne({ type: this.LoginLogs }) as unknown as typeLogsPackage
-            const telephonicLogs: typeLogsPackage = await getCollection().findOne({ type: this.TelephonicLogs }) as unknown as typeLogsPackage
-            const telephonicStateLogs: typeLogsPackage = await getCollection().findOne({ type: this.TelephonicStateLogs }) as unknown as typeLogsPackage
-            const userLogs: typeLogsPackage = await getCollection().findOne({ type: this.UserLogs }) as unknown as typeLogsPackage
+            if (!congregation) throw new Error("No llegó congregación")
+            const campaignLogs = await getCollection().findOne({ congregation, type: this.CampaignLogs }) as unknown as typeLogsPackage
+            const errorLogs = await getCollection().findOne({ congregation, type: this.ErrorLogs }) as unknown as typeLogsPackage
+            const houseToHouseAdminLogs = await getCollection().findOne({ congregation, type: this.HouseToHouseAdminLogs }) as unknown as typeLogsPackage
+            const houseToHouseLogs = await getCollection().findOne({ congregation, type: this.HouseToHouseLogs }) as unknown as typeLogsPackage
+            const loginLogs = await getCollection().findOne({ congregation, type: this.LoginLogs }) as unknown as typeLogsPackage
+            const telephonicLogs = await getCollection().findOne({ congregation, type: this.TelephonicLogs }) as unknown as typeLogsPackage
+            const telephonicStateLogs = await getCollection().findOne({ congregation, type: this.TelephonicStateLogs }) as unknown as typeLogsPackage
+            const userLogs = await getCollection().findOne({ congregation, type: this.UserLogs }) as unknown as typeLogsPackage
             return {
                 campaignLogs,
                 errorLogs,
@@ -62,7 +65,7 @@ export class LogDb {
                 userLogs
             }
         } catch (error) {
-            logger.Add(`Falló GetAll() logs: ${error}`, errorLogs)
+            logger.Add(congregation, `Falló GetAll() logs: ${error}`, errorLogs)
             return null
         }
     }

@@ -17,6 +17,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
         address: "Concordia 21 1 2",
         allLogsObj: {
             campaignLogs: {
+                congregation: 1,
                 logs: [{
                     logText: `20/8/2022, 19:47:38 | Usuario ${userEmail} recibió el paquete 97 por solicitud automática`,
                     timestamp: 1661168080000
@@ -24,6 +25,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                 type: 'CampaignLogs'
             },
             errorLogs: {
+                congregation: 1,
                 logs: [{
                     logText: `14/7/2022 21:55:33 | No se pudo enviar correo de recuperación de cuenta a ${userEmail}`,
                     timestamp: 1661168080000
@@ -31,6 +33,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                 type: 'ErrorLogs'
             },
             houseToHouseAdminLogs: {
+                congregation: 1,
                 logs: [{
                     logText: `19/8/2022, 10:59:33 | Admin ${userEmail} modificó el mapa del territorio 4`,
                     timestamp: 1661168080000
@@ -38,6 +41,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                 type: 'HouseToHouseAdminLogs'
             },
             houseToHouseLogs: {
+                congregation: 1,
                 logs: [{
                     logText: `19/8/2022, 10:59:33 | El usuario ${userEmail} hizo una observación en el territorio 4`,
                     timestamp: 1661168080000
@@ -45,6 +49,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                 type: 'HouseToHouseLogs'
             },
             loginLogs: {
+                congregation: 1,
                 logs: [{
                     logText: `19/8/2022, 10:59:33 | Se logueó el ${userEmail}`,
                     timestamp: 1661168080000
@@ -52,6 +57,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                 type: 'LoginLogs'
             },
             telephonicLogs: {
+                congregation: 1,
                 logs: [{
                     logText: `19/8/2022, 10:59:33 | Usuario ${userEmail} modificó una vivienda: territorio 52, vivienda 22031, estado No contestó, no abonado false, asignado false`,
                     timestamp: 1661168080000
@@ -59,6 +65,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                 type: 'TelephonicLogs'
             },
             telephonicStateLogs: {
+                congregation: 1,
                 logs: [{
                     logText: `19/8/2022, 10:59:33 | Usuario ${userEmail} cambia territorio 14 a terminado`,
                     timestamp: 1661168080000
@@ -66,6 +73,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                 type: 'TelephonicStateLogs'
             },
             userLogs: {
+                congregation: 1,
                 logs: [{
                     logText: `19/8/2022, 10:59:33 | Se desasignó el territorio de telefónica 14 a ${userEmail} porque lo cerró`,
                     timestamp: 1661168080000
@@ -76,6 +84,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
         alreadyExists: false,
         campaignAssignments: [44],
         campaignPack: {
+            congregation: 1,
             assignedTo: userEmail,
             calledPhones: [],
             from: 1122223300,
@@ -85,6 +94,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
             to: 1122223349
         },
         campaignPacks: [{
+            congregation: 1,
             assignedTo: userEmail,
             calledPhones: [],
             from: 1122223300,
@@ -93,7 +103,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
             isFinished: false,
             to: 1122223349
         }],
-        congregationItems: [
+        boardsItems: [
             {
            ids: [
                 ],
@@ -162,6 +172,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
        streetNumber: 21
         },
         hthTerritory: {
+            congregation: 1,
             map: {
                 centerCoords: {
                lat: -34.63088475094777,
@@ -1452,6 +1463,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
         },
         isDisabled: false,
         localStatistics: [{
+            congregation: 1,
             numberOf_ADejarCarta: 1,
             numberOf_Contesto: 1000,
             numberOf_FreePhones: 3000,
@@ -1469,6 +1481,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
         recaptchaFails: false,
         streets: ["Concordia"],
         telephonicTerritory: {
+            congregation: 1,
             mapId: '1VKEvlr_MS6WpCp1gzwjmI7Uhl2mNO40f',
             households: [{
                 address: "Concordia 21 1 2",
@@ -1544,6 +1557,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
         url: 'gmail@gmail.com',
         used: false,
         user: {
+            congregation: 1,
             email: userEmail,
             group: 1,
             hthAssignments: [1],
@@ -1556,6 +1570,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
         },
         userExists: true,
         users: [{
+            congregation: 1,
             email: userEmail,
             group: 1,
             hthAssignments: [1],

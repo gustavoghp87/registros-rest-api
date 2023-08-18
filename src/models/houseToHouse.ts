@@ -1,7 +1,7 @@
 import { typeBlock, typeFace, typeTerritoryNumber } from '.'
 
 export type typeHTHTerritory = {
-    // congregation: number
+    congregation: number
     map: typeHTHMap
     territoryNumber: typeTerritoryNumber
 }

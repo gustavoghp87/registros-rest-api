@@ -1,7 +1,7 @@
-import { InsertOneResult, UpdateResult } from 'mongodb'
 import { Credentials } from 'google-auth-library'
 import { dbClient, logger } from '../server'
 import { errorLogs } from '../services/log-services'
+import { InsertOneResult, UpdateResult } from 'mongodb'
 import { typeEmailObj } from '../models'
 
 const getCollection = () => dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollEmails)
@@ -14,7 +14,7 @@ export class EmailDb {
             if (!lastEmailObj.lastEmailDate) throw new Error("No está la fecha")
             return lastEmailObj.lastEmailDate
         } catch (error) {
-            logger.Add(`Falló GetEmailLastTime(): ${error}`, errorLogs)
+            logger.Add(1, `Falló GetEmailLastTime(): ${error}`, errorLogs)
             return null
         }
     }
@@ -24,7 +24,7 @@ export class EmailDb {
             if (!lastEmailObj) throw new Error("No se pudo leer documento")
             return lastEmailObj
         } catch (error) {
-            logger.Add(`Falló GetEmailObject(): ${error}`, errorLogs)
+            logger.Add(1, `Falló GetEmailObject(): ${error}`, errorLogs)
             return null
         }
     }
@@ -41,7 +41,7 @@ export class EmailDb {
                 token_type: ''
             }
         } catch (error) {
-            logger.Add(`Falló GetGmailTokens(): ${error}`, errorLogs)
+            logger.Add(1, `Falló GetGmailTokens(): ${error}`, errorLogs)
             return null
         }
     }
@@ -54,7 +54,7 @@ export class EmailDb {
             )
             return !!result.modifiedCount
         } catch (error) {
-            logger.Add(`Falló UpdateLastEmail(): ${error}`, errorLogs)
+            logger.Add(1, `Falló UpdateLastEmail(): ${error}`, errorLogs)
             return false
         }
     }
@@ -66,7 +66,7 @@ export class EmailDb {
                 })
                 return !!result && !!result.insertedId
             } catch (error) {
-                logger.Add(`Falló SaveNewGmailAPITokensToDB(): ${error}`, errorLogs)
+                logger.Add(1, `Falló SaveNewGmailAPITokensToDB(): ${error}`, errorLogs)
                 return false
             }
         }
@@ -86,7 +86,7 @@ export class EmailDb {
             }
             return !!result.modifiedCount
         } catch (error) {
-            logger.Add(`Falló SaveNewGmailAPITokensToDB(): ${error}`, errorLogs)
+            logger.Add(1, `Falló SaveNewGmailAPITokensToDB(): ${error}`, errorLogs)
             return false
         }
     }

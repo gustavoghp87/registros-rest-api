@@ -1,6 +1,6 @@
-import { InsertOneResult, UpdateResult } from 'mongodb'
 import { dbClient, logger } from '../server'
 import { errorLogs } from '../services/log-services'
+import { InsertOneResult, UpdateResult } from 'mongodb'
 import { typeForecastResponse, typeWeatherResponse } from '../models'
 
 const getCollection = () => dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollWeather)
@@ -16,7 +16,7 @@ export class WeatherDb {
             console.log("Weather Genesys:", result.insertedId)
             return !!result.insertedId
         } catch (error) {
-            logger.Add(`Falló Weather Genesys(): ${error}`, errorLogs)
+            logger.Add(1, `Falló Weather Genesys(): ${error}`, errorLogs)
             return false
         }
     }
@@ -30,7 +30,7 @@ export class WeatherDb {
                 date: weatherAndForecast.date
             }
         } catch (error) {
-            logger.Add(`Falló GetWeatherAndForecast(): ${error}`, errorLogs)
+            logger.Add(1, `Falló GetWeatherAndForecast(): ${error}`, errorLogs)
             return null
         }
     }
@@ -42,7 +42,7 @@ export class WeatherDb {
             )
             return !!result.modifiedCount
         } catch (error) {
-            logger.Add(`Falló SaveWeatherAndForecast(): ${error}`, errorLogs)
+            logger.Add(1, `Falló SaveWeatherAndForecast(): ${error}`, errorLogs)
             return false
         }
     }

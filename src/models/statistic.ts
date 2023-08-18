@@ -9,5 +9,6 @@ export interface statistic {
 }
 
 export interface localStatistic extends statistic {
+    congregation: number
     territory: string
 }

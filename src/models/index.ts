@@ -1,5 +1,5 @@
+export * from './board'
 export * from './campaign'
-export * from './congregation'
 export * from './constants'
 export * from './email'
 export * from './houseToHouse'

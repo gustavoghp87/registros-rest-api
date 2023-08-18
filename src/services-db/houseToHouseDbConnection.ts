@@ -188,6 +188,22 @@ export class HouseToHouseDb {
             return false
         }
     }
+    async EditStateHTHManagerHousehold(congregation: number, territoryNumber: typeTerritoryNumber,
+     block: typeBlock, face: typeFace, streetNumber: number, isChecked: boolean): Promise<boolean> {
+        try {
+            if (!congregation || !territoryNumber || !block || !face || !streetNumber)
+                throw new Error("No llegaron datos")
+            const result: UpdateResult = await getCollection().updateOne(
+                { congregation, territoryNumber },
+                { $set: { 'map.polygons.$[x].buildings.$[y].manager.isChecked': isChecked } },
+                { arrayFilters: [{ 'x.block': block, 'x.face': face }, { 'y.streetNumber': streetNumber }] }
+            )
+            return !!result.modifiedCount
+        } catch (error) {
+            logger.Add(congregation, `Falló EditStateHTHHousehold() territorio ${territoryNumber}: ${error}`, errorLogs)
+            return false
+        }
+    }
     async EditViewHTHMap(territoryNumber: typeTerritoryNumber, centerCoords: typeCoords, zoom: number, lastEditor: string): Promise<boolean> {
         try {
             if (!centerCoords || !zoom || !territoryNumber) throw new Error("No llegaron coordenadas, zoom o territorio")

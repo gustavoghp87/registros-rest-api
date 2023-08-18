@@ -43,6 +43,7 @@ export const addHTHBuildingService = async (requesterUser: typeUser, territoryNu
         numberPerLevel: newBuilding.numberPerLevel,
         streetNumber: newBuilding.streetNumber
     }
+    if (newBuilding.manager) building.manager = newBuilding.manager
     const success: boolean = await houseToHouseDbConnection.AddHTHBuilding(territoryNumber, block, face, building)
     return success
 }

@@ -87,16 +87,26 @@ export const addHTHPolygonFaceService = async (requesterUser: types.typeUser, te
     return success
 }
 
-export const changeStateToHTHHouseholdService = async (requesterUser: types.typeUser, territoryNumber: types.typeTerritoryNumber,
+export const changeStateToHTHHouseholdService = async (requesterUser: types.typeUser, congregation: number, territoryNumber: types.typeTerritoryNumber,
  block: types.typeBlock, face: types.typeFace, streetNumber: number, householdId: number, isChecked: boolean, isManager: boolean): Promise<boolean> => {
     // freed
-    if (!territoryNumber || !block || !face || !householdId || typeof householdId !== 'number') return false
+    if (!congregation || !territoryNumber || !block || !face || !householdId || typeof householdId !== 'number') return false
     isChecked = !!isChecked
+    if (!!requesterUser) {
+        if (requesterUser.role !== 1 && !requesterUser.hthAssignments?.includes(parseInt(territoryNumber))) {
+            return false
+        }
+    } else {
+        const hthTerritory = await getHTHTerritoryServiceWithoutPermissions(congregation, territoryNumber)
+        if (!hthTerritory) return false
+        const polygon = hthTerritory.map.polygons.find(a => a.block === block && a.face === face && a.buildings.find(b => b.streetNumber === streetNumber && !!b.dateOfLastSharing && getCurrentLocalDate() === getCurrentLocalDate(b.dateOfLastSharing)))
+        if (!polygon) return false
+    }
     if (isManager) {
-        const success: boolean = await houseToHouseDbConnection.EditStateHTHManagerHousehold(requesterUser.congregation, territoryNumber, block, face, streetNumber, isChecked)
+        const success: boolean = await houseToHouseDbConnection.EditStateHTHManagerHousehold(congregation, territoryNumber, block, face, streetNumber, isChecked)
         return success
     } else {
-        const success: boolean = await houseToHouseDbConnection.EditStateHTHHousehold(requesterUser.congregation, territoryNumber, block, face, streetNumber, householdId, isChecked)
+        const success: boolean = await houseToHouseDbConnection.EditStateHTHHousehold(congregation, territoryNumber, block, face, streetNumber, householdId, isChecked)
         return success
     }
 }
@@ -217,18 +227,52 @@ export const getHTHTerritoriesForMapService = async (requesterUser: types.typeUs
     })
 }
 
+export const getHTHBuildingService = async (congregation: number, territoryNumber: types.typeTerritoryNumber,
+ block: types.typeBlock, face: types.typeFace, streetNumber: number): Promise<types.typeHTHTerritory|null> => {
+    if (!congregation || !territoryNumber || !block || !face || !streetNumber) return null
+    const hthTerritory: types.typeHTHTerritory|null = await getHTHTerritoryServiceWithoutPermissions(congregation, territoryNumber)
+    if (!hthTerritory) return null
+    let building: types.typeHTHBuilding|null = null;
+    for (let i = 0; i < hthTerritory.map.polygons.length; i++) {
+        const polygon = hthTerritory.map.polygons[i];
+        for (let h = 0; h < polygon.buildings?.length; h++) {
+            const currentBuilding = polygon.buildings[h];
+            if (polygon.block === block && polygon.face === face && currentBuilding.streetNumber === streetNumber && !!currentBuilding.dateOfLastSharing && getCurrentLocalDate() === getCurrentLocalDate(currentBuilding.dateOfLastSharing)) {
+                building = currentBuilding
+            }
+        }
+    }
+    if (!building) return null
+    const polygon = hthTerritory.map.polygons.find(
+        a => a.block === block && a.face === face && a.buildings.find(
+            b => b.streetNumber === streetNumber && !!b.dateOfLastSharing && getCurrentLocalDate() === getCurrentLocalDate(b.dateOfLastSharing)
+        )
+    )
+    if (!polygon) return null
+    return {
+        congregation,
+        territoryNumber,
+        map: {
+            ...hthTerritory.map,
+            lastEditor: '-',
+            polygons: [{
+                ...polygon,
+                completionData: { completionDates: [], isFinished: false, reopeningDates: [] },
+                doNotCalls: [],
+                observations: [],
+                buildings: [building]
+            }]
+        }
+    }
+}
+
 export const getHTHTerritoryService = async (requesterUser: types.typeUser, territoryNumber: types.typeTerritoryNumber): Promise<types.typeHTHTerritory|null> => {
     if (!territoryNumber) return null
     const hthTerritory: types.typeHTHTerritory|null = await getHTHTerritoryServiceWithoutPermissions(requesterUser.congregation, territoryNumber)
     if (!hthTerritory) return null
     if (requesterUser) {
-        if (requesterUser.role !== 1 && !requesterUser.hthAssignments.includes(parseInt(territoryNumber))) return null
-    } else {
-        if (!hthTerritory.map.polygons.some(x =>
-            x.buildings && x.buildings.some(y =>
-                y.dateOfLastSharing && getCurrentLocalDate() === getCurrentLocalDate(y.dateOfLastSharing)  // fixed 2023.08.16
-            )
-        )) return null
+        if (requesterUser.role !== 1 && !requesterUser.hthAssignments.includes(parseInt(territoryNumber)))
+            return null
     }
     return hthTerritory
 }
@@ -261,13 +305,13 @@ export const setHTHIsFinishedService = async (requesterUser: types.typeUser, ter
         let success: boolean = true
         if (isFinished) {
             territory.map.polygons.forEach(async x => {
-                if (x.completionData.isFinished) return
+                if (!!x.completionData?.isFinished) return
                 const success1: boolean = await houseToHouseDbConnection.SetHTHIsFinished(requesterUser.congregation, territoryNumber, x.block, x.face, x.id, true)
                 if (!success1) success = false
             })
         } else {
             territory.map.polygons.forEach(async x => {
-                if (!x.completionData.isFinished) return
+                if (!x.completionData?.isFinished) return
                 const success1: boolean = await houseToHouseDbConnection.SetHTHIsFinished(requesterUser.congregation, territoryNumber, x.block, x.face, x.id, false)
                 if (!success1) success = false
             })

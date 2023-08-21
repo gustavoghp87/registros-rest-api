@@ -113,7 +113,7 @@ export const changeStateToHTHHouseholdService = async (requesterUser: types.type
 
 export const createHTHTerritoriesService = async (requesterUser: types.typeUser): Promise<boolean> => {
     if (!requesterUser || requesterUser.role !== 1) return false
-    const success: boolean = await houseToHouseDbConnection.CreateHTHTerritories(requesterUser.congregation, requesterUser.email)
+    const success: boolean = await houseToHouseDbConnection.CreateHTHTerritories(requesterUser.congregation, requesterUser.id)
     return success
 }
 
@@ -214,7 +214,7 @@ export const getHTHTerritoriesForMapService = async (requesterUser: types.typeUs
     if (!hthTerritories) return null
     return hthTerritories.map(x => {
         x.map.centerCoords = { lat: 0, lng: 0 }
-        x.map.lastEditor = ""
+        x.map.lastEditor = 0
         x.map.markers = []
         if (x.map.polygons) x.map.polygons = x.map.polygons.map(y => {
             y.buildings = []
@@ -254,7 +254,7 @@ export const getHTHBuildingService = async (congregation: number, territoryNumbe
         territoryNumber,
         map: {
             ...hthTerritory.map,
-            lastEditor: '-',
+            lastEditor: 0,
             polygons: [{
                 ...polygon,
                 completionData: { completionDates: [], isFinished: false, reopeningDates: [] },

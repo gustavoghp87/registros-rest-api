@@ -64,7 +64,7 @@ export class HouseToHouseDb {
             return false
         }
     }
-    async CreateHTHTerritories(congregation: number, email: string): Promise<boolean> {
+    async CreateHTHTerritories(congregation: number, userId: number): Promise<boolean> {
         try {
             for (let i = 1; i <= 56; i++) {
                 console.log("Creating hth territory", i)
@@ -74,7 +74,7 @@ export class HouseToHouseDb {
                             lat: -34.6324233875622,
                             lng: -58.455761358048456
                         },
-                        lastEditor: email,
+                        lastEditor: userId,
                         markers: [],
                         polygons: [],
                         zoom: 17

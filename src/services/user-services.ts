@@ -44,6 +44,16 @@ export const assignTLPTerritoryService = async (requesterUser: typeUser, email: 
     return updatedUser
 }
 
+export const changeEmailService = async (requesterUser: typeUser, newEmail: string): Promise<boolean> => {
+    if (!requesterUser || !newEmail || newEmail.length < 6) return false
+    const success: boolean = await userDbConnection.ChangeEmail(requesterUser.congregation, requesterUser.id, newEmail)
+    if (success)
+        logger.Add(requesterUser.congregation, `${requesterUser.role === 1 ? 'Admin' : 'Usuario'} ${requesterUser.email} cambió su dirección de Email a ${newEmail}`, loginLogs)
+    else
+        logger.Add(requesterUser.congregation, `${requesterUser.role === 1 ? 'Admin' : 'Usuario'} ${requesterUser.email} no puedo cambiar su dirección de Email a ${newEmail}`, errorLogs)
+    return success
+}
+
 export const changePswByEmailLinkService = async (congregation: number, id: string, newPsw: string): Promise<string|null> => {
     if (!newPsw || typeof newPsw !== 'string' || newPsw.length < 8) return null
     const user: typeUser|null = await getUserByEmailLinkService(null, congregation, id)

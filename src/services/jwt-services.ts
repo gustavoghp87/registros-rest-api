@@ -5,6 +5,24 @@ import { jwtString } from '../env-variables'
 import { typeJWTObjectForUser, typeUser } from '../models'
 import jwt from 'jsonwebtoken'
 
+const decodeService = (token: string): typeJWTObjectForUser|null => {
+    if (!token) return null
+    try {
+        const decoded: jwt.JwtPayload|null = jwt.decode(token, { complete: true, json: true })
+        if (!decoded) return null;
+        return {
+            congregation: decoded.payload.team,
+            exp: decoded.exp || 0,
+            iat: decoded.iat || 0,
+            tokenId: decoded.payload.tokenId,
+            userId: decoded.payload.userId
+        }
+    } catch (error) {
+        logger.Add(1, `No se pudo decodificar token: ${error}`, errorLogs)
+        return null
+    }
+}
+
 export const decodeVerifiedService = (token: string): typeJWTObjectForUser|null => {
     if (!token) return null
     try {
@@ -26,24 +44,6 @@ export const decodeVerifiedService = (token: string): typeJWTObjectForUser|null 
             })
         }
         else if (decoded) logger.Add(1, `No se pudo verificar token ${JSON.stringify(decoded)}: ${error}`, errorLogs)
-        return null
-    }
-}
-
-export const decodeService = (token: string): typeJWTObjectForUser|null => {
-    if (!token) return null
-    try {
-        const decoded: jwt.JwtPayload|null = jwt.decode(token, { complete: true, json: true })
-        if (!decoded) return null;
-        return {
-            congregation: decoded.payload.team,
-            exp: decoded.exp || 0,
-            iat: decoded.iat || 0,
-            tokenId: decoded.payload.tokenId,
-            userId: decoded.payload.userId
-        }
-    } catch (error) {
-        logger.Add(1, `No se pudo decodificar token: ${error}`, errorLogs)
         return null
     }
 }

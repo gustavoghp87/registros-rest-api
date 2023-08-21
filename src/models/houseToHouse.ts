@@ -8,7 +8,7 @@ export type typeHTHTerritory = {
 
 export type typeHTHMap = {
     centerCoords: typeCoords
-    lastEditor: string
+    lastEditor: number
     markers: typeMarker[]
     polygons: typePolygon[]
     zoom: number

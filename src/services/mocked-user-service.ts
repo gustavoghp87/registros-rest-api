@@ -159,17 +159,17 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
             refresh_token: 'aabbcc'
         },
         household: {
-       address: "Concordia 21 1 2",
-       block: "1",
-       callingState: "No predicado",
-       dateOfLastCall: 1661190010295,
-       notSubscribed: false,
-       householdId: 1,
-       isAssigned: false,
-       phoneNumber: "54-11-4613-0867",
-       doorBell: "1 2",
-       street: "Concordia",
-       streetNumber: 21
+            address: "Concordia 21 1 2",
+            block: "1",
+            callingState: "No predicado",
+            dateOfLastCall: 1661190010295,
+            notSubscribed: false,
+            householdId: 1,
+            isAssigned: false,
+            phoneNumber: "54-11-4613-0867",
+            doorBell: "1 2",
+            street: "Concordia",
+            streetNumber: 21
         },
         hthTerritory: {
             congregation: 1,
@@ -178,7 +178,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                lat: -34.63088475094777,
                lng: -58.47324188830458
                 },
-                lastEditor: userEmail,
+                lastEditor: 11111111,
                 markers: [],
                 polygons: [
                     {

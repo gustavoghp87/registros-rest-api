@@ -94,6 +94,19 @@ export class UserDb {
             return null
         }
     }
+    async ChangeEmail(congregation: number, userId: number, newEmail: string): Promise<boolean> {
+        try {
+            if (!congregation) throw new Error("No llegó congregación")
+            const result: UpdateResult = await getCollection().updateOne(
+                { congregation, id: userId },
+                { $set: { email: newEmail } }
+            )
+            return !!result && !!result.modifiedCount
+        } catch (error) {
+            logger.Add(congregation, `Falló ChangeEmail() ${newEmail}: ${error}`, errorLogs)
+            return false
+        }
+    }
     async ChangePsw(congregation: number, email: string, encryptedPassword: string): Promise<boolean> {
         try {
             if (!congregation) throw new Error("No llegó congregación")

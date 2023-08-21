@@ -137,9 +137,13 @@ export const userController: Router = express.Router()
     .put('/token', async (req: Request, res: Response) => {
         const congregation: number = req.body.team
         const psw: string = req.body.psw
+        const newEmail: string = req.body.newEmail
         const newPsw: string = req.body.newPsw
         const id: string = req.body.id
-        if (psw && newPsw) {
+        if (newEmail) {
+            const success: boolean = await userServices.changeEmailService(req.user, newEmail)
+            res.json({ success })
+        } else if (psw && newPsw) {
             // change my psw
             const newToken: string|null = await userServices.changePswService(req.user, psw, newPsw)
             if (newToken === "wrongPassword") return res.json({ success: false, wrongPassword: true })

@@ -267,13 +267,23 @@ export const getHTHBuildingService = async (congregation: number, territoryNumbe
 }
 
 export const getHTHTerritoryService = async (requesterUser: types.typeUser, territoryNumber: types.typeTerritoryNumber): Promise<types.typeHTHTerritory|null> => {
-    if (!territoryNumber) return null
-    const hthTerritory: types.typeHTHTerritory|null = await getHTHTerritoryServiceWithoutPermissions(requesterUser.congregation, territoryNumber)
-    if (!hthTerritory) return null
+    if (!requesterUser || !territoryNumber) return null
+    console.log(requesterUser.congregation);
+    console.log(requesterUser.congregation);
+    console.log(requesterUser.congregation);
     if (requesterUser) {
         if (requesterUser.role !== 1 && !requesterUser.hthAssignments.includes(parseInt(territoryNumber)))
             return null
     }
+    console.log("-----");
+    
+    
+    const hthTerritory: types.typeHTHTerritory|null = await getHTHTerritoryServiceWithoutPermissions(requesterUser.congregation, territoryNumber)
+    console.log(hthTerritory?.congregation);
+    console.log(hthTerritory?.congregation);
+    console.log(hthTerritory?.congregation);
+    
+    if (!hthTerritory) return null
     return hthTerritory
 }
 

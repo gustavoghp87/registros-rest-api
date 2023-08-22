@@ -1,13 +1,13 @@
-import express, { RequestHandler } from 'express'
-import cors from 'cors'
-import morgan from 'morgan'
-import path from 'path'
-import * as controllers from './controllers'
-import { environment, port } from './env-variables'
 import { DbConnection } from './services-db/_dbConnection'
-import { socketConnection } from './services/broadcast-services'
+import { environment, port } from './env-variables'
 import { Logger } from './services/log-services'
 import { setUpUser } from './services/set-up-user-service'
+import { socketConnection } from './services/broadcast-services'
+import * as controllers from './controllers'
+import cors from 'cors'
+import express, { RequestHandler } from 'express'
+import morgan from 'morgan'
+import path from 'path'
 
 export const isProduction: boolean = environment === 'prod'
 export const testingDb: boolean = !isProduction
@@ -25,6 +25,7 @@ app.use(morgan('dev') as RequestHandler)
 app.use(express.static(path.join(__dirname, 'build')))
 //app.use('/api/campaign', setUpUser, controllers.campaignController)
 app.use('/api/board', setUpUser, controllers.boardController)
+app.use('/api/config', setUpUser, controllers.configController)
 app.use('/api/email', setUpUser, controllers.emailController)
 app.use('/api/log', setUpUser, controllers.logController)
 app.use('/api/house-to-house', setUpUser, controllers.houseToHouseController)

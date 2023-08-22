@@ -6,7 +6,7 @@ export const geocodingController: Router = express.Router()
 
     // get geocoding from address
     .post('/address', async (req: Request, res: Response) => {
-        const address: string = req.body.address as string
+        const address = req.body.address as string
         const coordinates: typeCoords|null = await getGeocodingFromAddressService(req.user, address)
         return res.json({ success: !!coordinates, coordinates })
     })

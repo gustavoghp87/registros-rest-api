@@ -1,6 +1,7 @@
 import { checkRecaptchaTokenService } from '../services/recaptcha-services'
+import { getConfig } from '../services/config-services'
 import { sendNewPswEmailService } from '../services/email-services'
-import { typeUser } from '../models'
+import { typeConfig, typeUser } from '../models'
 import * as userServices from '../services/user-services'
 import express, { Request, Response, Router } from 'express'
 
@@ -26,8 +27,9 @@ export const userController: Router = express.Router()
     // get my user
     .get('/', async (req: Request, res: Response) => {
         if (!req.user) return res.json({ success: false })
-        let user: typeUser = blindUser(req.user)
-        res.json({ success: true, user })
+        const user: typeUser = blindUser(req.user)
+        const config: typeConfig|null = await getConfig(req.user)
+        res.json({ success: !!user && !!config, user, config })
     })
 
     // sign up user

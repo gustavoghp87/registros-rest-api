@@ -24,6 +24,14 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                 }],
                 type: 'CampaignLogs'
             },
+            configLogs: {
+                congregation: 1,
+                logs: [{
+                    logText: `20/8/2022, 19:47:38 | Admin ${userEmail} cambió el nombre de la congregación: Plaza San Martín`,
+                    timestamp: 1661168080000
+                }],
+                type: 'ConfigLogs'
+            },
             errorLogs: {
                 congregation: 1,
                 logs: [{

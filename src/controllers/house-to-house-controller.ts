@@ -6,7 +6,10 @@ export const houseToHouseController: Router = express.Router()
 
     // create hth territories
     .post('/genesys', async (req: Request, res: Response) => {
-        const success: boolean = await hTHServices.createHTHTerritoriesService(req.user)
+        const numberOfTerritories = req.body.numberOfTerritories as number
+        const lat = req.body.lat as number
+        const lng = req.body.lng as number
+        const success: boolean = await hTHServices.createHTHTerritoriesService(req.user, numberOfTerritories, lat, lng)
         res.json({ success })
     })
 

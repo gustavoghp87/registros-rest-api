@@ -64,15 +64,18 @@ export class HouseToHouseDb {
             return false
         }
     }
-    async CreateHTHTerritories(congregation: number, userId: number): Promise<boolean> {
+    async CreateHTHTerritories(congregation: number, userId: number, numberOfTerritories: number, lat: number, lng: number): Promise<boolean> {
+        // miseri lat: -34.6324233875622, lng: -58.455761358048456
         try {
-            for (let i = 1; i <= 56; i++) {
+            if (!congregation || !userId || !numberOfTerritories || !Number.isInteger(numberOfTerritories))
+                throw Error("Faltan datos")
+            for (let i = 1; i <= numberOfTerritories; i++) {
                 console.log("Creating hth territory", i)
                 const hthTerritory: typeHTHTerritory = {
                     map: {
                         centerCoords: {
-                            lat: -34.6324233875622,
-                            lng: -58.455761358048456
+                            lat,
+                            lng
                         },
                         lastEditor: userId,
                         markers: [],
@@ -86,6 +89,7 @@ export class HouseToHouseDb {
             }
             return true
         } catch (error) {
+            logger.Add(congregation, `Falló CreateHTHTerritories(): ${error}`, errorLogs)
             return false
         }
     }

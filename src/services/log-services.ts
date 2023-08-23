@@ -3,6 +3,7 @@ import { LogDb } from '../services-db/logDbConnection'
 import { typeLogsPackage, typeLogObj, typeAllLogsObj, typeLogType, typeUser } from '../models'
 
 export const campaignLogs: typeLogType = 'CampaignLogs'
+export const configLogs: typeLogType = 'ConfigLogs'
 export const errorLogs: typeLogType = 'ErrorLogs'
 export const houseToHouseAdminLogs: typeLogType = 'HouseToHouseAdminLogs'
 export const houseToHouseLogs: typeLogType = 'HouseToHouseLogs'

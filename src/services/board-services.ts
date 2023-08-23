@@ -1,13 +1,15 @@
-import { googleSiteUrl } from '../env-variables'
+import { getConfigService } from './config-services'
 import { logger } from '../server'
-import { typeBoardItem, typeUser } from '../models'
+import { typeBoardItem, typeConfig, typeUser } from '../models'
 import Axios from 'axios'
 
 export const getBoardItems = async (requesterUser: typeUser): Promise<typeBoardItem[]|null> => {
     if (!requesterUser) return null
     const siteUrl: string = 'https://sites.google.com'
     try {
-        const { data } = await Axios.get(siteUrl + googleSiteUrl)
+        const config: typeConfig|null = await getConfigService(requesterUser)
+        if (!config?.googleBoardUrl) return null
+        const { data } = await Axios.get(siteUrl + config.googleBoardUrl)
         const items: string[] = []
         const urlElements: string[] = data.split('data-url="')
         urlElements.forEach(x => items.push(x.split('"')[0]))

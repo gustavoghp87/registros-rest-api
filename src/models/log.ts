@@ -11,22 +11,24 @@ export type typeLogObj = {
 
 export type typeAllLogsObj = {
     campaignLogs: typeLogsPackage
+    configLogs: typeLogsPackage
     errorLogs: typeLogsPackage
     houseToHouseAdminLogs: typeLogsPackage
     houseToHouseLogs: typeLogsPackage
     loginLogs: typeLogsPackage
-    telephonicStateLogs: typeLogsPackage
     telephonicLogs: typeLogsPackage
+    telephonicStateLogs: typeLogsPackage
     userLogs: typeLogsPackage
 }
 
 export type typeLogType =
     'CampaignLogs' |
+    'ConfigLogs' |
     'ErrorLogs' |
     'HouseToHouseAdminLogs' |
     'HouseToHouseLogs' |
     'LoginLogs' |
-    'TelephonicStateLogs' |
     'TelephonicLogs' |
+    'TelephonicStateLogs' |
     'UserLogs'
 ;

@@ -3,6 +3,7 @@ import { MongoClient } from 'mongodb'
 
 type typeCollection =
     'Campaigns' |
+    'Config' |
     'Emails' |
     'HouseToHouseTerritories' |
     'Logs' |
@@ -17,6 +18,7 @@ export class DbConnection {
     private DbMWTesting: string = 'Misericordia-Web-Testing'
 
     public CollCampaigns: typeCollection = 'Campaigns'
+    public CollConfig: typeCollection = 'Config'
     public CollEmails: typeCollection = 'Emails'
     public CollHTHTerritories: typeCollection = 'HouseToHouseTerritories'
     public CollLogs: typeCollection = 'Logs'

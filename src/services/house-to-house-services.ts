@@ -3,6 +3,7 @@ import { getCurrentLocalDate } from './helpers'
 import { getTerritoryStreetsService } from './telephonic-services'
 import { HouseToHouseDb } from '../services-db/houseToHouseDbConnection'
 import { logger } from '../server'
+import { setNumberOfTerritoriesService } from './config-services'
 import * as types from '../models'
 
 const houseToHouseDbConnection = new HouseToHouseDb()
@@ -93,9 +94,9 @@ export const changeStateToHTHHouseholdService = async (requesterUser: types.type
     if (!congregation || !territoryNumber || !block || !face || !householdId || typeof householdId !== 'number') return false
     isChecked = !!isChecked
     if (!!requesterUser) {
-        if (requesterUser.role !== 1 && !requesterUser.hthAssignments?.includes(parseInt(territoryNumber))) {
-            return false
-        }
+        // if (requesterUser.role !== 1 && !requesterUser.hthAssignments?.includes(parseInt(territoryNumber))) {
+        //     return false
+        // }
     } else {
         const hthTerritory = await getHTHTerritoryServiceWithoutPermissions(congregation, territoryNumber)
         if (!hthTerritory) return false
@@ -111,9 +112,15 @@ export const changeStateToHTHHouseholdService = async (requesterUser: types.type
     }
 }
 
-export const createHTHTerritoriesService = async (requesterUser: types.typeUser): Promise<boolean> => {
+export const createHTHTerritoriesService = async (
+ requesterUser: types.typeUser, numberOfTerritories: number, lat: number, lng: number): Promise<boolean> => {
     if (!requesterUser || requesterUser.role !== 1) return false
-    const success: boolean = await houseToHouseDbConnection.CreateHTHTerritories(requesterUser.congregation, requesterUser.id)
+    if (!numberOfTerritories || !Number.isInteger(numberOfTerritories) || !lat || !lng || typeof lat !== 'number' || typeof lng !== 'number') return false
+    const success: boolean = await houseToHouseDbConnection.CreateHTHTerritories(requesterUser.congregation, requesterUser.id, numberOfTerritories, lat, lng)
+    if (success) {
+        const successSetNumber: boolean = await setNumberOfTerritoriesService(requesterUser.congregation, requesterUser.email, numberOfTerritories)
+        if (!successSetNumber) return false
+    }
     return success
 }
 
@@ -268,21 +275,11 @@ export const getHTHBuildingService = async (congregation: number, territoryNumbe
 
 export const getHTHTerritoryService = async (requesterUser: types.typeUser, territoryNumber: types.typeTerritoryNumber): Promise<types.typeHTHTerritory|null> => {
     if (!requesterUser || !territoryNumber) return null
-    console.log(requesterUser.congregation);
-    console.log(requesterUser.congregation);
-    console.log(requesterUser.congregation);
-    if (requesterUser) {
-        if (requesterUser.role !== 1 && !requesterUser.hthAssignments.includes(parseInt(territoryNumber)))
-            return null
-    }
-    console.log("-----");
-    
-    
+    // if (requesterUser) {
+    //     if (requesterUser.role !== 1 && !requesterUser.hthAssignments.includes(parseInt(territoryNumber)))
+    //         return null
+    // }
     const hthTerritory: types.typeHTHTerritory|null = await getHTHTerritoryServiceWithoutPermissions(requesterUser.congregation, territoryNumber)
-    console.log(hthTerritory?.congregation);
-    console.log(hthTerritory?.congregation);
-    console.log(hthTerritory?.congregation);
-    
     if (!hthTerritory) return null
     return hthTerritory
 }

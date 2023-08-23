@@ -7,6 +7,7 @@ const getCollection = () => dbClient.Client.db(dbClient.DbMW).collection(dbClien
 export class LogDb {
 
     private CampaignLogs: typeLogType = 'CampaignLogs'
+    private ConfigLogs: typeLogType = 'ConfigLogs'
     private ErrorLogs: typeLogType = 'ErrorLogs'
     private HouseToHouseAdminLogs: typeLogType = 'HouseToHouseAdminLogs'
     private HouseToHouseLogs: typeLogType = 'HouseToHouseLogs'
@@ -47,6 +48,7 @@ export class LogDb {
         try {
             if (!congregation) throw new Error("No llegó congregación")
             const campaignLogs = await getCollection().findOne({ congregation, type: this.CampaignLogs }) as unknown as typeLogsPackage
+            const configLogs = await getCollection().findOne({ congregation, type: this.ConfigLogs }) as unknown as typeLogsPackage
             const errorLogs = await getCollection().findOne({ congregation, type: this.ErrorLogs }) as unknown as typeLogsPackage
             const houseToHouseAdminLogs = await getCollection().findOne({ congregation, type: this.HouseToHouseAdminLogs }) as unknown as typeLogsPackage
             const houseToHouseLogs = await getCollection().findOne({ congregation, type: this.HouseToHouseLogs }) as unknown as typeLogsPackage
@@ -56,6 +58,7 @@ export class LogDb {
             const userLogs = await getCollection().findOne({ congregation, type: this.UserLogs }) as unknown as typeLogsPackage
             return {
                 campaignLogs,
+                configLogs,
                 errorLogs,
                 houseToHouseAdminLogs,
                 houseToHouseLogs,

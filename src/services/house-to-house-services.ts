@@ -32,12 +32,13 @@ export const addHTHBuildingService = async (requesterUser: types.typeUser, terri
         hasContinuousNumbers: newBuilding.hasContinuousNumbers,
         hasLowLevel: newBuilding.hasLowLevel,
         households: newBuilding.households.map((x, y) => ({
-            dateOfLastCall: 0,
             doorName: x.doorName,
             doorNumber: x.doorNumber,
             id: id + y,
             isChecked: false,
-            level: x.level
+            level: x.level,
+            offDates: [],
+            onDates: []
         })),
         dateOfLastSharing: 0,
         numberOfLevels: newBuilding.numberOfLevels,
@@ -184,9 +185,12 @@ export const editHTHMapService = async (requesterUser: types.typeUser,
     if (!editedHTHMap || !editedHTHMap.zoom || !editedHTHMap.centerCoords || !editedHTHMap.centerCoords.lat || !editedHTHMap.centerCoords.lng) return false
     const centerCoords: types.typeCoords = editedHTHMap.centerCoords
     const zoom: number = editedHTHMap.zoom
-    let success: boolean = await houseToHouseDbConnection.EditViewHTHMap(requesterUser.congregation, territoryNumber, centerCoords, zoom, requesterUser.email)
-    if (success) logger.Add(requesterUser.congregation, `${requesterUser.email} editó el mapa del territorio ${territoryNumber}`, houseToHouseAdminLogs)
-    else logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo editar el mapa del territorio ${territoryNumber}`, errorLogs)
+    let success: boolean = await houseToHouseDbConnection.EditViewHTHMap(requesterUser.congregation, territoryNumber, centerCoords, zoom, requesterUser.id)
+    if (success) {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} editó el mapa del territorio ${territoryNumber}`, houseToHouseAdminLogs)
+    } else {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo editar el mapa del territorio ${territoryNumber}`, errorLogs)
+    }
     if (success && editedHTHPolygons && editedHTHPolygons.length) {
         editedHTHPolygons.forEach(async x => {
             success = await houseToHouseDbConnection.EditHTHPolygon(requesterUser.congregation, territoryNumber, x)

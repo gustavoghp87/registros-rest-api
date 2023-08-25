@@ -61,6 +61,15 @@ export type typeObservation = {
 
 
 // new buildings section
+export type typeHTHHousehold = {
+    doorName: string
+    doorNumber: number
+    id: number
+    isChecked: boolean
+    level: number
+    offDates: number[]
+    onDates: number[]
+}
 
 export type typeHTHBuilding = {
     creatorId: number
@@ -73,13 +82,4 @@ export type typeHTHBuilding = {
     numberOfLevels: number
     numberPerLevel: number
     streetNumber: number
-}
-
-export type typeHTHHousehold = {
-    dateOfLastCall: number
-    doorName: string
-    doorNumber: number
-    id: number
-    isChecked: boolean
-    level: number
 }

@@ -200,7 +200,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                 hasLowLevel: false,
                                 households: [
                                     {
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "doorName": "A",
                                         "doorNumber": 1,
                                         "id": 1661442335840,
@@ -212,7 +213,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 3,
                                         "id": 1661442335841,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 1
                                     },
                                     {
@@ -220,7 +222,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 1,
                                         "id": 1661442335842,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -228,7 +231,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 2,
                                         "id": 1661442335843,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -236,7 +240,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 3,
                                         "id": 1661442335844,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -244,7 +249,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 1,
                                         "id": 1661442335845,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 3
                                     },
                                     {
@@ -252,7 +258,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 2,
                                         "id": 1661442335846,
                                         "isChecked": true,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 3
                                     }
                                 ],
@@ -359,7 +366,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                 hasLowLevel: false,
                                 households: [
                                     {
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "doorName": "A",
                                         "doorNumber": 1,
                                         "id": 1661442335840,
@@ -371,7 +379,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 3,
                                         "id": 1661442335841,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 1
                                     },
                                     {
@@ -379,7 +388,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 1,
                                         "id": 1661442335842,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -387,7 +397,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 2,
                                         "id": 1661442335843,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -395,7 +406,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 3,
                                         "id": 1661442335844,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -403,7 +415,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 1,
                                         "id": 1661442335845,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 3
                                     },
                                     {
@@ -411,7 +424,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 2,
                                         "id": 1661442335846,
                                         "isChecked": true,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 3
                                     }
                                 ],
@@ -462,7 +476,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                 hasLowLevel: false,
                                 households: [
                                     {
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "doorName": "A",
                                         "doorNumber": 1,
                                         "id": 1661442335840,
@@ -474,7 +489,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 3,
                                         "id": 1661442335841,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 1
                                     },
                                     {
@@ -482,7 +498,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 1,
                                         "id": 1661442335842,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -490,7 +507,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 2,
                                         "id": 1661442335843,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -498,7 +516,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 3,
                                         "id": 1661442335844,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -506,7 +525,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 1,
                                         "id": 1661442335845,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 3
                                     },
                                     {
@@ -514,7 +534,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 2,
                                         "id": 1661442335846,
                                         "isChecked": true,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 3
                                     }
                                 ],
@@ -574,7 +595,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                 hasLowLevel: false,
                                 households: [
                                     {
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "doorName": "A",
                                         "doorNumber": 1,
                                         "id": 1661442335840,
@@ -586,7 +608,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 3,
                                         "id": 1661442335841,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 1
                                     },
                                     {
@@ -594,7 +617,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 1,
                                         "id": 1661442335842,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -602,7 +626,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 2,
                                         "id": 1661442335843,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -610,7 +635,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 3,
                                         "id": 1661442335844,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -618,7 +644,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 1,
                                         "id": 1661442335845,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 3
                                     },
                                     {
@@ -626,7 +653,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 2,
                                         "id": 1661442335846,
                                         "isChecked": true,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 3
                                     }
                                 ],
@@ -691,7 +719,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                 hasLowLevel: false,
                                 households: [
                                     {
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "doorName": "A",
                                         "doorNumber": 1,
                                         "id": 1661442335840,
@@ -703,7 +732,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 3,
                                         "id": 1661442335841,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 1
                                     },
                                     {
@@ -711,7 +741,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 1,
                                         "id": 1661442335842,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -719,7 +750,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 2,
                                         "id": 1661442335843,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -727,7 +759,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 3,
                                         "id": 1661442335844,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -735,7 +768,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 1,
                                         "id": 1661442335845,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 3
                                     },
                                     {
@@ -743,7 +777,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 2,
                                         "id": 1661442335846,
                                         "isChecked": true,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 3
                                     }
                                 ],
@@ -786,7 +821,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                 hasLowLevel: false,
                                 households: [
                                     {
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "doorName": "A",
                                         "doorNumber": 1,
                                         "id": 1661442335840,
@@ -798,7 +834,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 3,
                                         "id": 1661442335841,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 1
                                     },
                                     {
@@ -806,7 +843,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 1,
                                         "id": 1661442335842,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -814,7 +852,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 2,
                                         "id": 1661442335843,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -822,7 +861,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 3,
                                         "id": 1661442335844,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -830,7 +870,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 1,
                                         "id": 1661442335845,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 3
                                     },
                                     {
@@ -838,7 +879,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 2,
                                         "id": 1661442335846,
                                         "isChecked": true,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 3
                                     }
                                 ],
@@ -881,7 +923,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                 hasLowLevel: false,
                                 households: [
                                     {
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "doorName": "A",
                                         "doorNumber": 1,
                                         "id": 1661442335840,
@@ -893,7 +936,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 3,
                                         "id": 1661442335841,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 1
                                     },
                                     {
@@ -901,7 +945,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 1,
                                         "id": 1661442335842,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -909,7 +954,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 2,
                                         "id": 1661442335843,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -917,7 +963,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 3,
                                         "id": 1661442335844,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -925,7 +972,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 1,
                                         "id": 1661442335845,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 3
                                     },
                                     {
@@ -933,7 +981,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 2,
                                         "id": 1661442335846,
                                         "isChecked": true,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 3
                                     }
                                 ],
@@ -976,7 +1025,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                 hasLowLevel: false,
                                 households: [
                                     {
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "doorName": "A",
                                         "doorNumber": 1,
                                         "id": 1661442335840,
@@ -988,7 +1038,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 3,
                                         "id": 1661442335841,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 1
                                     },
                                     {
@@ -996,7 +1047,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 1,
                                         "id": 1661442335842,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -1004,7 +1056,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 2,
                                         "id": 1661442335843,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -1012,7 +1065,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 3,
                                         "id": 1661442335844,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -1020,7 +1074,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 1,
                                         "id": 1661442335845,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 3
                                     },
                                     {
@@ -1028,7 +1083,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 2,
                                         "id": 1661442335846,
                                         "isChecked": true,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 3
                                     }
                                 ],
@@ -1071,7 +1127,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                 hasLowLevel: false,
                                 households: [
                                     {
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "doorName": "A",
                                         "doorNumber": 1,
                                         "id": 1661442335840,
@@ -1083,7 +1140,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 3,
                                         "id": 1661442335841,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 1
                                     },
                                     {
@@ -1091,7 +1149,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 1,
                                         "id": 1661442335842,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -1099,7 +1158,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 2,
                                         "id": 1661442335843,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -1107,7 +1167,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 3,
                                         "id": 1661442335844,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -1115,7 +1176,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 1,
                                         "id": 1661442335845,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 3
                                     },
                                     {
@@ -1123,7 +1185,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 2,
                                         "id": 1661442335846,
                                         "isChecked": true,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 3
                                     }
                                 ],
@@ -1166,7 +1229,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                 hasLowLevel: false,
                                 households: [
                                     {
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "doorName": "A",
                                         "doorNumber": 1,
                                         "id": 1661442335840,
@@ -1178,7 +1242,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 3,
                                         "id": 1661442335841,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 1
                                     },
                                     {
@@ -1186,7 +1251,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 1,
                                         "id": 1661442335842,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -1194,7 +1260,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 2,
                                         "id": 1661442335843,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -1202,7 +1269,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 3,
                                         "id": 1661442335844,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -1210,7 +1278,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 1,
                                         "id": 1661442335845,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 3
                                     },
                                     {
@@ -1218,7 +1287,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 2,
                                         "id": 1661442335846,
                                         "isChecked": true,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 3
                                     }
                                 ],
@@ -1261,7 +1331,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                 hasLowLevel: false,
                                 households: [
                                     {
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "doorName": "A",
                                         "doorNumber": 1,
                                         "id": 1661442335840,
@@ -1273,7 +1344,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 3,
                                         "id": 1661442335841,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 1
                                     },
                                     {
@@ -1281,7 +1353,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 1,
                                         "id": 1661442335842,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -1289,7 +1362,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 2,
                                         "id": 1661442335843,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -1297,7 +1371,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 3,
                                         "id": 1661442335844,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -1305,7 +1380,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 1,
                                         "id": 1661442335845,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 3
                                     },
                                     {
@@ -1313,7 +1389,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 2,
                                         "id": 1661442335846,
                                         "isChecked": true,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 3
                                     }
                                 ],
@@ -1356,7 +1433,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                 hasLowLevel: false,
                                 households: [
                                     {
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "doorName": "A",
                                         "doorNumber": 1,
                                         "id": 1661442335840,
@@ -1368,7 +1446,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 3,
                                         "id": 1661442335841,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 1
                                     },
                                     {
@@ -1376,7 +1455,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 1,
                                         "id": 1661442335842,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -1384,7 +1464,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 2,
                                         "id": 1661442335843,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -1392,7 +1473,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 3,
                                         "id": 1661442335844,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 2
                                     },
                                     {
@@ -1400,7 +1482,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 1,
                                         "id": 1661442335845,
                                         "isChecked": false,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 3
                                     },
                                     {
@@ -1408,7 +1491,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "doorNumber": 2,
                                         "id": 1661442335846,
                                         "isChecked": true,
-                                        "dateOfLastCall": 0,
+                                        "onDates": [],
+                                        "offDates": [],
                                         "level": 3
                                     }
                                 ],

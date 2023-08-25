@@ -196,11 +196,26 @@ export class HouseToHouseDb {
         try {
             if (!congregation || !territoryNumber || !block || !face || !streetNumber || !householdId)
                 throw new Error("No llegaron datos")
-            const result: UpdateResult = await getCollection().updateOne(
-                { congregation, territoryNumber },
-                { $set: { 'map.polygons.$[x].buildings.$[y].households.$[z].isChecked': isChecked } },
-                { arrayFilters: [{ 'x.block': block, 'x.face': face }, { 'y.streetNumber': streetNumber }, { 'z.id': householdId }] }
-            )
+            let result: UpdateResult
+            if (isChecked) {
+                result = await getCollection().updateOne(
+                    { congregation, territoryNumber },
+                    {
+                        $set: { 'map.polygons.$[x].buildings.$[y].households.$[z].isChecked': true },
+                        $addToSet: { 'map.polygons.$[x].buildings.$[y].households.$[z].onDates': +new Date() }
+                    },
+                    { arrayFilters: [{ 'x.block': block, 'x.face': face }, { 'y.streetNumber': streetNumber }, { 'z.id': householdId }] }
+                )
+            } else {
+                result = await getCollection().updateOne(
+                    { congregation, territoryNumber },
+                    {
+                        $set: { 'map.polygons.$[x].buildings.$[y].households.$[z].isChecked': false },
+                        $addToSet: { 'map.polygons.$[x].buildings.$[y].households.$[z].offDates': +new Date() }
+                    },
+                    { arrayFilters: [{ 'x.block': block, 'x.face': face }, { 'y.streetNumber': streetNumber }, { 'z.id': householdId }] }
+                )
+            }
             return !!result.modifiedCount
         } catch (error) {
             logger.Add(congregation, `Falló EditStateHTHHousehold() territorio ${territoryNumber}: ${error}`, errorLogs)
@@ -209,14 +224,29 @@ export class HouseToHouseDb {
     }
     async EditStateHTHManagerHousehold(congregation: number, territoryNumber: typeTerritoryNumber,
         block: typeBlock, face: typeFace, streetNumber: number, isChecked: boolean): Promise<boolean> {
-           try {
-               if (!congregation || !territoryNumber || !block || !face || !streetNumber)
-                   throw new Error("No llegaron datos")
-               const result: UpdateResult = await getCollection().updateOne(
-                   { congregation, territoryNumber },
-                   { $set: { 'map.polygons.$[x].buildings.$[y].manager.isChecked': isChecked } },
-                   { arrayFilters: [{ 'x.block': block, 'x.face': face }, { 'y.streetNumber': streetNumber }] }
-               )
+            try {
+                if (!congregation || !territoryNumber || !block || !face || !streetNumber)
+                    throw new Error("No llegaron datos")
+                let result: UpdateResult
+                if (isChecked) {
+                    result = await getCollection().updateOne(
+                        { congregation, territoryNumber },
+                        {
+                            $set: { 'map.polygons.$[x].buildings.$[y].manager.isChecked': true },
+                            $addToSet: { 'map.polygons.$[x].buildings.$[y].manager.onDates': +new Date() }
+                        },
+                        { arrayFilters: [{ 'x.block': block, 'x.face': face }, { 'y.streetNumber': streetNumber }] }
+                    )
+                } else {
+                    result = await getCollection().updateOne(
+                        { congregation, territoryNumber },
+                        {
+                            $set: { 'map.polygons.$[x].buildings.$[y].manager.isChecked': false },
+                            $addToSet: { 'map.polygons.$[x].buildings.$[y].manager.offDates': +new Date() }
+                        },
+                        { arrayFilters: [{ 'x.block': block, 'x.face': face }, { 'y.streetNumber': streetNumber }] }
+                    )
+                }
                return !!result.modifiedCount
            } catch (error) {
                logger.Add(congregation, `Falló EditStateHTHHousehold() territorio ${territoryNumber}: ${error}`, errorLogs)
@@ -224,7 +254,7 @@ export class HouseToHouseDb {
            }
        }
     async EditViewHTHMap(congregation: number, territoryNumber: typeTerritoryNumber,
-     centerCoords: typeCoords, zoom: number, lastEditor: string): Promise<boolean> {
+     centerCoords: typeCoords, zoom: number, lastEditor: number): Promise<boolean> {
         try {
             if (!congregation || !centerCoords || !zoom || !territoryNumber)
                 throw new Error("No llegaron datos")
@@ -232,6 +262,7 @@ export class HouseToHouseDb {
                 { congregation, territoryNumber },
                 { $set: { 'map.centerCoords': centerCoords, 'map.zoom': zoom, 'map.lastEditor': lastEditor } }
             )
+            console.log(result)
             return true  // do not use .modifiedCount
         } catch (error) {
             logger.Add(congregation, `Falló EditViewHTHMap() territorio ${territoryNumber} ${centerCoords} ${zoom}: ${error}`, errorLogs)

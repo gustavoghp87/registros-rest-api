@@ -1,5 +1,6 @@
 import { dbClient, logger } from '../server'
 import { errorLogs } from '../services/log-services'
+import { InsertOneResult } from 'mongodb'
 import { typeLogsPackage, typeLogObj, typeAllLogsObj, typeLogType } from '../models'
 
 const getCollection = () => dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollLogs)
@@ -43,6 +44,21 @@ export class LogDb {
             logger.Add(congregation, `Falló Get() logs ${type}: ${error}`, errorLogs)
             return null
         }
+    }
+    async Genesys(congregation: number): Promise<boolean> {
+        const a = [this.CampaignLogs, this.ConfigLogs, this.ErrorLogs, this.HouseToHouseAdminLogs, this.HouseToHouseLogs, this.LoginLogs, this.TelephonicLogs, this.TelephonicStateLogs, this.UserLogs]
+        let result: InsertOneResult|null = null
+        for (let i = 0; i < a.length; i++) {
+            const logType = a[i]
+            const x = {
+                logs: [],
+                type: logType,
+                congregation
+            }
+            result = await getCollection().insertOne(x)
+            console.log(result);
+        }
+        return !!result
     }
     async GetAll(congregation: number): Promise<typeAllLogsObj|null> {
         try {

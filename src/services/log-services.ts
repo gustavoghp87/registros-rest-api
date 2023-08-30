@@ -34,6 +34,16 @@ export class Logger {
         return success
     }
 
+    public async Genesys(congregation: number) {
+        const success: boolean = await this.LogDbConnection.Genesys(congregation)
+        if (success) {
+            this.Add(congregation, "Se crearon los objetos de logs en la base de datos", configLogs)
+        } else {
+            this.Add(congregation, "Falló Logs Genesys...", errorLogs)
+        }
+        return success
+    }
+
     public async Get(congregation: number, requesterUser: typeUser, type: typeLogType): Promise<typeLogsPackage|null> {
         if (!congregation || !requesterUser || requesterUser.role !== 1) return null
         const logs: typeLogsPackage|null = await this.LogDbConnection.Get(congregation, type)

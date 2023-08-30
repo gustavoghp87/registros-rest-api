@@ -52,6 +52,7 @@ export const setNameOfCongregationService = async (requesterUser: typeUser, name
     if (!name || name.length < 6) return false
     const config = await getConfigService(requesterUser)
     if (!config) {
+        await logger.Genesys(requesterUser.congregation)
         const successGenesys: boolean = await createCongregationService(requesterUser.congregation, requesterUser.email)
         if (!successGenesys) return false
     }

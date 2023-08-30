@@ -1,4 +1,4 @@
-import { dbClient, logger } from '../server'
+import { dbClient, logger, recoveryTokensExpiresIn } from '../server'
 import { DeleteResult, UpdateResult } from 'mongodb'
 import { errorLogs } from '../services/log-services'
 import { typeRecoveryOption, typeUser } from '../models'
@@ -13,7 +13,7 @@ export class UserDb {
             if (!user) return false
             const newRecoveryOption: typeRecoveryOption = {
                 id,
-                expiration: + new Date() + 24*60*60*1000,       // 24 hs
+                expiration: + new Date() + recoveryTokensExpiresIn,
                 used: false
             }
             let recoveryOptions: typeRecoveryOption[]|undefined = user.recoveryOptions

@@ -34,6 +34,23 @@ export class ConfigDb {
             return null
         }
     }
+    async InviteNewUser(userId: number, congregation: number, email: string) {
+        try {
+            if (!userId || !congregation || !email) throw Error("Faltan datos")
+            const invitation = {
+                
+            }
+            // const result: UpdateResult = await getCollection().updateOne(
+            //     { congregation },
+            //     { $addToSet: { invitations: email} }
+            // )
+            // return !!result.modifiedCount
+            return true
+        } catch (error) {
+            logger.Add(congregation, `Falló InviteNewUser() (${name}): ${error}`, errorLogs)
+            return false
+        }
+    }
     async SetNameOfCongregation(congregation: number, name: string): Promise<boolean> {
         try {
             if (!congregation || !name || name.length < 6) throw Error("Faltan datos")

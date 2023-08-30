@@ -2,10 +2,12 @@ import { accessTokensExpiresIn, logger } from '../server'
 import { errorLogs } from './log-services'
 import { getUserById } from './user-services'
 import { jwtString } from '../env-variables'
-import { typeJWTObjectForUser, typeUser } from '../models'
+import { typeUserJwtObject, typeUser } from '../models'
 import jwt from 'jsonwebtoken'
 
-const decodeService = (token: string): typeJWTObjectForUser|null => {
+// ACCESS
+
+const decodeAccessJwtService = (token: string): typeUserJwtObject|null => {
     if (!token) return null
     try {
         const decoded: jwt.JwtPayload|null = jwt.decode(token, { complete: true, json: true })
@@ -23,7 +25,7 @@ const decodeService = (token: string): typeJWTObjectForUser|null => {
     }
 }
 
-export const decodeVerifiedService = (token: string): typeJWTObjectForUser|null => {
+export const verifyAndDecodeAccessJwtService = (token: string): typeUserJwtObject|null => {
     if (!token) return null
     try {
         const decoded = jwt.verify(token, jwtString) as jwt.JwtPayload|null
@@ -36,7 +38,7 @@ export const decodeVerifiedService = (token: string): typeJWTObjectForUser|null 
             userId: decoded.userId
         }
     } catch (error) {
-        const decoded = decodeService(token)
+        const decoded = decodeAccessJwtService(token)
         if (decoded && decoded.userId && decoded.congregation) {
             getUserById(decoded.congregation, decoded.userId).then((user: typeUser|null) => {
                 if (user) logger.Add(decoded.congregation, `No se pudo verificar token de ${user.email}: ${error}`, errorLogs)
@@ -48,7 +50,7 @@ export const decodeVerifiedService = (token: string): typeJWTObjectForUser|null 
     }
 }
 
-export const signUserService = (congregation: number, id: number, tokenId: number): string|null => {
+export const generateAccessJwtService = (congregation: number, id: number, tokenId: number): string|null => {
     try {
         const payload = {
             team: congregation,
@@ -62,3 +64,44 @@ export const signUserService = (congregation: number, id: number, tokenId: numbe
         return null
     }
 }
+
+// RECOVERY
+// type typeRecoveryAccountJwtObject = {
+//     email: string
+//     exp: number
+//     iat: number
+//     team: number
+// }
+
+// const recoveryTokensExpiresIn: string = '24h'
+
+// export const generateRecoveryJwtService = (congregation: number, userEmail: string): string|null => {
+//     try {
+//         const payload = {
+//             email: userEmail,
+//             team: congregation
+//         }
+//         const token: string = jwt.sign(payload, jwtString, { expiresIn: recoveryTokensExpiresIn })
+//         return token
+//     } catch (error) {
+//         logger.Add(congregation, `No se pudo crear token de recovery: ${error}`, errorLogs)
+//         return null
+//     }
+// }
+
+// export const verifyAndDecodeRecoveryJwtService = (token: string): typeRecoveryAccountJwtObject|null => {
+//     if (!token) return null
+//     try {
+//         const decoded = jwt.verify(token, jwtString) as jwt.JwtPayload|null
+//         if (!decoded) throw Error("No hay objeto decodificado")
+//         return {
+//             email: decoded.email,
+//             exp: decoded.exp || 0,
+//             iat: decoded.iat || 0,
+//             team: decoded.team
+//         }
+//     } catch (error) {
+//         logger.Add(1, `No se pudo verificar token de recuperación: ${error}`, errorLogs)
+//         return null
+//     }
+// }

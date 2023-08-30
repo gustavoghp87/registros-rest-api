@@ -34,13 +34,16 @@ export const userController: Router = express.Router()
 
     // sign up user
     .post('/', async (req: Request, res: Response) => {
-        const { email, password, group, recaptchaToken } = req.body
-        const congregation: number = req.body.team
-        const checkRecaptch: boolean = await checkRecaptchaTokenService(congregation, recaptchaToken)
-        if (!checkRecaptch) return res.json({ success: false, recaptchaFails: true })
+        const { email, password } = req.body
+        const group = parseInt(req.body.group)
+        // const checkRecaptch: boolean = await checkRecaptchaTokenService(congregation, recaptchaToken)
+        // if (!checkRecaptch) return res.json({ success: false, recaptchaFails: true })
         const user: typeUser|null = await userServices.getUserByEmailEveryCongregationService(email)
-        if (user) return res.json({ success: false, userExists: true })
-        const success: boolean = await userServices.registerUserService(congregation, email, password, group)
+        if (user) {
+            res.json({ success: false, userExists: true })
+            return
+        }
+        const success: boolean = await userServices.registerUserService(req.user, email, password, group)
         res.json({ success })
     })
 
@@ -107,8 +110,6 @@ export const userController: Router = express.Router()
 
     // get email from email link id
     .get('/recovery', async (req: Request, res: Response) => {
-        // const id: string = req.params.id
-        // const congregation: string = req.params.team
         const id = req.query.id?.toString() || "";
         const congregation = req.query.team?.toString() || "";
         const user: typeUser|null = await userServices.getUserByEmailLinkService(congregation, null, id)

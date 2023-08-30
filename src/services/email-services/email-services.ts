@@ -152,11 +152,15 @@ export const sendRecoverAccountEmailService = async (congregation: number, email
             <br/>
             &nbsp;&nbsp;${url}
             <br/>
+            o a:
             <br/>
             &nbsp;&nbsp; <a href="${url}">${url}</a>
             <br/>
             <br/>
-            y elegir una nueva clave.
+            y elegir una nueva contraseña.
+            <br/>
+            <br/>
+            Esta opción se puede usar durante las siguientes 24 horas.
         </p>
     `
     const success: boolean = await sendEmail(congregation, to, subject, text, html)

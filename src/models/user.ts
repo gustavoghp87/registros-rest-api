@@ -1,3 +1,9 @@
+export type typeRecoveryOption = {
+    expiration: number
+    id: string
+    used: boolean
+}
+
 export type typeUser = {
     congregation: number
     email: string
@@ -12,13 +18,7 @@ export type typeUser = {
     tokenId: number
 }
 
-export type typeRecoveryOption = {
-    expiration: number
-    id: string
-    used: boolean
-}
-
-export type typeJWTObjectForUser = {
+export type typeUserJwtObject = {
     congregation: number
     exp: number
     iat: number

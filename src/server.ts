@@ -9,13 +9,15 @@ import express, { RequestHandler } from 'express'
 import morgan from 'morgan'
 import path from 'path'
 
-export const isProduction: boolean = environment === 'prod'
-export const testingDb: boolean = !isProduction
-export const accessTokensExpiresIn: string = '2160h'  // 90 days
-export const domain: string = "https://www.misericordiaweb.com"
-export const testingDomain: string = "http://localhost:3000"
-export const dbClient: DbConnection = new DbConnection(testingDb)
-export const logger: Logger = new Logger()
+export const isProduction = environment === 'prod'
+export const testingDb = !isProduction
+export const accessTokensExpiresIn = '2160h'  // 90 days
+export const recoveryTokensExpiresIn = 24*60*60*1000  // 24 hs
+export const domain = "https://www.misericordiaweb.com"
+export const testingDomain = "http://localhost:3000"
+export const dbClient = new DbConnection(testingDb)
+export const logger = new Logger()
+export const emailPatter = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 
 const app = express()
 app.use(cors({ origin: isProduction ? [domain] : [domain, testingDomain] }))

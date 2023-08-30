@@ -1,12 +1,12 @@
 import { checkRecaptchaTokenService } from './recaptcha-services'
 import { comparePasswordsService, generatePasswordHash } from './bcrypt-services'
-import { decodeVerifiedService, signUserService } from './jwt-services'
+import { emailPatter, logger } from '../server'
 import { errorLogs, loginLogs, userLogs } from './log-services'
 import { getRandomId12, getRandomId24 } from './helpers'
-import { logger } from '../server'
 import { sendRecoverAccountEmailService } from './email-services'
-import { typeJWTObjectForUser, typeRecoveryOption, typeTerritoryNumber, typeUser } from '../models'
+import { typeUserJwtObject, typeTerritoryNumber, typeUser, typeRecoveryOption } from '../models'
 import { UserDb } from '../services-db/userDbConnection'
+import { verifyAndDecodeAccessJwtService, generateAccessJwtService } from './jwt-services'
 
 const userDbConnection: UserDb = new UserDb()
 
@@ -138,7 +138,7 @@ export const editUserService = async (requesterUser: typeUser, email: string, is
 
 const generateAccessTokenService = (user: typeUser, tokenId: number): string|null => {
     if (!user || !user.id || !tokenId) return null   // change to id
-    const newToken: string|null = signUserService(user.congregation, user.id, tokenId)  // change to id
+    const newToken: string|null = generateAccessJwtService(user.congregation, user.id, tokenId)
     if (!newToken) {
         logger.Add(user.congregation, `Falló generateAccessTokenService() ${user.email} ${user.id} ${tokenId}`, errorLogs)
         return null
@@ -149,7 +149,7 @@ const generateAccessTokenService = (user: typeUser, tokenId: number): string|nul
 
 export const getActivatedUserByAccessTokenService = async (token: string): Promise<typeUser|null> => {
     if (!token) return null
-    const decoded: typeJWTObjectForUser|null = decodeVerifiedService(token)
+    const decoded: typeUserJwtObject|null = verifyAndDecodeAccessJwtService(token)
     if (!decoded || !decoded.userId || !decoded.tokenId || !decoded.congregation) return null
     const user: typeUser|null = await userDbConnection.GetUserById(decoded.congregation, decoded.userId)
     if (!user || user.tokenId !== decoded.tokenId) return null
@@ -237,29 +237,33 @@ export const recoverAccountService = async (email: string): Promise<string> => {
     if (!success) return ''
     logger.Add(user.congregation, `${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} solicitó un email de recuperación de contraseña`, loginLogs)
     success = await sendRecoverAccountEmailService(user.congregation, email, id)
-    if (!success) return 'not sent'
-    return 'ok'
+    return success ? 'ok' : 'not sent'
 }
 
-export const registerUserService = async (congregation: number, email: string, password: string, groupString: string): Promise<boolean> => {
-    const group: number = parseInt(groupString)
-    if (!email || !email.includes("@") || !password || password.length < 8 || !group || isNaN(group)) return false
-    const encryptedPassword: string|null = await generatePasswordHash(congregation, password)
+export const registerUserService = async (requesterUser: typeUser, email: string, password: string, group: number): Promise<boolean> => {
+    if (!requesterUser || requesterUser.role !== 1) return false
+    if (!email || !emailPatter.test(email) || !password || password.length < 8 || !group || isNaN(group))
+        return false
+    const encryptedPassword: string|null = await generatePasswordHash(requesterUser.congregation, password)
     if (!encryptedPassword) return false
     const newUser: typeUser = {
-        congregation,
+        congregation: requesterUser.congregation,
         email,
         group,
         hthAssignments: [],
         id: +new Date(),
-        isActive: false,
+        isActive: true,
         password: encryptedPassword,
         phoneAssignments: [],
         recoveryOptions: [],
         role: 0,
         tokenId: 1
     }
-    const success: boolean = await userDbConnection.RegisterUser(congregation, newUser)
-    if (success) logger.Add(congregation, `Se registró un usuario con email ${email} y grupo ${group}`, loginLogs)
+    const success: boolean = await userDbConnection.RegisterUser(requesterUser.congregation, newUser)
+    if (success) {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} registró un usuario con email ${email} y grupo ${group}`, loginLogs)
+    } else {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo registrar un usuario con email ${email} y grupo ${group}`, errorLogs)
+    }
     return success
 }

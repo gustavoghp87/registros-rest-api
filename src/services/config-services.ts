@@ -1,9 +1,26 @@
 import { ConfigDb } from '../services-db/configDbConnection'
 import { configLogs, errorLogs } from './log-services'
+import { getUserByEmailEveryCongregationService, getUserByEmailService } from './user-services'
 import { logger } from '../server'
 import { typeConfig, typeUser } from '../models'
 
 const configDbConnection = new ConfigDb()
+
+export const inviteNewUserService = async (requesterUser: typeUser, email: string): Promise<boolean|string> => {
+    if (!requesterUser || requesterUser.role !== 1) return false
+    const user = await getUserByEmailEveryCongregationService(email)
+    if (user) return 'exists'
+    
+    // send email
+    
+    const success: boolean = await configDbConnection.InviteNewUser(requesterUser.id, requesterUser.congregation, email)
+    if (success) {
+        logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} invitó a ${email}`, configLogs)
+    } else {
+        logger.Add(requesterUser.congregation, `Falló la invitación a ${email} (${requesterUser.email})`, errorLogs)
+    }
+    return success
+}
 
 export const getConfigService = async (requesterUser: typeUser): Promise<typeConfig|null> => {
     if (!requesterUser) return null

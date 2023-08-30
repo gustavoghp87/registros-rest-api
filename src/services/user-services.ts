@@ -2,6 +2,7 @@ import { checkRecaptchaTokenService } from './recaptcha-services'
 import { comparePasswordsService, generatePasswordHash } from './bcrypt-services'
 import { emailPatter, logger } from '../server'
 import { errorLogs, loginLogs, userLogs } from './log-services'
+import { getConfigNotAuthedService } from './config-services'
 import { getRandomId12, getRandomId24 } from './helpers'
 import { sendRecoverAccountEmailService } from './email-services'
 import { typeUserJwtObject, typeTerritoryNumber, typeUser, typeRecoveryOption } from '../models'
@@ -240,14 +241,12 @@ export const recoverAccountService = async (email: string): Promise<string> => {
     return success ? 'ok' : 'not sent'
 }
 
-export const registerUserService = async (requesterUser: typeUser, email: string, password: string, group: number): Promise<boolean> => {
-    if (!requesterUser || requesterUser.role !== 1) return false
-    if (!email || !emailPatter.test(email) || !password || password.length < 8 || !group || isNaN(group))
+const createUser = async (congregation: number, email: string, password: string, group: number) => {
+    const encryptedPassword: string|null = await generatePasswordHash(congregation, password)
+    if (!encryptedPassword)
         return false
-    const encryptedPassword: string|null = await generatePasswordHash(requesterUser.congregation, password)
-    if (!encryptedPassword) return false
     const newUser: typeUser = {
-        congregation: requesterUser.congregation,
+        congregation,
         email,
         group,
         hthAssignments: [],
@@ -259,11 +258,38 @@ export const registerUserService = async (requesterUser: typeUser, email: string
         role: 0,
         tokenId: 1
     }
-    const success: boolean = await userDbConnection.RegisterUser(requesterUser.congregation, newUser)
+    const success: boolean = await userDbConnection.RegisterUser(congregation, newUser)
+    return success
+}
+
+export const registerUserAdminsService = async (requesterUser: typeUser, email: string, password: string, group: number): Promise<boolean> => {
+    if (!requesterUser || requesterUser.role !== 1)
+        return false
+    if (!email || !emailPatter.test(email) || !password || password.length < 8 || !group || isNaN(group))
+        return false
+    const success = await createUser(requesterUser.congregation, email, password, group)
     if (success) {
         logger.Add(requesterUser.congregation, `${requesterUser.email} registró un usuario con email ${email} y grupo ${group}`, loginLogs)
     } else {
         logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo registrar un usuario con email ${email} y grupo ${group}`, errorLogs)
+    }
+    return success
+}
+
+export const registerUserService = async (id: string, congregation: number, email: string, password: string, group: number): Promise<boolean|string> => {
+    if (!id || !email || !emailPatter.test(email) || !password || password.length < 8 || !group || isNaN(group) || !congregation || isNaN(congregation))
+        return false
+    const congregationConfig = await getConfigNotAuthedService(congregation)
+    const invitation = congregationConfig?.invitations?.find(i => i.id === id && i.email === email)
+    if (!invitation)
+        return false
+    if (invitation.expire < +new Date())
+        return 'expired'
+    const success = await createUser(congregation, email, password, group)
+    if (success) {
+        logger.Add(congregation, `${email} creó un usuario por invitación (grupo ${group})`, loginLogs)
+    } else {
+        logger.Add(congregation, `${email} no pudo crearse un usuario (grupo ${group})`, errorLogs)
     }
     return success
 }

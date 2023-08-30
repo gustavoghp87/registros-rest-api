@@ -22,29 +22,50 @@ const blindUser = (user: typeUser): typeUser => {
     return user
 }
 
+const blindConfig = (config: typeConfig|null): typeConfig|null => {
+    if (!config) return config
+    config.invitations = []
+    return config
+}
+
 export const userController: Router = express.Router()
 
     // get my user
     .get('/', async (req: Request, res: Response) => {
         if (!req.user) return res.json({ success: false })
         const user: typeUser = blindUser(req.user)
-        const config: typeConfig|null = await getConfigService(req.user)
+        const config: typeConfig|null = blindConfig(await getConfigService(req.user))
         res.json({ success: !!user, user, config })
     })
 
     // sign up user
     .post('/', async (req: Request, res: Response) => {
-        const { email, password } = req.body
+        const { email, id, password, recaptchaToken } = req.body
         const group = parseInt(req.body.group)
-        // const checkRecaptch: boolean = await checkRecaptchaTokenService(congregation, recaptchaToken)
-        // if (!checkRecaptch) return res.json({ success: false, recaptchaFails: true })
+        const team = parseInt(req.body.team)
         const user: typeUser|null = await userServices.getUserByEmailEveryCongregationService(email)
         if (user) {
             res.json({ success: false, userExists: true })
             return
         }
-        const success: boolean = await userServices.registerUserService(req.user, email, password, group)
-        res.json({ success })
+        if (id && recaptchaToken && team) {
+            // customer creates new user by invitation
+            const checkRecaptch: boolean = await checkRecaptchaTokenService(team, recaptchaToken)
+            if (!checkRecaptch) {
+                res.json({ success: false, recaptchaFails: true })
+                return
+            }
+            const success: boolean|string = await userServices.registerUserService(id, team, email, password, group)
+            if (success === 'expired') {
+                res.json({ success: false, expired: true })
+                return 
+            }
+            res.json({ success })
+        } else {
+            // admin creates new user
+            const success: boolean = await userServices.registerUserAdminsService(req.user, email, password, group)
+            res.json({ success })
+        }
     })
 
     // change features for other users

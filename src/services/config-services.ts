@@ -1,7 +1,9 @@
 import { ConfigDb } from '../services-db/configDbConnection'
 import { configLogs, errorLogs } from './log-services'
-import { getUserByEmailEveryCongregationService, getUserByEmailService } from './user-services'
+import { getRandomId24 } from './helpers'
+import { getUserByEmailEveryCongregationService } from './user-services'
 import { logger } from '../server'
+import { sendUserInvitationByEmailService } from './email-services'
 import { typeConfig, typeUser } from '../models'
 
 const configDbConnection = new ConfigDb()
@@ -10,10 +12,12 @@ export const inviteNewUserService = async (requesterUser: typeUser, email: strin
     if (!requesterUser || requesterUser.role !== 1) return false
     const user = await getUserByEmailEveryCongregationService(email)
     if (user) return 'exists'
-    
-    // send email
-    
-    const success: boolean = await configDbConnection.InviteNewUser(requesterUser.id, requesterUser.congregation, email)
+    const id = getRandomId24()
+    const successEmail = await sendUserInvitationByEmailService(requesterUser.congregation, email, id)
+    if (!successEmail) {
+        return 'not sent'
+    }
+    const success: boolean = await configDbConnection.SaveNewUserInvitation(requesterUser.id, requesterUser.congregation, email, id)
     if (success) {
         logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} invitó a ${email}`, configLogs)
     } else {
@@ -22,9 +26,14 @@ export const inviteNewUserService = async (requesterUser: typeUser, email: strin
     return success
 }
 
+export const getConfigNotAuthedService = async (congregation: number): Promise<typeConfig|null> => {
+    const config: typeConfig|null = await configDbConnection.GetConfig(congregation)
+    return config
+}
+
 export const getConfigService = async (requesterUser: typeUser): Promise<typeConfig|null> => {
     if (!requesterUser) return null
-    const config: typeConfig|null = await configDbConnection.GetConfig(requesterUser.congregation)
+    const config: typeConfig|null = await getConfigNotAuthedService(requesterUser.congregation)
     return config
 }
 

@@ -1,5 +1,5 @@
 import { Credentials } from 'google-auth-library'
-import { domain, logger } from '../../server'
+import { domain, isProduction, logger, testingDomain } from '../../server'
 import { EmailDb } from '../../services-db/emailDbConnection'
 import { errorLogs } from '../log-services'
 import { GetTokenResponse } from 'google-auth-library/build/src/auth/oauth2client'
@@ -141,7 +141,7 @@ export const sendNewPswEmailService = async (congregation: number, email: string
 }
 
 export const sendRecoverAccountEmailService = async (congregation: number, email: string, id: string): Promise<boolean> => {
-    const url: string = `${domain}/recovery?id=${id}&team=${congregation}`
+    const url: string = `${isProduction ? domain : testingDomain}/recovery?id=${id}&team=${congregation}`
     const to: string = email
     const subject: string = "Misericordia Web: Recupero de cuenta"
     const text: string = "Correo solicitado"
@@ -152,7 +152,9 @@ export const sendRecoverAccountEmailService = async (congregation: number, email
             <br/>
             &nbsp;&nbsp;${url}
             <br/>
+            <br/>
             o a:
+            <br/>
             <br/>
             &nbsp;&nbsp; <a href="${url}">${url}</a>
             <br/>
@@ -161,6 +163,36 @@ export const sendRecoverAccountEmailService = async (congregation: number, email
             <br/>
             <br/>
             Esta opción se puede usar durante las siguientes 24 horas.
+        </p>
+    `
+    const success: boolean = await sendEmail(congregation, to, subject, text, html)
+    if (!success) logger.Add(congregation, `No se pudo enviar correo de recuperación de cuenta a ${to}`, errorLogs)
+    return success
+}
+
+export const sendUserInvitationByEmailService = async (congregation: number, email: string, id: string): Promise<boolean> => {
+    const url: string = `${isProduction ? domain : testingDomain}/nuevo-usuario?id=${id}&team=${congregation}&email=${email}`
+    const to: string = email
+    const subject: string = "Misericordia Web: Invitación"
+    const text: string = "Invitación"
+    const html: string = `
+        <h1>Misericordia Web</h1>
+        <p>Para crear una cuenta en Misericordia Web hay que ingresar a:
+            <br/>
+            <br/>
+            &nbsp;&nbsp;${url}
+            <br/>
+            <br/>
+            o a:
+            <br/>
+            <br/>
+            &nbsp;&nbsp; <a href="${url}">${url}</a>
+            <br/>
+            <br/>
+            y llenar el formulario.
+            <br/>
+            <br/>
+            Esta opción vence en 7 días.
         </p>
     `
     const success: boolean = await sendEmail(congregation, to, subject, text, html)

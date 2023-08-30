@@ -1,7 +1,7 @@
-import { dbClient, logger } from '../server'
+import { dbClient, invitationNewUserExpiresIn, logger } from '../server'
 import { errorLogs } from '../services/log-services'
 import { InsertOneResult, UpdateResult } from 'mongodb'
-import { typeConfig } from '../models'
+import { typeConfig, typeInvitarionNewUser } from '../models'
 
 const getCollection = () => dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollConfig)
 
@@ -13,6 +13,7 @@ export class ConfigDb {
                 congregation,
                 date: +new Date(),
                 googleBoardUrl: '',
+                invitations: [],
                 name: "",
                 numberOfTerritories: 0
             }
@@ -34,18 +35,20 @@ export class ConfigDb {
             return null
         }
     }
-    async InviteNewUser(userId: number, congregation: number, email: string) {
+    async SaveNewUserInvitation(userId: number, congregation: number, email: string, id: string) {
         try {
             if (!userId || !congregation || !email) throw Error("Faltan datos")
-            const invitation = {
-                
+            const invitation: typeInvitarionNewUser = {
+                email,
+                expire: +new Date() + invitationNewUserExpiresIn,
+                id,
+                inviting: userId
             }
-            // const result: UpdateResult = await getCollection().updateOne(
-            //     { congregation },
-            //     { $addToSet: { invitations: email} }
-            // )
-            // return !!result.modifiedCount
-            return true
+            const result: UpdateResult = await getCollection().updateOne(
+                { congregation },
+                { $addToSet: { invitations: invitation } }
+            )
+            return !!result.modifiedCount
         } catch (error) {
             logger.Add(congregation, `Falló InviteNewUser() (${name}): ${error}`, errorLogs)
             return false

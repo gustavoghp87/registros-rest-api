@@ -13,6 +13,7 @@ export const isProduction = environment === 'prod'
 export const testingDb = !isProduction
 export const accessTokensExpiresIn = '2160h'  // 90 days
 export const recoveryTokensExpiresIn = 24*60*60*1000  // 24 hs
+export const invitationNewUserExpiresIn = 7*24*60*60*1000  // 7 days
 export const domain = "https://www.misericordiaweb.com"
 export const testingDomain = "http://localhost:3000"
 export const dbClient = new DbConnection(testingDb)

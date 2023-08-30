@@ -6,8 +6,8 @@ export const configController: Router = express.Router()
 
     // get config, not used
     .get('/', async (req: Request, res: Response) => {
-        const config: typeConfig|null = await getConfigService(req.user)
-        res.json({ success: !!config, config })
+        // const config: typeConfig|null = await getConfigService(req.user)
+        // res.json({ success: !!config, config })
     })
 
     // edit name of congregation or google site url
@@ -30,8 +30,11 @@ export const configController: Router = express.Router()
         const email = req.body.email as string
         const success: boolean|string = await inviteNewUserService(req.user, email)
         if (success === 'exists') {
-            res.json({ success: false, exists: true})
+            res.json({ success: false, userExists: true})
             return
+        }
+        if (success === 'not sent') {
+            res.json({ success: false, notSent: true })
         }
         res.json({ success })
     })

@@ -1,7 +1,7 @@
-import { NextFunction, Request, Response } from 'express'
+import { authorizationString, recaptchaTokenString, typeUser } from '../models'
 import { getActivatedUserByAccessTokenService } from './user-services'
 import { getMockedUserResponse } from './mocked-user-service'
-import { authorizationString, recaptchaTokenString, typeUser } from '../models'
+import { NextFunction, Request, Response } from 'express'
 
 declare global {
     namespace Express {
@@ -19,7 +19,17 @@ export const setUpUser = async (req: Request, res: Response, next: NextFunction)
     }
     if (token) {
         const user: typeUser|null = await getActivatedUserByAccessTokenService(token)
-        if (user) req.user = user
+        if (user) {
+            // clean up old recovery options
+            // if (!!user.recoveryOptions?.length) {
+            //     const recoveryOptionsToKeep: typeRecoveryOption[] = []
+            //     user.recoveryOptions.forEach(o => {
+            //         if (o.expiration > +new Date() + 10 * recoveryTokensExpiresIn)
+            //             recoveryOptionsToKeep.push(o)
+            //     })
+            // }
+            req.user = user
+        }
     }
     const recaptchaToken: string = req.header(recaptchaTokenString) || ""
     if (recaptchaToken) {

@@ -223,19 +223,22 @@ export const getHTHTerritoriesForMapService = async (requesterUser: types.typeUs
     if (!requesterUser) return null
     const hthTerritories: types.typeHTHTerritory[]|null = await houseToHouseDbConnection.GetHTHTerritories(requesterUser.congregation)
     if (!hthTerritories) return null
-    return hthTerritories.map(x => {
+    const blinded = hthTerritories.map(x => {
         x.map.centerCoords = { lat: 0, lng: 0 }
         x.map.lastEditor = 0
         x.map.markers = []
-        if (x.map.polygons) x.map.polygons = x.map.polygons.map(y => {
-            y.buildings = []
-            y.doNotCalls = []
-            y.observations = []
-            return y
-        })
+        if (x.map.polygons) {
+            x.map.polygons = x.map.polygons.map(y => {
+                y.buildings = []
+                y.doNotCalls = []
+                y.observations = []
+                return y
+            })
+        }
         x.map.zoom = 0
         return x
     })
+    return blinded
 }
 
 export const getHTHBuildingService = async (congregation: number, territoryNumber: types.typeTerritoryNumber,

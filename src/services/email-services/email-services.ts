@@ -14,12 +14,12 @@ export const getGmailUrlService = async (requesterUser: typeUser): Promise<strin
     //const uriNumber: 0|1 = isProduction ? 0 : 1   redirect_uris[uriNumber]
     try {
         const { client_secret, client_id } = gmailCredentials
-        const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, "https://www.misericordiaweb.com")
+        const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, domain)
         const url: string = oAuth2Client.generateAuthUrl({
             access_type: 'offline',
             prompt: 'consent',
             scope: [sendScope],
-            redirect_uri: "https://www.misericordiaweb.com"
+            redirect_uri: domain
         })
         return url
     } catch (error) {
@@ -34,7 +34,7 @@ export const getGmailRequestService = async (requesterUser: typeUser, code: stri
     try {
         const { client_secret, client_id } = gmailCredentials
         if (!code) throw new Error("No llegó Code")
-        const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, "https://www.misericordiaweb.com")
+        const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, domain)
         const keys: GetTokenResponse = await oAuth2Client.getToken(code)
         if (!keys || !keys.tokens) throw new Error("Respuesta inválida")
         return keys.tokens
@@ -54,6 +54,7 @@ export const saveNewGmailAPITokenToDBService = async (requesterUser: typeUser, a
     if (!requesterUser) return false
     if (!accessToken || !refreshToken) return false
     const success: boolean = await emailDbConnection.SaveNewGmailAPITokensToDB(accessToken, refreshToken)
+    if (!success) logger.Add(requesterUser.congregation, "No se pudo guardar Token de Gmail", errorLogs)
     return success
 }
 
@@ -170,14 +171,14 @@ export const sendRecoverAccountEmailService = async (congregation: number, email
     return success
 }
 
-export const sendUserInvitationByEmailService = async (congregation: number, email: string, id: string): Promise<boolean> => {
+export const sendUserInvitationByEmailService = async (congregation: number, email: string, id: string, isNewCongregation: boolean): Promise<boolean> => {
     const url: string = `${isProduction ? domain : testingDomain}/nuevo-usuario?id=${id}&team=${congregation}&email=${email}`
     const to: string = email
     const subject: string = "Misericordia Web: Invitación"
     const text: string = "Invitación"
     const html: string = `
         <h1>Misericordia Web</h1>
-        <p>Para crear una cuenta en Misericordia Web hay que ingresar a:
+        <p>Para crear una ${isNewCongregation ? 'nueva Congregación' : 'cuenta'} en Misericordia Web hay que ingresar a:
             <br/>
             <br/>
             &nbsp;&nbsp;${url}
@@ -196,6 +197,6 @@ export const sendUserInvitationByEmailService = async (congregation: number, ema
         </p>
     `
     const success: boolean = await sendEmail(congregation, to, subject, text, html)
-    if (!success) logger.Add(congregation, `No se pudo enviar correo de recuperación de cuenta a ${to}`, errorLogs)
+    if (!success) logger.Add(congregation, `No se pudo enviar correo de invitación de ${isNewCongregation ? 'Congregación' : 'cuenta'} nueva a ${to}`, errorLogs)
     return success
 }

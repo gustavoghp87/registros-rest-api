@@ -8,23 +8,22 @@ import { typeConfig, typeUser } from '../models'
 
 const configDbConnection = new ConfigDb()
 
-export const inviteNewUserService = async (requesterUser: typeUser, email: string): Promise<boolean|string> => {
-    if (!requesterUser || requesterUser.role !== 1) return false
-    const user = await getUserByEmailEveryCongregationService(email)
-    if (user) return 'exists'
-    const id = getRandomId24()
-    const successEmail = await sendUserInvitationByEmailService(requesterUser.congregation, email, id)
-    if (!successEmail) {
-        return 'not sent'
-    }
-    const success: boolean = await configDbConnection.SaveNewUserInvitation(requesterUser.id, requesterUser.congregation, email, id)
-    if (success) {
-        logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} invitó a ${email}`, configLogs)
-    } else {
-        logger.Add(requesterUser.congregation, `Falló la invitación a ${email} (${requesterUser.email})`, errorLogs)
-    }
-    return success
-}
+// FLUJO NUEVA CONGREGACIÓN
+// por request de la congregación 1, crear invitación sin especificar el número de la congregación nueva pero con bandera especial
+// guardar la invitación en invitaciones de la congregación 1
+// mandar la invitación por email
+
+// en otro endpoint:
+// recibo contraseña y grupo del nuevo usuario,
+//  veo que su invitación es para nueva Congregación
+//  creo nuevo usuario admin checkeando qué número de congregación le corresponde,
+
+// cuando ingresa, el usuario va a Administradores/Configuración de la Aplicación y setea el nombre de la Congregación
+// al hacerlo, se habilita la creación de territorios casa-en-casa
+//  y se crean el objeto de configuración de la Congregación y los objetos de Logs
+
+// cuando crea los territorios casa-en-casa, se setea el parámetro de cantidad de territorios y eso habilita el ingreso a los territorios
+
 
 export const getConfigNotAuthedService = async (congregation: number): Promise<typeConfig|null> => {
     const config: typeConfig|null = await configDbConnection.GetConfig(congregation)
@@ -37,7 +36,32 @@ export const getConfigService = async (requesterUser: typeUser): Promise<typeCon
     return config
 }
 
+export const getMaxCongregationNumberService = async (): Promise<number|null> => {
+    const maxCongregationNumber = await configDbConnection.GetMaxCongregationNumber()
+    if (!maxCongregationNumber) logger.Add(1, `Falló la obtención del mayor número de Congregación`, errorLogs)
+    return maxCongregationNumber
+}
+
+export const sendInvitationForNewUserService = async (requesterUser: typeUser, email: string, isNewCongregation: boolean = false): Promise<boolean|string> => {
+    if (!requesterUser || requesterUser.role !== 1) return false
+    const user = await getUserByEmailEveryCongregationService(email)
+    if (user) return 'exists'
+    const id = getRandomId24()
+    const successEmail = await sendUserInvitationByEmailService(requesterUser.congregation, email, id, isNewCongregation)
+    if (!successEmail) {
+        return 'not sent'
+    }
+    const success: boolean = await configDbConnection.SaveNewUserInvitation(requesterUser.id, requesterUser.congregation, email, id, isNewCongregation)
+    if (success) {
+        logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} invitó a ${email}${isNewCongregation ? ' para crear una nueva Congregación' : ''}`, configLogs)
+    } else {
+        logger.Add(requesterUser.congregation, `Falló la invitación de Admin (${requesterUser.email}) a ${email}${isNewCongregation ? ' para crear una nueva Congregación' : ''}`, errorLogs)
+    }
+    return success
+}
+
 const createCongregationService = async (congregation: number, userEmail: string): Promise<boolean> => {
+    await logger.Genesys(congregation)
     const success: boolean = await configDbConnection.Genesys(congregation)
     if (success) {
         logger.Add(congregation, `Admin ${userEmail} creó el objeto de congregación número ${congregation}`, configLogs)
@@ -52,7 +76,6 @@ export const setNameOfCongregationService = async (requesterUser: typeUser, name
     if (!name || name.length < 6) return false
     const config = await getConfigService(requesterUser)
     if (!config) {
-        await logger.Genesys(requesterUser.congregation)
         const successGenesys: boolean = await createCongregationService(requesterUser.congregation, requesterUser.email)
         if (!successGenesys) return false
     }

@@ -1,5 +1,4 @@
-import { getConfigService, inviteNewUserService, setGoogleBoardUrlService, setNameOfCongregationService } from '../services/config-services'
-import { typeConfig } from '../models'
+import { sendInvitationForNewUserService, setGoogleBoardUrlService, setNameOfCongregationService } from '../services/config-services'
 import express, { Request, Response, Router } from 'express'
 
 export const configController: Router = express.Router()
@@ -28,13 +27,15 @@ export const configController: Router = express.Router()
     // invite new user by email
     .put('/invite', async (req: Request, res: Response) => {
         const email = req.body.email as string
-        const success: boolean|string = await inviteNewUserService(req.user, email)
+        const newCongregation = req.body.newCongregation as boolean
+        const success: boolean|string = await sendInvitationForNewUserService(req.user, email, newCongregation === true)
         if (success === 'exists') {
             res.json({ success: false, userExists: true})
             return
         }
         if (success === 'not sent') {
             res.json({ success: false, notSent: true })
+            return
         }
         res.json({ success })
     })

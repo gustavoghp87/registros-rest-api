@@ -18,7 +18,7 @@ export const domain = "https://www.misericordiaweb.com"
 export const testingDomain = "http://localhost:3000"
 export const dbClient = new DbConnection(testingDb)
 export const logger = new Logger()
-export const emailPatter = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+export const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 
 const app = express()
 app.use(cors({ origin: isProduction ? [domain] : [domain, testingDomain] }))

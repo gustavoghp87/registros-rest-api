@@ -187,11 +187,10 @@ export class UserDb {
             return null
         }
     }
-    async RegisterUser(congregation: number, newUser: typeUser): Promise<boolean> {
+    async RegisterUser(congregation: number, newUser: typeUser, newCongregationNumber: number = 0): Promise<boolean> {
         try {
-            if (!congregation) throw new Error("No llegó congregación")
             await getCollection().insertOne(newUser as unknown as Document)
-            const user: typeUser|null = await this.GetUserByEmail(congregation, newUser.email)
+            const user: typeUser|null = await this.GetUserByEmail(newCongregationNumber ? newCongregationNumber : congregation, newUser.email)
             return !!user
         } catch (error) {
             logger.Add(congregation, `Falló RegisterUser() ${JSON.stringify(newUser)}: ${error}`, errorLogs)

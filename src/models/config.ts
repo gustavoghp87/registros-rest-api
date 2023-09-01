@@ -3,6 +3,7 @@ export type typeInvitarionNewUser = {
     expire: number
     id: string
     inviting: number
+    isNewCongregation: boolean
 }
 
 export type typeConfig = {

@@ -35,22 +35,35 @@ export class ConfigDb {
             return null
         }
     }
-    async SaveNewUserInvitation(userId: number, congregation: number, email: string, id: string) {
+    async GetMaxCongregationNumber(): Promise<number|null> {
+        try {
+            const result = await dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollConfig).aggregate([{
+                $group: { _id: null, maxCongr: { $max: "$congregation" } }
+            }]).toArray() as { _id: any, maxCongr: number }[]
+            const maxCongregationNumber = result[0].maxCongr
+            return maxCongregationNumber
+        } catch (error) {
+            logger.Add(1, `Falló GetMaxCongregationNumber(): ${error}`, errorLogs)
+            return null
+        }
+    }
+    async SaveNewUserInvitation(userId: number, congregation: number, email: string, id: string, isNewCongregation: boolean = false) {
         try {
             if (!userId || !congregation || !email) throw Error("Faltan datos")
             const invitation: typeInvitarionNewUser = {
                 email,
                 expire: +new Date() + invitationNewUserExpiresIn,
                 id,
-                inviting: userId
+                inviting: userId,
+                isNewCongregation
             }
             const result: UpdateResult = await getCollection().updateOne(
-                { congregation },
+                { congregation: isNewCongregation ? 1 : congregation },
                 { $addToSet: { invitations: invitation } }
             )
             return !!result.modifiedCount
         } catch (error) {
-            logger.Add(congregation, `Falló InviteNewUser() (${name}): ${error}`, errorLogs)
+            logger.Add(congregation, `Falló InviteNewUser() (${email}, ${userId}): ${error}`, errorLogs)
             return false
         }
     }

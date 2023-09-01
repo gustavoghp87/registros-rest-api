@@ -1,8 +1,8 @@
 import { checkRecaptchaTokenService } from './recaptcha-services'
 import { comparePasswordsService, generatePasswordHash } from './bcrypt-services'
-import { emailPatter, logger } from '../server'
+import { emailPattern, logger } from '../server'
 import { errorLogs, loginLogs, userLogs } from './log-services'
-import { getConfigNotAuthedService } from './config-services'
+import { getConfigNotAuthedService, getMaxCongregationNumberService } from './config-services'
 import { getRandomId12, getRandomId24 } from './helpers'
 import { sendRecoverAccountEmailService } from './email-services'
 import { typeUserJwtObject, typeTerritoryNumber, typeUser, typeRecoveryOption } from '../models'
@@ -241,12 +241,12 @@ export const recoverAccountService = async (email: string): Promise<string> => {
     return success ? 'ok' : 'not sent'
 }
 
-const createUser = async (congregation: number, email: string, password: string, group: number) => {
+const createUser = async (congregation: number, email: string, password: string, group: number, newCongregationNumber: number = 0) => {
     const encryptedPassword: string|null = await generatePasswordHash(congregation, password)
     if (!encryptedPassword)
         return false
     const newUser: typeUser = {
-        congregation,
+        congregation: newCongregationNumber ? newCongregationNumber : congregation,
         email,
         group,
         hthAssignments: [],
@@ -255,17 +255,17 @@ const createUser = async (congregation: number, email: string, password: string,
         password: encryptedPassword,
         phoneAssignments: [],
         recoveryOptions: [],
-        role: 0,
+        role: newCongregationNumber ? 1 : 0,
         tokenId: 1
     }
-    const success: boolean = await userDbConnection.RegisterUser(congregation, newUser)
+    const success: boolean = await userDbConnection.RegisterUser(congregation, newUser, newCongregationNumber)
     return success
 }
 
 export const registerUserAdminsService = async (requesterUser: typeUser, email: string, password: string, group: number): Promise<boolean> => {
     if (!requesterUser || requesterUser.role !== 1)
         return false
-    if (!email || !emailPatter.test(email) || !password || password.length < 8 || !group || isNaN(group))
+    if (!email || !emailPattern.test(email) || !password || password.length < 8 || !group || isNaN(group))
         return false
     const success = await createUser(requesterUser.congregation, email, password, group)
     if (success) {
@@ -277,7 +277,7 @@ export const registerUserAdminsService = async (requesterUser: typeUser, email: 
 }
 
 export const registerUserService = async (id: string, congregation: number, email: string, password: string, group: number): Promise<boolean|string> => {
-    if (!id || !email || !emailPatter.test(email) || !password || password.length < 8 || !group || isNaN(group) || !congregation || isNaN(congregation))
+    if (!id || !email || !emailPattern.test(email) || !password || password.length < 8 || !group || isNaN(group) || !Number.isInteger(group) || !congregation || isNaN(congregation) || !Number.isInteger(congregation))
         return false
     const congregationConfig = await getConfigNotAuthedService(congregation)
     const invitation = congregationConfig?.invitations?.find(i => i.id === id && i.email === email)
@@ -285,11 +285,23 @@ export const registerUserService = async (id: string, congregation: number, emai
         return false
     if (invitation.expire < +new Date())
         return 'expired'
-    const success = await createUser(congregation, email, password, group)
-    if (success) {
-        logger.Add(congregation, `${email} creó un usuario por invitación (grupo ${group})`, loginLogs)
+    let success = false
+    if (invitation.isNewCongregation) {
+        const maxCongregationNumber = await getMaxCongregationNumberService()
+        if (!maxCongregationNumber) return false
+        success = await createUser(1, email, password, group, maxCongregationNumber + 1)
+        if (success) {
+            logger.Add(1, `Se creó un usuario Administrador ${email} para la Congregación nueva ${maxCongregationNumber + 1}`, loginLogs)
+        } else {
+            logger.Add(1, `No pudo crearse un usuario Administrador para la Congregación nueva ${maxCongregationNumber + 1} (${email})`, errorLogs)
+        }
     } else {
-        logger.Add(congregation, `${email} no pudo crearse un usuario (grupo ${group})`, errorLogs)
+        success = await createUser(congregation, email, password, group)
+        if (success) {
+            logger.Add(congregation, `${email} creó un usuario por invitación (grupo ${group})`, loginLogs)
+        } else {
+            logger.Add(congregation, `${email} no pudo crearse un usuario (grupo ${group})`, errorLogs)
+        }
     }
     return success
 }

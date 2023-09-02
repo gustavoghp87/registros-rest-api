@@ -1,8 +1,8 @@
 import { checkRecaptchaTokenService } from './recaptcha-services'
 import { comparePasswordsService, generatePasswordHash } from './bcrypt-services'
+import { createCongregationService, getConfigNotAuthedService, getConfigService, getMaxCongregationNumberService } from './config-services'
 import { emailPattern, logger } from '../server'
 import { errorLogs, loginLogs, userLogs } from './log-services'
-import { getConfigNotAuthedService, getMaxCongregationNumberService } from './config-services'
 import { getRandomId12, getRandomId24 } from './helpers'
 import { sendRecoverAccountEmailService } from './email-services'
 import { typeUserJwtObject, typeTerritoryNumber, typeUser, typeRecoveryOption } from '../models'
@@ -121,8 +121,11 @@ export const deleteUserService = async (requesterUser: typeUser, userId: number)
     if (!userToRemove || userToRemove.isActive || userToRemove.role !== 0 || userToRemove.hthAssignments?.length
      || userToRemove.phoneAssignments?.length) return false
     const success: boolean = await userDbConnection.DeleteUser(requesterUser.congregation, userId)
-    if (success) logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} eliminó al usuario ${userToRemove.email}`, userLogs)
-    else logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} quiso eliminar al usuario ${userToRemove.email} pero algo falló`, errorLogs)
+    if (success) {
+        logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} eliminó al usuario ${userToRemove.email} (${userToRemove.id})`, userLogs)
+    } else {
+        logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} quiso eliminar al usuario ${userToRemove.email} (${userToRemove.id}) pero algo falló`, errorLogs)
+    }
     return success
 }
 
@@ -292,6 +295,7 @@ export const registerUserService = async (id: string, congregation: number, emai
         success = await createUser(1, email, password, group, maxCongregationNumber + 1)
         if (success) {
             logger.Add(1, `Se creó un usuario Administrador ${email} para la Congregación nueva ${maxCongregationNumber + 1}`, loginLogs)
+            await createCongregationService(maxCongregationNumber + 1, email)
         } else {
             logger.Add(1, `No pudo crearse un usuario Administrador para la Congregación nueva ${maxCongregationNumber + 1} (${email})`, errorLogs)
         }

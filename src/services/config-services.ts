@@ -24,6 +24,16 @@ const configDbConnection = new ConfigDb()
 
 // cuando crea los territorios casa-en-casa, se setea el parámetro de cantidad de territorios y eso habilita el ingreso a los territorios
 
+export const createCongregationService = async (congregation: number, userEmail: string): Promise<boolean> => {
+    await logger.Genesys(congregation)
+    const success: boolean = await configDbConnection.Genesys(congregation)
+    if (success) {
+        logger.Add(congregation, `Admin ${userEmail} creó el objeto de congregación número ${congregation}`, configLogs)
+    } else {
+        logger.Add(congregation, `Falló la creación de objeto de congregación número ${congregation} (${userEmail})`, errorLogs)
+    }
+    return success
+}
 
 export const getConfigNotAuthedService = async (congregation: number): Promise<typeConfig|null> => {
     const config: typeConfig|null = await configDbConnection.GetConfig(congregation)
@@ -60,25 +70,9 @@ export const sendInvitationForNewUserService = async (requesterUser: typeUser, e
     return success
 }
 
-const createCongregationService = async (congregation: number, userEmail: string): Promise<boolean> => {
-    await logger.Genesys(congregation)
-    const success: boolean = await configDbConnection.Genesys(congregation)
-    if (success) {
-        logger.Add(congregation, `Admin ${userEmail} creó el objeto de congregación número ${congregation}`, configLogs)
-    } else {
-        logger.Add(congregation, `Falló la creación de objeto de congregación número ${congregation} (${userEmail})`, errorLogs)
-    }
-    return success
-}
-
 export const setNameOfCongregationService = async (requesterUser: typeUser, name: string): Promise<boolean> => {
     if (!requesterUser || requesterUser.role !== 1) return false
     if (!name || name.length < 6) return false
-    const config = await getConfigService(requesterUser)
-    if (!config) {
-        const successGenesys: boolean = await createCongregationService(requesterUser.congregation, requesterUser.email)
-        if (!successGenesys) return false
-    }
     const success: boolean = await configDbConnection.SetNameOfCongregation(requesterUser.congregation, name)
     if (success) {
         logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} estableció el nombre de la congregación ${requesterUser.congregation}: ${name}`, configLogs)

@@ -25,9 +25,9 @@ export class Logger {
         const newDate = new Date().setTime(newDateTs)
         logText = new Date(newDate).toLocaleString('es-AR') + " | " + logText
         console.log(logText)
-        if (!isProduction) return true
+        // if (!isProduction) return true
         const log: typeLogObj = {
-            timestamp: + new Date(),
+            timestamp: Date.now(),
             logText
         }
         const success: boolean = await this.LogDbConnection.Add(congregation, log, type)

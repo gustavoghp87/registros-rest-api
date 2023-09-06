@@ -219,6 +219,12 @@ export const editHTHMapService = async (requesterUser: types.typeUser,
 //     return hthTerritories
 // }
 
+export const getHTHTerritoriesForStatisticsService = async (requesterUser: types.typeUser): Promise<types.typeHTHTerritory[]|null> => {
+    if (!requesterUser || requesterUser.role !== 1) return null
+    const hthTerritories: types.typeHTHTerritory[]|null = await houseToHouseDbConnection.GetHTHTerritories(requesterUser.congregation)
+    return hthTerritories
+}
+
 export const getHTHTerritoriesForMapService = async (requesterUser: types.typeUser): Promise<types.typeHTHTerritory[]|null> => {
     if (!requesterUser) return null
     const hthTerritories: types.typeHTHTerritory[]|null = await houseToHouseDbConnection.GetHTHTerritories(requesterUser.congregation)

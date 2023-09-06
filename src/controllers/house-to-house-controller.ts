@@ -91,8 +91,14 @@ export const houseToHouseController: Router = express.Router()
         res.json({ success })
     })
 
+    // get territories for statistics
+    .get('/map/territory-statistics', async (req: Request, res: Response) => {
+        const hthTerritories: types.typeHTHTerritory[]|null = await hTHServices.getHTHTerritoriesForStatisticsService(req.user)
+        return res.json({ success: !!hthTerritories, hthTerritories})
+    })
+
     // get territories for map
-    .get('/map/territory', async (req: Request, res: Response) => {
+    .get('/map/territory-map', async (req: Request, res: Response) => {
         const hthTerritories: types.typeHTHTerritory[]|null = await hTHServices.getHTHTerritoriesForMapService(req.user)
         return res.json({ success: !!hthTerritories, hthTerritories})
     })

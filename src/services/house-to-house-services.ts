@@ -57,8 +57,11 @@ export const addHTHDoNotCallService = async (requesterUser: types.typeUser, terr
     doNotCall.creatorId = requesterUser.id
     doNotCall.deleted = false
     const success: boolean = await houseToHouseDbConnection.AddHTHDoNotCall(requesterUser.congregation, territoryNumber, doNotCall, block, face, polygonId)
-    if (success) logger.Add(requesterUser.congregation, `${requesterUser.email} agregó un No Tocar al territorio ${territoryNumber} manzana ${block} cara ${face}`, houseToHouseLogs)
-    else logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo agregar un No Tocar al territorio ${territoryNumber} manzana ${block} cara ${face}`, errorLogs)
+    if (success) {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} agregó un No Tocar al territorio ${territoryNumber} manzana ${block} cara ${face} (${doNotCall.streetNumber} ${doNotCall.doorBell ?? ''})`, houseToHouseLogs)
+    } else {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo agregar un No Tocar al territorio ${territoryNumber} manzana ${block} cara ${face} (${doNotCall.streetNumber} ${doNotCall.doorBell ?? ''})`, errorLogs)
+    }
     return success
 }
 

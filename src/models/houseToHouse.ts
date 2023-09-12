@@ -78,8 +78,11 @@ export type typeHTHBuilding = {
     hasContinuousNumbers: boolean
     hasLowLevel: boolean
     households: typeHTHHousehold[]
+    isComplex: boolean
     manager?: typeHTHHousehold
     numberOfLevels: number
     numberPerLevel: number
+    reverseOrderX: boolean
+    reverseOrderY: boolean
     streetNumber: number
 }

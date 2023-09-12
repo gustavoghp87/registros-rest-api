@@ -263,6 +263,9 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "level": 3
                                     }
                                 ],
+                                isComplex: false,
+                                reverseOrderX: false,
+                                reverseOrderY: false,
                                 numberOfLevels: 3,
                                 numberPerLevel: 3,
                                 streetNumber: 2302
@@ -429,6 +432,9 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "level": 3
                                     }
                                 ],
+                                isComplex: false,
+                                reverseOrderX: false,
+                                reverseOrderY: false,
                                 numberOfLevels: 3,
                                 numberPerLevel: 3,
                                 streetNumber: 2302
@@ -539,6 +545,9 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "level": 3
                                     }
                                 ],
+                                isComplex: false,
+                                reverseOrderX: false,
+                                reverseOrderY: false,
                                 numberOfLevels: 3,
                                 numberPerLevel: 3,
                                 streetNumber: 2302
@@ -658,6 +667,9 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "level": 3
                                     }
                                 ],
+                                isComplex: false,
+                                reverseOrderX: false,
+                                reverseOrderY: false,
                                 numberOfLevels: 3,
                                 numberPerLevel: 3,
                                 streetNumber: 2302
@@ -782,6 +794,9 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "level": 3
                                     }
                                 ],
+                                isComplex: false,
+                                reverseOrderX: false,
+                                reverseOrderY: false,
                                 numberOfLevels: 3,
                                 numberPerLevel: 3,
                                 streetNumber: 2302
@@ -884,6 +899,9 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "level": 3
                                     }
                                 ],
+                                isComplex: false,
+                                reverseOrderX: false,
+                                reverseOrderY: false,
                                 numberOfLevels: 3,
                                 numberPerLevel: 3,
                                 streetNumber: 2302
@@ -986,6 +1004,9 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "level": 3
                                     }
                                 ],
+                                isComplex: false,
+                                reverseOrderX: false,
+                                reverseOrderY: false,
                                 numberOfLevels: 3,
                                 numberPerLevel: 3,
                                 streetNumber: 2302
@@ -1088,6 +1109,9 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "level": 3
                                     }
                                 ],
+                                isComplex: false,
+                                reverseOrderX: false,
+                                reverseOrderY: false,
                                 numberOfLevels: 3,
                                 numberPerLevel: 3,
                                 streetNumber: 2302
@@ -1190,6 +1214,9 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "level": 3
                                     }
                                 ],
+                                isComplex: false,
+                                reverseOrderX: false,
+                                reverseOrderY: false,
                                 numberOfLevels: 3,
                                 numberPerLevel: 3,
                                 streetNumber: 2302
@@ -1292,6 +1319,9 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "level": 3
                                     }
                                 ],
+                                isComplex: false,
+                                reverseOrderX: false,
+                                reverseOrderY: false,
                                 numberOfLevels: 3,
                                 numberPerLevel: 3,
                                 streetNumber: 2302
@@ -1394,6 +1424,9 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "level": 3
                                     }
                                 ],
+                                isComplex: false,
+                                reverseOrderX: false,
+                                reverseOrderY: false,
                                 numberOfLevels: 3,
                                 numberPerLevel: 3,
                                 streetNumber: 2302
@@ -1496,6 +1529,9 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
                                         "level": 3
                                     }
                                 ],
+                                isComplex: false,
+                                reverseOrderX: false,
+                                reverseOrderY: false,
                                 numberOfLevels: 3,
                                 numberPerLevel: 3,
                                 streetNumber: 2302

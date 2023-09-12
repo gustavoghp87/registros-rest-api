@@ -28,6 +28,7 @@ export const addHTHBuildingService = async (requesterUser: types.typeUser, terri
     const id: number = +new Date()
     const building: types.typeHTHBuilding = {
         creatorId: requesterUser.id,
+        dateOfLastSharing: 0,
         hasCharacters: newBuilding.hasCharacters,
         hasContinuousNumbers: newBuilding.hasContinuousNumbers,
         hasLowLevel: newBuilding.hasLowLevel,
@@ -40,9 +41,11 @@ export const addHTHBuildingService = async (requesterUser: types.typeUser, terri
             offDates: [],
             onDates: []
         })),
-        dateOfLastSharing: 0,
+        isComplex: newBuilding.isComplex,
         numberOfLevels: newBuilding.numberOfLevels,
         numberPerLevel: newBuilding.numberPerLevel,
+        reverseOrderX: newBuilding.reverseOrderX,
+        reverseOrderY: newBuilding.reverseOrderY,
         streetNumber: newBuilding.streetNumber
     }
     if (newBuilding.manager) building.manager = newBuilding.manager

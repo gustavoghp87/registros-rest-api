@@ -70,6 +70,17 @@ export const sendInvitationForNewUserService = async (requesterUser: typeUser, e
     return success
 }
 
+export const setDisableEditMapsService = async (requesterUser: typeUser, disableEditMaps: boolean): Promise<boolean> => {
+    if (!requesterUser || requesterUser.role !== 1) return false
+    const success: boolean = await configDbConnection.SetDisableEditMaps(requesterUser.congregation, disableEditMaps)
+    if (success) {
+        logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} ${disableEditMaps ? 'deshabilitó' : 'habilitó'} la edición de Mapas`, configLogs)
+    } else {
+        logger.Add(requesterUser.congregation, `Falló la solicitud de Admin (${requesterUser.email}) para ${disableEditMaps ? 'deshabilitar' : 'habilitar'} la edición de Mapas`, errorLogs)
+    }
+    return success
+}
+
 export const setNameOfCongregationService = async (requesterUser: typeUser, name: string): Promise<boolean> => {
     if (!requesterUser || requesterUser.role !== 1) return false
     if (!name || name.length < 6) return false

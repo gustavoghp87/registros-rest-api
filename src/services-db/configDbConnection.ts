@@ -12,6 +12,7 @@ export class ConfigDb {
             const config: typeConfig = {
                 congregation,
                 date: +new Date(),
+                disabledEditMaps: false,
                 googleBoardUrl: '',
                 invitations: [],
                 name: "",
@@ -64,6 +65,19 @@ export class ConfigDb {
             return !!result.modifiedCount
         } catch (error) {
             logger.Add(congregation, `Falló InviteNewUser() (${email}, ${userId}): ${error}`, errorLogs)
+            return false
+        }
+    }
+    async SetDisableEditMaps(congregation: number, disableEditMaps: boolean): Promise<boolean> {
+        try {
+            if (!congregation) throw Error("Faltan datos")
+            const result: UpdateResult = await getCollection().updateOne(
+                { congregation },
+                { $set: { disabledEditMaps: !!disableEditMaps } }
+            )
+            return !!result.modifiedCount
+        } catch (error) {
+            logger.Add(congregation, `Falló SetNameOfCongregation() (${disableEditMaps}): ${error}`, errorLogs)
             return false
         }
     }

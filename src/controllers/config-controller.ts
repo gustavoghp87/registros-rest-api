@@ -1,4 +1,4 @@
-import { sendInvitationForNewUserService, setGoogleBoardUrlService, setNameOfCongregationService } from '../services/config-services'
+import { sendInvitationForNewUserService, setDisableEditMapsService, setGoogleBoardUrlService, setNameOfCongregationService } from '../services/config-services'
 import express, { Request, Response, Router } from 'express'
 
 export const configController: Router = express.Router()
@@ -13,7 +13,11 @@ export const configController: Router = express.Router()
     .patch('/', async (req: Request, res: Response) => {
         const name = req.body.name as string
         const googleBoardUrl = req.body.googleBoardUrl as string
-        if (name) {
+        const disableEditMaps = req.body.disableEditMaps as boolean
+        if ([true, false].includes(disableEditMaps)) {
+            const success: boolean = await setDisableEditMapsService(req.user, disableEditMaps)
+            res.json({ success })
+        } else if (name) {
             const success: boolean = await setNameOfCongregationService(req.user, name)
             res.json({ success })
         } else if (googleBoardUrl) {

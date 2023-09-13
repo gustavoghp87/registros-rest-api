@@ -9,6 +9,7 @@ export type typeInvitarionNewUser = {
 export type typeConfig = {
     congregation: number
     date: number
+    disabledEditMaps: boolean
     googleBoardUrl: string
     invitations: typeInvitarionNewUser[]
     name: string

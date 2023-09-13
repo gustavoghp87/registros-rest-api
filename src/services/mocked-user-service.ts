@@ -111,7 +111,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
             isFinished: false,
             to: 1122223349
         }],
-        boardsItems: [
+        boardItems: [
             {
            ids: [
                 ],
@@ -143,6 +143,15 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
            title: "Grupos"
             }
         ],
+        config: {
+            congregation: 1,
+            date: 16000000000,
+            disabledEditMaps: false,
+            googleBoardUrl: 'some',
+            invitations: [],
+            name: "Congregación X",
+            numberOfTerritories: 56
+        },
         coordinates: {
             lat: -34.6319777,
             lng: -58.4757213
@@ -1589,6 +1598,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
             },
             territoryNumber: '1'
         },
+        hthTerritories: [],
         isDisabled: false,
         localStatistics: [{
             congregation: 1,
@@ -1606,7 +1616,9 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
         modifiedCount: 1,
         newPassword: "Abc123456",
         newToken: isAdmin ? tokenTestAdmin : tokenTestUser,
+        notSent: false,
         recaptchaFails: false,
+        street: "Concordia",
         streets: ["Concordia"],
         telephonicTerritory: {
             congregation: 1,
@@ -1682,6 +1694,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
             },
             territoryNumber: '1'
         },
+        territoriesTableData: [],
         url: 'gmail@gmail.com',
         used: false,
         user: {

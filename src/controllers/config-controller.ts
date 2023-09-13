@@ -1,4 +1,4 @@
-import { sendInvitationForNewUserService, setDisableEditMapsService, setGoogleBoardUrlService, setNameOfCongregationService } from '../services/config-services'
+import * as configServices from '../services/config-services'
 import express, { Request, Response, Router } from 'express'
 
 export const configController: Router = express.Router()
@@ -13,15 +13,23 @@ export const configController: Router = express.Router()
     .patch('/', async (req: Request, res: Response) => {
         const name = req.body.name as string
         const googleBoardUrl = req.body.googleBoardUrl as string
-        const disableEditMaps = req.body.disableEditMaps as boolean
-        if ([true, false].includes(disableEditMaps)) {
-            const success: boolean = await setDisableEditMapsService(req.user, disableEditMaps)
+        const disableCloseHthFaces = req.body.disableCloseHthFaces as boolean
+        const disableEditHthMaps = req.body.disableEditHthMaps as boolean
+        const disableHthFaceObservations = req.body.disableHthFaceObservations as boolean
+        if ([true, false].includes(disableCloseHthFaces)) {
+            const success: boolean = await configServices.setDisableCloseHthFacesService(req.user, disableCloseHthFaces)
+            res.json({ success })
+        } else if ([true, false].includes(disableEditHthMaps)) {
+            const success: boolean = await configServices.setDisableEditHthMapsService(req.user, disableEditHthMaps)
+            res.json({ success })
+        } else if ([true, false].includes(disableHthFaceObservations)) {
+            const success: boolean = await configServices.setDisableHthFaceObservatiosService(req.user, disableHthFaceObservations)
             res.json({ success })
         } else if (name) {
-            const success: boolean = await setNameOfCongregationService(req.user, name)
+            const success: boolean = await configServices.setNameOfCongregationService(req.user, name)
             res.json({ success })
         } else if (googleBoardUrl) {
-            const success: boolean = await setGoogleBoardUrlService(req.user, googleBoardUrl)
+            const success: boolean = await configServices.setGoogleBoardUrlService(req.user, googleBoardUrl)
             res.json({ success })
         } else {
             res.json({ success: false })
@@ -32,7 +40,7 @@ export const configController: Router = express.Router()
     .put('/invite', async (req: Request, res: Response) => {
         const email = req.body.email as string
         const newCongregation = req.body.newCongregation as boolean
-        const success: boolean|string = await sendInvitationForNewUserService(req.user, email, newCongregation === true)
+        const success: boolean|string = await configServices.sendInvitationForNewUserService(req.user, email, newCongregation === true)
         if (success === 'exists') {
             res.json({ success: false, userExists: true})
             return

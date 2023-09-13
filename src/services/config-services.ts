@@ -70,13 +70,35 @@ export const sendInvitationForNewUserService = async (requesterUser: typeUser, e
     return success
 }
 
-export const setDisableEditMapsService = async (requesterUser: typeUser, disableEditMaps: boolean): Promise<boolean> => {
+export const setDisableCloseHthFacesService = async (requesterUser: typeUser, disableCloseHthFaces: boolean): Promise<boolean> => {
     if (!requesterUser || requesterUser.role !== 1) return false
-    const success: boolean = await configDbConnection.SetDisableEditMaps(requesterUser.congregation, disableEditMaps)
+    const success: boolean = await configDbConnection.SetDisableCloseHthFaces(requesterUser.congregation, disableCloseHthFaces)
     if (success) {
-        logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} ${disableEditMaps ? 'deshabilitó' : 'habilitó'} la edición de Mapas`, configLogs)
+        logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} ${disableCloseHthFaces ? 'deshabilitó' : 'habilitó'} la función de cerrar caras de casa en casa`, configLogs)
     } else {
-        logger.Add(requesterUser.congregation, `Falló la solicitud de Admin (${requesterUser.email}) para ${disableEditMaps ? 'deshabilitar' : 'habilitar'} la edición de Mapas`, errorLogs)
+        logger.Add(requesterUser.congregation, `Falló la solicitud de Admin (${requesterUser.email}) para ${disableCloseHthFaces ? 'deshabilitar' : 'habilitar'} la función de cerrar caras de casa en casa`, errorLogs)
+    }
+    return success
+}
+
+export const setDisableEditHthMapsService = async (requesterUser: typeUser, disableEditHthMaps: boolean): Promise<boolean> => {
+    if (!requesterUser || requesterUser.role !== 1) return false
+    const success: boolean = await configDbConnection.SetDisableEditHthMaps(requesterUser.congregation, disableEditHthMaps)
+    if (success) {
+        logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} ${disableEditHthMaps ? 'deshabilitó' : 'habilitó'} la edición de Mapas de casa en casa`, configLogs)
+    } else {
+        logger.Add(requesterUser.congregation, `Falló la solicitud de Admin (${requesterUser.email}) para ${disableEditHthMaps ? 'deshabilitar' : 'habilitar'} la edición de Mapas de casa en casa`, errorLogs)
+    }
+    return success
+}
+
+export const setDisableHthFaceObservatiosService = async (requesterUser: typeUser, disableHthFaceObservations: boolean): Promise<boolean> => {
+    if (!requesterUser || requesterUser.role !== 1) return false
+    const success: boolean = await configDbConnection.SetDisableHthFaceObservatios(requesterUser.congregation, disableHthFaceObservations)
+    if (success) {
+        logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} ${disableHthFaceObservations ? 'deshabilitó' : 'habilitó'} la función de Observaciones de Caras`, configLogs)
+    } else {
+        logger.Add(requesterUser.congregation, `Falló la solicitud de Admin (${requesterUser.email}) para ${disableHthFaceObservations ? 'deshabilitar' : 'habilitar'} la función de Observaciones de Caras`, errorLogs)
     }
     return success
 }

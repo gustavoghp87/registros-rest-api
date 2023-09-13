@@ -12,9 +12,11 @@ export class ConfigDb {
             const config: typeConfig = {
                 congregation,
                 date: +new Date(),
-                disabledEditMaps: false,
                 googleBoardUrl: '',
                 invitations: [],
+                isDisabledCloseHthFaces: true,
+                isDisabledEditHthMaps: false,
+                isDisabledHthFaceObservations: true,
                 name: "",
                 numberOfTerritories: 0
             }
@@ -64,20 +66,46 @@ export class ConfigDb {
             )
             return !!result.modifiedCount
         } catch (error) {
-            logger.Add(congregation, `Falló InviteNewUser() (${email}, ${userId}): ${error}`, errorLogs)
+            logger.Add(congregation, `Falló SaveNewUserInvitation() (${email}, ${userId}): ${error}`, errorLogs)
             return false
         }
     }
-    async SetDisableEditMaps(congregation: number, disableEditMaps: boolean): Promise<boolean> {
+    async SetDisableCloseHthFaces(congregation: number, disableCloseHthFaces: boolean): Promise<boolean> {
         try {
             if (!congregation) throw Error("Faltan datos")
             const result: UpdateResult = await getCollection().updateOne(
                 { congregation },
-                { $set: { disabledEditMaps: !!disableEditMaps } }
+                { $set: { isDisabledCloseHthFaces: !!disableCloseHthFaces } }
             )
             return !!result.modifiedCount
         } catch (error) {
-            logger.Add(congregation, `Falló SetNameOfCongregation() (${disableEditMaps}): ${error}`, errorLogs)
+            logger.Add(congregation, `Falló SetDisableCloseHthFaces() (${disableCloseHthFaces}): ${error}`, errorLogs)
+            return false
+        }
+    }
+    async SetDisableEditHthMaps(congregation: number, disableEditHthMaps: boolean): Promise<boolean> {
+        try {
+            if (!congregation) throw Error("Faltan datos")
+            const result: UpdateResult = await getCollection().updateOne(
+                { congregation },
+                { $set: { isDisabledEditHthMaps: !!disableEditHthMaps } }
+            )
+            return !!result.modifiedCount
+        } catch (error) {
+            logger.Add(congregation, `Falló SetDisableEditHthMaps() (${disableEditHthMaps}): ${error}`, errorLogs)
+            return false
+        }
+    }
+    async SetDisableHthFaceObservatios(congregation: number, disableHthFaceObservations: boolean): Promise<boolean> {
+        try {
+            if (!congregation) throw Error("Faltan datos")
+            const result: UpdateResult = await getCollection().updateOne(
+                { congregation },
+                { $set: { isDisabledHthFaceObservations: !!disableHthFaceObservations } }
+            )
+            return !!result.modifiedCount
+        } catch (error) {
+            logger.Add(congregation, `Falló SetDisableHthFaceObservatios() (${disableHthFaceObservations}): ${error}`, errorLogs)
             return false
         }
     }

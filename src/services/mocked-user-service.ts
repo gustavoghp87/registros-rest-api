@@ -146,7 +146,9 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
         config: {
             congregation: 1,
             date: 16000000000,
-            disabledEditMaps: false,
+            isDisabledCloseHthFaces: false,
+            isDisabledEditHthMaps: false,
+            isDisabledHthFaceObservations: false,
             googleBoardUrl: 'some',
             invitations: [],
             name: "Congregación X",

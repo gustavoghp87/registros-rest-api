@@ -102,7 +102,7 @@ export const addHTHPolygonFaceService = async (requesterUser: types.typeUser, te
 }
 
 export const changeStateToHTHHouseholdService = async (requesterUser: types.typeUser, congregation: number, territoryNumber: types.typeTerritoryNumber,
- block: types.typeBlock, face: types.typeFace, streetNumber: number, householdId: number, isChecked: boolean, isManager: boolean): Promise<boolean> => {
+ block: types.typeBlock, face: types.typeFace, streetNumber: number, householdId: number, isChecked: boolean, isManager: boolean, street: string): Promise<boolean> => {
     // freed
     if (!congregation || !territoryNumber || !block || !face || !householdId || typeof householdId !== 'number') return false
     isChecked = !!isChecked
@@ -116,13 +116,18 @@ export const changeStateToHTHHouseholdService = async (requesterUser: types.type
         const polygon = hthTerritory.map.polygons.find(a => a.block === block && a.face === face && a.buildings.find(b => b.streetNumber === streetNumber && !!b.dateOfLastSharing && getCurrentLocalDate() === getCurrentLocalDate(b.dateOfLastSharing)))
         if (!polygon) return false
     }
+    let success = false
     if (isManager) {
-        const success: boolean = await houseToHouseDbConnection.EditStateHTHManagerHousehold(congregation, territoryNumber, block, face, streetNumber, isChecked)
-        return success
+        success = await houseToHouseDbConnection.EditStateHTHManagerHousehold(congregation, territoryNumber, block, face, streetNumber, isChecked)
     } else {
-        const success: boolean = await houseToHouseDbConnection.EditStateHTHHousehold(congregation, territoryNumber, block, face, streetNumber, householdId, isChecked)
-        return success
+        success = await houseToHouseDbConnection.EditStateHTHHousehold(congregation, territoryNumber, block, face, streetNumber, householdId, isChecked)
     }
+    if (success) {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} ${isChecked ? 'tocó' : 'desmarcó'} el timbre ID ${householdId} del edificio ${street} ${streetNumber} (territorio ${territoryNumber})`, houseToHouseLogs)
+    } else {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo ${isChecked ? 'tocar' : 'desmarcar'} el timbre ID ${householdId} del edificio ${street} ${streetNumber} (territorio ${territoryNumber})`, errorLogs)
+    }
+    return success
 }
 
 export const createHTHTerritoriesService = async (

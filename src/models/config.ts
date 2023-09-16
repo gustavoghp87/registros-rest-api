@@ -9,11 +9,12 @@ export type typeInvitarionNewUser = {
 export type typeConfig = {
     congregation: number
     date: number
-    isDisabledEditHthMaps: boolean
-    isDisabledCloseHthFaces: boolean
-    isDisabledHthFaceObservations: boolean
     googleBoardUrl: string
     invitations: typeInvitarionNewUser[]
+    isDisabledCloseHthFaces: boolean
+    isDisabledEditHthMaps: boolean
+    isDisabledHthBuildingsForUnassignedUsers: boolean
+    isDisabledHthFaceObservations: boolean
     name: string
     numberOfTerritories: number
 }

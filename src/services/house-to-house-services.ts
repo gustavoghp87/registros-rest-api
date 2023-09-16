@@ -10,7 +10,7 @@ const houseToHouseDbConnection = new HouseToHouseDb()
 
 export const addHTHBuildingService = async (requesterUser: types.typeUser, territoryNumber: types.typeTerritoryNumber,
  block: types.typeBlock, face: types.typeFace, newBuilding: types.typeHTHBuilding): Promise<boolean|'dataError'|'alreadyExists'> => {
-    if (!requesterUser || requesterUser.role !== 1) return false
+    if (!requesterUser || (requesterUser.role !== 1 && !requesterUser.hthAssignments?.includes(parseInt(territoryNumber)))) return false
     if (!territoryNumber || !block || !face || !newBuilding || typeof newBuilding.streetNumber !== 'number'
      || !newBuilding.households || !newBuilding.households.length) return 'dataError'
     newBuilding.hasCharacters = !!newBuilding.hasCharacters
@@ -76,8 +76,11 @@ export const addHTHObservationService = async (requesterUser: types.typeUser, te
     observation.creatorId = requesterUser.id
     observation.deleted = false
     const success: boolean = await houseToHouseDbConnection.AddHTHObservation(requesterUser.congregation, territoryNumber, observation, block, face, polygonId)
-    if (success) logger.Add(requesterUser.congregation, `${requesterUser.email} agregó una Observación al territorio ${territoryNumber} manzana ${block} cara ${face}`, houseToHouseLogs)
-    else logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo agregar una Observación al territorio ${territoryNumber} manzana ${block} cara ${face}`, errorLogs)
+    if (success) {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} agregó una Observación al territorio ${territoryNumber} manzana ${block} cara ${face}`, houseToHouseLogs)
+    } else {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo agregar una Observación al territorio ${territoryNumber} manzana ${block} cara ${face}`, errorLogs)
+    }
     return success
 }
 
@@ -90,8 +93,11 @@ export const addHTHPolygonFaceService = async (requesterUser: types.typeUser, te
         !polygon.coordsPoint1.lng || !polygon.coordsPoint2.lng || !polygon.coordsPoint3.lng
     ) return false
     const success: boolean = await houseToHouseDbConnection.AddHTHPolygonFace(requesterUser.congregation, territoryNumber, polygon)
-    if (success) logger.Add(requesterUser.congregation, `${requesterUser.email} agregó una Cara al territorio ${territoryNumber} manzana ${polygon.block} cara ${polygon.face}`, houseToHouseAdminLogs)
-    else logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo agregar una Cara al territorio ${territoryNumber} manzana ${polygon.block} cara ${polygon.face}`, errorLogs)
+    if (success) {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} agregó una Cara al territorio ${territoryNumber} manzana ${polygon.block} cara ${polygon.face}`, houseToHouseAdminLogs)
+    } else {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo agregar una Cara al territorio ${territoryNumber} manzana ${polygon.block} cara ${polygon.face}`, errorLogs)
+    }
     return success
 }
 
@@ -133,11 +139,20 @@ export const createHTHTerritoriesService = async (
 
 export const deleteHTHBuildingService = async (requesterUser: types.typeUser,
  territoryNumber: types.typeTerritoryNumber, block: types.typeBlock, face: types.typeFace, streetNumber: number): Promise<boolean> => {
-    if (!requesterUser || requesterUser.role !== 1) return false
+    if (!requesterUser) return false
+    if (requesterUser.role !== 1) {
+        const currentBuilding = (await getHTHTerritoryServiceWithoutPermissions(requesterUser.congregation, territoryNumber))?.map.polygons.find(p => p.block === block && p.face === face)?.buildings.find(b => b.streetNumber === streetNumber)
+        if (!currentBuilding || currentBuilding.creatorId !== requesterUser.id) {
+            return false
+        }
+    }
     if (!territoryNumber || !block || !face || !streetNumber) return false
     const success: boolean = await houseToHouseDbConnection.DeleteHTHBuilding(requesterUser.congregation, territoryNumber, block, face, streetNumber)
-    if (success) logger.Add(requesterUser.congregation, `${requesterUser.email} eliminó el edificio de territorio ${territoryNumber} manzana ${block} cara ${face} altura ${streetNumber}`, houseToHouseAdminLogs)
-    else logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo eliminar el edificio de territorio ${territoryNumber} manzana ${block} cara ${face} altura ${streetNumber}`, errorLogs)
+    if (success) {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} eliminó el edificio de territorio ${territoryNumber} manzana ${block} cara ${face} altura ${streetNumber}`, houseToHouseAdminLogs)
+    } else {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo eliminar el edificio de territorio ${territoryNumber} manzana ${block} cara ${face} altura ${streetNumber}`, errorLogs)
+    }
     return success
 }
 
@@ -146,8 +161,11 @@ export const deleteHTHDoNotCallService = async (requesterUser: types.typeUser, t
     if (!requesterUser) return false
     if (!territoryNumber || !doNotCallId || !block || !face) return false
     const success: boolean = await houseToHouseDbConnection.DeleteHTHDoNotCall(requesterUser.congregation, territoryNumber, block, face, doNotCallId)
-    if (success) logger.Add(requesterUser.congregation, `${requesterUser.email} eliminó un No Tocar del territorio ${territoryNumber} manzana ${block} cara ${face}`, houseToHouseLogs)
-    else logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo eliminar un No Tocar del territorio ${territoryNumber} manzana ${block} cara ${face}`, errorLogs)
+    if (success) {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} eliminó un No Tocar del territorio ${territoryNumber} manzana ${block} cara ${face}`, houseToHouseLogs)
+    } else {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo eliminar un No Tocar del territorio ${territoryNumber} manzana ${block} cara ${face}`, errorLogs)
+    }
     return success
 }
 
@@ -156,8 +174,11 @@ export const deleteHTHObservationService = async (requesterUser: types.typeUser,
     if (!requesterUser) return false
     if (!territoryNumber || !block || !face || !observationId) return false
     const success: boolean = await houseToHouseDbConnection.DeleteHTHObservation(requesterUser.congregation, territoryNumber, block, face, observationId)
-    if (success) logger.Add(requesterUser.congregation, `${requesterUser.email} eliminó una Observación del territorio ${territoryNumber} manzana ${block} cara ${face}`, houseToHouseLogs)
-    else logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo eliminar una Observación del territorio ${territoryNumber} manzana ${block} cara ${face}`, errorLogs)
+    if (success) {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} eliminó una Observación del territorio ${territoryNumber} manzana ${block} cara ${face}`, houseToHouseLogs)
+    } else {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo eliminar una Observación del territorio ${territoryNumber} manzana ${block} cara ${face}`, errorLogs)
+    }
     return success
 }
 
@@ -170,8 +191,11 @@ export const deleteHTHPolygonFaceService = async (requesterUser: types.typeUser,
         || !!hthTerritory.map.polygons.some(x => x.block === block && x.face === face && x.id === faceId && (x.buildings?.length || x.doNotCalls?.length || x.observations?.length))
     ) return false
     const success: boolean = await houseToHouseDbConnection.DeleteHTHPolygonFace(requesterUser.congregation, territoryNumber, block, face, faceId)
-    if (success) logger.Add(requesterUser.congregation, `${requesterUser.email} eliminó la cara ${face} manzana ${face} territorio ${territoryNumber}`, houseToHouseAdminLogs)
-    else logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo eliminar la cara ${face} manzana ${face} territorio ${territoryNumber}`, errorLogs)
+    if (success) {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} eliminó la cara ${face} manzana ${face} territorio ${territoryNumber}`, houseToHouseAdminLogs)
+    } else {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo eliminar la cara ${face} manzana ${face} territorio ${territoryNumber}`, errorLogs)
+    }
     return success
 }
 
@@ -180,8 +204,11 @@ export const editHTHObservationService = async (requesterUser: types.typeUser, t
     if (!requesterUser) return false
     if (!territoryNumber || !observation || !observation.id || !observation.date || !observation.text || !block || !face) return false
     const success: boolean = await houseToHouseDbConnection.EditHTHObservation(requesterUser.congregation, territoryNumber, block, face, observation)
-    if (success) logger.Add(requesterUser.congregation, `${requesterUser.email} modificó una Observación del territorio ${territoryNumber} manzana ${block} cara ${face}`, houseToHouseLogs)
-    else logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo modificar una Observación del territorio ${territoryNumber} manzana ${block} cara ${face}`, errorLogs)
+    if (success) {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} modificó una Observación del territorio ${territoryNumber} manzana ${block} cara ${face}`, houseToHouseLogs)
+    } else {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo modificar una Observación del territorio ${territoryNumber} manzana ${block} cara ${face}`, errorLogs)
+    }
     return success
 }
 
@@ -210,18 +237,18 @@ export const editHTHMapService = async (requesterUser: types.typeUser,
     return success
 }
 
-// export const getHTHTerritoriesService = async (requesterUser: types.typeUser): Promise<types.typeHTHTerritory[]|null> => {
-//     if (!requesterUser) return null
-//     const hthTerritories: types.typeHTHTerritory[]|null = await houseToHouseDbConnection.GetHTHTerritories()
-//     if (hthTerritories && hthTerritories.length) {
-//         hthTerritories.forEach(hthTerritory =>
-//             hthTerritory.map.polygons = hthTerritory.map.polygons.map(x => {
-//                 if (x.doNotCalls && x.doNotCalls.length) x.doNotCalls = x.doNotCalls.filter(y => y.deleted !== true)
-//                 if (x.observations && x.observations.length) x.observations = x.observations.filter(y => y.deleted !== true)
-//                 return x
-//             })
-//         )
-//     }
+// export const getHTHTerritoriesService = async (): Promise<types.typeHTHTerritory[]|null> => {
+//     // if (!requesterUser) return null
+//     const hthTerritories: types.typeHTHTerritory[]|null = await houseToHouseDbConnection.GetHTHTerritories(1)
+//     // if (hthTerritories && hthTerritories.length) {
+//     //     hthTerritories.forEach(hthTerritory =>
+//     //         hthTerritory.map.polygons = hthTerritory.map.polygons.map(x => {
+//     //             if (x.doNotCalls && x.doNotCalls.length) x.doNotCalls = x.doNotCalls.filter(y => y.deleted !== true)
+//     //             if (x.observations && x.observations.length) x.observations = x.observations.filter(y => y.deleted !== true)
+//     //             return x
+//     //         })
+//     //     )
+//     // }
 //     return hthTerritories
 // }
 
@@ -342,13 +369,19 @@ export const setHTHIsFinishedService = async (requesterUser: types.typeUser, ter
                 if (!success1) success = false
             })
         }
-        if (success) logger.Add(requesterUser.congregation, `${requesterUser.email} ${isFinished ? "cerró" : "abrió"} todo el territorio ${territoryNumber}`, houseToHouseLogs)
-        else logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo ${isFinished ? "cerrar" : "abrir"} todo el territorio ${territoryNumber}`, errorLogs)
+        if (success) {
+            logger.Add(requesterUser.congregation, `${requesterUser.email} ${isFinished ? "cerró" : "abrió"} todo el territorio ${territoryNumber}`, houseToHouseLogs)
+        } else {
+            logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo ${isFinished ? "cerrar" : "abrir"} todo el territorio ${territoryNumber}`, errorLogs)
+        }
         return success
     } else {
         const success: boolean = await houseToHouseDbConnection.SetHTHIsFinished(requesterUser.congregation, territoryNumber, block, face, polygonId, isFinished)
-        if (success) logger.Add(requesterUser.congregation, `${requesterUser.email} ${isFinished ? "cerró" : "abrió"} territorio ${territoryNumber} manzana ${block} cara ${face}`, houseToHouseLogs)
-        else logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo ${isFinished ? "cerrar" : "abrir"} territorio ${territoryNumber} manzana ${block} cara ${face}`, errorLogs)
+        if (success) {
+            logger.Add(requesterUser.congregation, `${requesterUser.email} ${isFinished ? "cerró" : "abrió"} territorio ${territoryNumber} manzana ${block} cara ${face}`, houseToHouseLogs)
+        } else {
+            logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo ${isFinished ? "cerrar" : "abrir"} territorio ${territoryNumber} manzana ${block} cara ${face}`, errorLogs)
+        }
         return success
     }
 }
@@ -358,7 +391,10 @@ export const setHTHIsSharedBuildingsService = async (requesterUser: types.typeUs
     if (!requesterUser) return false
     if (!territoryNumber || !block || !face || !polygonId || !streetNumbers || !streetNumbers.length) return false
     const success: boolean = await houseToHouseDbConnection.SetHTHIsSharedBuildings(requesterUser.congregation, territoryNumber, block, face, polygonId, streetNumbers)
-    if (success) logger.Add(requesterUser.congregation, `${requesterUser.email} compartió edificios por WhatsApp: territorio ${territoryNumber} manzana ${block} cara ${face} números ${streetNumbers}`, houseToHouseLogs)
-    else logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo compartir edificios por WhatsApp: territorio ${territoryNumber} manzana ${block} cara ${face} números ${streetNumbers}`, errorLogs)
+    if (success) {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} compartió edificios por WhatsApp: territorio ${territoryNumber} manzana ${block} cara ${face} números ${streetNumbers}`, houseToHouseLogs)
+    } else {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo compartir edificios por WhatsApp: territorio ${territoryNumber} manzana ${block} cara ${face} números ${streetNumbers}`, errorLogs)
+    }
     return success
 }

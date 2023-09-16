@@ -16,6 +16,7 @@ export class ConfigDb {
                 invitations: [],
                 isDisabledCloseHthFaces: true,
                 isDisabledEditHthMaps: false,
+                isDisabledHthBuildingsForUnassignedUsers: true,
                 isDisabledHthFaceObservations: true,
                 name: "",
                 numberOfTerritories: 0
@@ -93,6 +94,19 @@ export class ConfigDb {
             return !!result.modifiedCount
         } catch (error) {
             logger.Add(congregation, `Falló SetDisableEditHthMaps() (${disableEditHthMaps}): ${error}`, errorLogs)
+            return false
+        }
+    }
+    async SetDisableHthBuildingsForUnassignedUsers(congregation: number, disableHthBuildingsForUnassignedUsers: boolean): Promise<boolean> {
+        try {
+            if (!congregation) throw Error("Faltan datos")
+            const result: UpdateResult = await getCollection().updateOne(
+                { congregation },
+                { $set: { isDisabledHthBuildingsForUnassignedUsers: !!disableHthBuildingsForUnassignedUsers } }
+            )
+            return !!result.modifiedCount
+        } catch (error) {
+            logger.Add(congregation, `Falló SetDisableHthBuildingsForUnassignedUsers() (${disableHthBuildingsForUnassignedUsers}): ${error}`, errorLogs)
             return false
         }
     }

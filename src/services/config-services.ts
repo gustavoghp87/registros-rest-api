@@ -92,6 +92,17 @@ export const setDisableEditHthMapsService = async (requesterUser: typeUser, disa
     return success
 }
 
+export const setDisableHthBuildingsForUnassignedUsersService = async (requesterUser: typeUser, disableHthBuildingsForUnassignedUsers: boolean): Promise<boolean> => {
+    if (!requesterUser || requesterUser.role !== 1) return false
+    const success: boolean = await configDbConnection.SetDisableHthBuildingsForUnassignedUsers(requesterUser.congregation, disableHthBuildingsForUnassignedUsers)
+    if (success) {
+        logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} ${disableHthBuildingsForUnassignedUsers ? 'deshabilitó' : 'habilitó'} la predicación de Edificios de casa en casa para usuarios no asignados`, configLogs)
+    } else {
+        logger.Add(requesterUser.congregation, `Falló la solicitud de Admin (${requesterUser.email}) para ${disableHthBuildingsForUnassignedUsers ? 'deshabilitar' : 'habilitar'} la predicación de Edificios de casa en casa para usuarios no asignados`, errorLogs)
+    }
+    return success
+}
+
 export const setDisableHthFaceObservatiosService = async (requesterUser: typeUser, disableHthFaceObservations: boolean): Promise<boolean> => {
     if (!requesterUser || requesterUser.role !== 1) return false
     const success: boolean = await configDbConnection.SetDisableHthFaceObservatios(requesterUser.congregation, disableHthFaceObservations)

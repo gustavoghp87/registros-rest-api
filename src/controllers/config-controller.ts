@@ -11,16 +11,20 @@ export const configController: Router = express.Router()
 
     // edit name of congregation or google site url
     .patch('/', async (req: Request, res: Response) => {
-        const name = req.body.name as string
-        const googleBoardUrl = req.body.googleBoardUrl as string
         const disableCloseHthFaces = req.body.disableCloseHthFaces as boolean
         const disableEditHthMaps = req.body.disableEditHthMaps as boolean
+        const disableHthBuildingsForUnassignedUsers = req.body.disableHthBuildingsForUnassignedUsers as boolean
         const disableHthFaceObservations = req.body.disableHthFaceObservations as boolean
+        const googleBoardUrl = req.body.googleBoardUrl as string
+        const name = req.body.name as string
         if ([true, false].includes(disableCloseHthFaces)) {
             const success: boolean = await configServices.setDisableCloseHthFacesService(req.user, disableCloseHthFaces)
             res.json({ success })
         } else if ([true, false].includes(disableEditHthMaps)) {
             const success: boolean = await configServices.setDisableEditHthMapsService(req.user, disableEditHthMaps)
+            res.json({ success })
+        } else if ([true, false].includes(disableHthBuildingsForUnassignedUsers)) {
+            const success: boolean = await configServices.setDisableHthBuildingsForUnassignedUsersService(req.user, disableHthBuildingsForUnassignedUsers)
             res.json({ success })
         } else if ([true, false].includes(disableHthFaceObservations)) {
             const success: boolean = await configServices.setDisableHthFaceObservatiosService(req.user, disableHthFaceObservations)

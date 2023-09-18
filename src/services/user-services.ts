@@ -24,7 +24,9 @@ export const assignHTHTerritoryService = async (requesterUser: typeUser, email: 
     const userToEdit: typeUser|null = await userDbConnection.GetUserByEmail(requesterUser.congregation, email)
     if (!requesterUser || requesterUser.role !== 1 || !userToEdit || (!toAssign && !toUnassign && !all)) return null
     const updatedUser: typeUser|null = await userDbConnection.AssignHTHTerritory(requesterUser.congregation, email, toAssign, toUnassign, all)
-    if (updatedUser) logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} modificó las asignaciones de Casa en Casa de ${updatedUser?.email}: asignados antes ${userToEdit.phoneAssignments?.length ? userToEdit.phoneAssignments : "ninguno"}, ahora ${updatedUser.hthAssignments?.length ? updatedUser.hthAssignments : "ninguno"}`, userLogs)
+    if (updatedUser) {
+        logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} modificó las asignaciones de Casa en Casa de ${updatedUser?.email}: asignados antes ${userToEdit.hthAssignments?.length ? userToEdit.hthAssignments : "ninguno"}, ahora ${updatedUser.hthAssignments?.length ? updatedUser.hthAssignments : "ninguno"}`, userLogs)
+    }
     return updatedUser
 }
 
@@ -41,17 +43,20 @@ export const assignTLPTerritoryService = async (requesterUser: typeUser, email: 
     const userToEdit: typeUser|null = await userDbConnection.GetUserByEmail(requesterUser.congregation, email)
     if (!requesterUser || requesterUser.role !== 1 || !userToEdit || (!toAssign && !toUnassign && !all)) return null
     const updatedUser: typeUser|null = await userDbConnection.AssignTLPTerritory(requesterUser.congregation, email, toAssign, toUnassign, all)
-    if (updatedUser) logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} modificó las asignaciones Telefónica de ${updatedUser?.email}: asignados antes ${userToEdit.phoneAssignments?.length ? userToEdit.phoneAssignments : "ninguno"}, ahora ${updatedUser.phoneAssignments?.length ? updatedUser.phoneAssignments : "ninguno"}`, userLogs)
+    if (updatedUser) {
+        logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} modificó las asignaciones Telefónica de ${updatedUser?.email}: asignados antes ${userToEdit.phoneAssignments?.length ? userToEdit.phoneAssignments : "ninguno"}, ahora ${updatedUser.phoneAssignments?.length ? updatedUser.phoneAssignments : "ninguno"}`, userLogs)
+    }
     return updatedUser
 }
 
 export const changeEmailService = async (requesterUser: typeUser, newEmail: string): Promise<boolean> => {
     if (!requesterUser || !newEmail || newEmail.length < 6) return false
     const success: boolean = await userDbConnection.ChangeEmail(requesterUser.congregation, requesterUser.id, newEmail)
-    if (success)
+    if (success) {
         logger.Add(requesterUser.congregation, `${requesterUser.role === 1 ? 'Admin' : 'Usuario'} ${requesterUser.email} cambió su dirección de Email a ${newEmail}`, loginLogs)
-    else
+    } else {
         logger.Add(requesterUser.congregation, `${requesterUser.role === 1 ? 'Admin' : 'Usuario'} ${requesterUser.email} no puedo cambiar su dirección de Email a ${newEmail}`, errorLogs)
+    }
     return success
 }
 
@@ -69,7 +74,9 @@ export const changePswByEmailLinkService = async (congregation: number, id: stri
     if (!success) return null
     logger.Add(congregation, `${user.role === 1 ? 'Admin' : 'Usuario'} ${user.email} cambió su contraseña por link de email`, loginLogs)
     const successSetAsUsed: boolean = await userDbConnection.SetRecoveryOptionAsUsed(congregation, user.email, id)
-    if (!successSetAsUsed) logger.Add(congregation, `No se pudo setear como usada la opción de recuperación para ${user.email} ${id}`, errorLogs)
+    if (!successSetAsUsed) {
+        logger.Add(congregation, `No se pudo setear como usada la opción de recuperación para ${user.email} ${id}`, errorLogs)
+    }
     const newToken: string|null = generateAccessTokenService(user, user.tokenId)
     return newToken
 }
@@ -81,7 +88,9 @@ export const changePswOtherUserService = async (requesterUser: typeUser, email: 
     const encryptedPassword: string|null = await generatePasswordHash(requesterUser.congregation, newPsw)
     if (!encryptedPassword) return null
     const success: boolean = await userDbConnection.ChangePsw(requesterUser.congregation, email, encryptedPassword)
-    if (success) logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} cambió la contraseña de ${email}`, loginLogs)
+    if (success) {
+        logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} cambió la contraseña de ${email}`, loginLogs)
+    }
     return success ? newPsw : null
 }
 
@@ -110,8 +119,11 @@ export const deallocateMyTLPTerritoryService = async (user: typeUser, territoryN
         return false
     }
     const updatedUser: typeUser|null = await userDbConnection.AssignTLPTerritory(user.congregation, user.email, 0, toUnassign, false)
-    if (updatedUser) logger.Add(user.congregation, `Se desasignó el territorio de telefónica ${toUnassign} a ${user.email} porque lo cerró`, userLogs)
-    else logger.Add(user.congregation, `El ${user.role === 1 ? 'admin' : 'usuario'} ${user.email} no pudo ser desasignado del territorio de telefónica ${toUnassign} después de cerrarlo`, errorLogs)
+    if (updatedUser) {
+        logger.Add(user.congregation, `Se desasignó el territorio de telefónica ${toUnassign} a ${user.email} porque lo cerró`, userLogs)
+    } else {
+        logger.Add(user.congregation, `El ${user.role === 1 ? 'admin' : 'usuario'} ${user.email} no pudo ser desasignado del territorio de telefónica ${toUnassign} después de cerrarlo`, errorLogs)
+    }
     return !!updatedUser
 }
 
@@ -136,7 +148,9 @@ export const editUserService = async (requesterUser: typeUser, email: string, is
     if (isNaN(role) || isNaN(group)) return null
     if (!requesterUser || requesterUser.role !== 1 || !email || typeof role !== 'number' || typeof group !== 'number') return null
     const updatedUser: typeUser|null = await userDbConnection.EditUserState(requesterUser.congregation, email, isActive, role, group)
-    if (updatedUser) logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} modificó al usuario ${updatedUser.email}: activado ${updatedUser.isActive}, rol ${updatedUser.role}, grupo ${updatedUser.group}`, userLogs)
+    if (updatedUser) {
+        logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} modificó al usuario ${updatedUser.email}: activado ${updatedUser.isActive}, rol ${updatedUser.role}, grupo ${updatedUser.group}`, userLogs)
+    }
     return updatedUser
 }
 

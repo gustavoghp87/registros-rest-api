@@ -286,27 +286,16 @@ export const getHTHTerritoriesForMapService = async (requesterUser: types.typeUs
 }
 
 export const getHTHBuildingService = async (congregation: number, territoryNumber: types.typeTerritoryNumber,
- block: types.typeBlock, face: types.typeFace, streetNumber: number): Promise<types.typeHTHTerritory|null> => {
+ block: types.typeBlock, face: types.typeFace, streetNumber: number): Promise<types.typeHTHTerritory|string|null> => {
     if (!congregation || !territoryNumber || !block || !face || !streetNumber) return null
-    const hthTerritory: types.typeHTHTerritory|null = await getHTHTerritoryServiceWithoutPermissions(congregation, territoryNumber)
-    if (!hthTerritory) return null
-    let building: types.typeHTHBuilding|null = null;
-    for (let i = 0; i < hthTerritory.map.polygons.length; i++) {
-        const polygon = hthTerritory.map.polygons[i];
-        for (let h = 0; h < polygon.buildings?.length; h++) {
-            const currentBuilding = polygon.buildings[h];
-            if (polygon.block === block && polygon.face === face && currentBuilding.streetNumber === streetNumber && !!currentBuilding.dateOfLastSharing && getCurrentLocalDate() === getCurrentLocalDate(currentBuilding.dateOfLastSharing)) {
-                building = currentBuilding
-            }
-        }
-    }
+    const hthTerritory = await getHTHTerritoryServiceWithoutPermissions(congregation, territoryNumber)
+    const polygon = hthTerritory?.map.polygons.find(p => p.block === block && p.face === face)
+    if (!hthTerritory || !polygon) return null
+    const building: types.typeHTHBuilding|undefined = polygon?.buildings.find(b => b.streetNumber === streetNumber)
     if (!building) return null
-    const polygon = hthTerritory.map.polygons.find(
-        a => a.block === block && a.face === face && a.buildings.find(
-            b => b.streetNumber === streetNumber && !!b.dateOfLastSharing && getCurrentLocalDate() === getCurrentLocalDate(b.dateOfLastSharing)
-        )
-    )
-    if (!polygon) return null
+    if (!building.dateOfLastSharing || getCurrentLocalDate() !== getCurrentLocalDate(building.dateOfLastSharing)) {
+        return 'notSharedToday'
+    }
     return {
         congregation,
         territoryNumber,
@@ -393,13 +382,23 @@ export const setHTHIsFinishedService = async (requesterUser: types.typeUser, ter
 
 export const setHTHIsSharedBuildingsService = async (requesterUser: types.typeUser, territoryNumber: types.typeTerritoryNumber,
  block: types.typeBlock, face: types.typeFace, polygonId: number, streetNumbers: number[]): Promise<boolean> => {
-    if (!requesterUser) return false
-    if (!territoryNumber || !block || !face || !polygonId || !streetNumbers || !streetNumbers.length) return false
-    const success: boolean = await houseToHouseDbConnection.SetHTHIsSharedBuildings(requesterUser.congregation, territoryNumber, block, face, polygonId, streetNumbers)
-    if (success) {
-        logger.Add(requesterUser.congregation, `${requesterUser.email} compartió edificios por WhatsApp: territorio ${territoryNumber} manzana ${block} cara ${face} números ${streetNumbers}`, houseToHouseLogs)
+    if (!requesterUser || (requesterUser.role !== 1 && !requesterUser.hthAssignments?.includes(parseInt(territoryNumber)))) return false
+    if (!territoryNumber || !block) return false
+    let success: boolean = true
+    if (!face || !polygonId || !streetNumbers || !streetNumbers.length) {
+        success = await houseToHouseDbConnection.SetHTHIsSharedAllBuildings(requesterUser.congregation, territoryNumber, block)
+        if (success) {
+            logger.Add(requesterUser.congregation, `${requesterUser.email} compartió todos los edificios de la manzana ${block} territorio ${territoryNumber} por WhatsApp`, houseToHouseLogs)
+        } else {
+            logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo compartir edificios por WhatsApp: territorio ${territoryNumber} manzana ${block}`, errorLogs)
+        }
     } else {
-        logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo compartir edificios por WhatsApp: territorio ${territoryNumber} manzana ${block} cara ${face} números ${streetNumbers}`, errorLogs)
+        success = await houseToHouseDbConnection.SetHTHIsSharedBuildings(requesterUser.congregation, territoryNumber, block, face, polygonId, streetNumbers)
+        if (success) {
+            logger.Add(requesterUser.congregation, `${requesterUser.email} compartió edificios por WhatsApp: territorio ${territoryNumber} manzana ${block} cara ${face} números ${streetNumbers}`, houseToHouseLogs)
+        } else {
+            logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo compartir edificios por WhatsApp: territorio ${territoryNumber} manzana ${block} cara ${face} números ${streetNumbers}`, errorLogs)
+        }
     }
     return success
 }

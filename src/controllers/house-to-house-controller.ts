@@ -138,7 +138,11 @@ export const houseToHouseController: Router = express.Router()
         const face = req.params.face as types.typeFace
         const streetNumber = parseInt(req.params.streetNumber || '')
         if (isNaN(congregation) || !territoryNumber || !block || !face || isNaN(streetNumber)) return res.json({ success: false })
-        const hthTerritory: types.typeHTHTerritory|null = await hTHServices.getHTHBuildingService(congregation, territoryNumber, block, face, streetNumber)
+        const hthTerritory: types.typeHTHTerritory|string|null = await hTHServices.getHTHBuildingService(congregation, territoryNumber, block, face, streetNumber)
+        if (hthTerritory === 'notSharedToday') {
+            res.json({ success: false, notSharedToday: true })
+            return
+        }
         res.json({ success: !!hthTerritory, hthTerritory })
     })
 
@@ -171,12 +175,12 @@ export const houseToHouseController: Router = express.Router()
     })
 
     // set building is shared
-    .put('/building/:territoryNumber/:block/:face', async (req: Request, res: Response) => {
-        const block = req.params.block as types.typeBlock
-        const face = req.params.face as types.typeFace
-        const polygonId = req.body.polygonId as number
-        const streetNumbers: number[] = req.body.streetNumbers
+    .put('/building/:territoryNumber', async (req: Request, res: Response) => {
         const territoryNumber = req.params.territoryNumber as unknown as types.typeTerritoryNumber
+        const block = req.query.block as types.typeBlock
+        const face = req.query.face as types.typeFace
+        const polygonId = req.body.polygonId as number
+        const streetNumbers = req.body.streetNumbers as number[]
         const success: boolean =
             await hTHServices.setHTHIsSharedBuildingsService(req.user, territoryNumber, block, face, polygonId, streetNumbers)
         res.json({ success })

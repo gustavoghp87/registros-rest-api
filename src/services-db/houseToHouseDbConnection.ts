@@ -320,22 +320,41 @@ export class HouseToHouseDb {
             return false
         }
     }
+    async SetHTHIsSharedAllBuildings(congregation: number, territoryNumber: typeTerritoryNumber, block: typeBlock): Promise<boolean> {
+        try {
+            if (!congregation || !territoryNumber || !block)
+                throw new Error("No llegaron datos")
+            console.log("SetHTHIsSharedAllBuildings", territoryNumber, block);
+            
+            const result: UpdateResult = await getCollection().updateMany(
+                { congregation, territoryNumber, 'map.polygons.block': block, 'map.polygons.buildings': { $exists: true } },
+                { $set: { 'map.polygons.$[x].buildings.$[].dateOfLastSharing': Date.now() } },
+                { arrayFilters: [{ 'x.block': block, 'x.buildings': { $exists: true } }] }
+            )
+            console.log(result);
+            
+            return !!result.modifiedCount
+        } catch (error) {
+            logger.Add(congregation, `Falló SetHTHIsSharedAllBuildings() territorio ${territoryNumber} manzana ${block}: ${error}`, errorLogs)
+            return false
+        }
+    }
     async SetHTHIsSharedBuildings(congregation: number, territoryNumber: typeTerritoryNumber,
      block: typeBlock, face: typeFace, polygonId: number, streetNumbers: number[]): Promise<boolean> {
         try {
             if (!congregation || !territoryNumber || !block || !face || !polygonId || !streetNumbers || !streetNumbers.length)
                 throw new Error("No llegaron datos")
-            streetNumbers.forEach(async (streetNumber: number) => {
+            streetNumbers.forEach(async streetNumber => {
                 const result: UpdateResult = await getCollection().updateOne(
                     { congregation, territoryNumber },
                     { $set: { 'map.polygons.$[x].buildings.$[y].dateOfLastSharing': +new Date() } },
                     { arrayFilters: [{ 'x.block': block, 'x.face': face, 'x.id': polygonId }, { 'y.streetNumber': streetNumber }]}
                 )
-                if (!!result.modifiedCount) return false
+                if (!result.modifiedCount) return false
             })
             return true
         } catch (error) {
-            logger.Add(congregation, `Falló SetHTHIsSharedBuildings() territorio ${territoryNumber} ${block} ${face}: ${error}`, errorLogs)
+            logger.Add(congregation, `Falló SetHTHIsSharedBuildings() territorio ${territoryNumber} manzana ${block} cara ${face}: ${error}`, errorLogs)
             return false
         }
     }

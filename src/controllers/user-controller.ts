@@ -110,7 +110,7 @@ export const userController: Router = express.Router()
         const email: string = req.body.email
         const toAssign: number = req.body.toAssign
         const toUnassign: number = req.body.toUnassign
-        const all: boolean = req.body.all
+        const all: boolean = req.body.all  // unassign all
         let user: typeUser|null = await userServices.assignHTHTerritoryService(req.user, email, toAssign, toUnassign, all)
         if (!user) return res.json({ success: false })
         user = blindUser(user)

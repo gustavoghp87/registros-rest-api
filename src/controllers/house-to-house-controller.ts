@@ -169,7 +169,7 @@ export const houseToHouseController: Router = express.Router()
         const street: string = req.body.street
         const streetNumber: number = req.body.streetNumber
         const territoryNumber = req.params.territoryNumber as unknown as types.typeTerritoryNumber
-        const success: boolean =
+        const success: boolean =  // modifyHTHHouseholdService
             await hTHServices.changeStateToHTHHouseholdService(req.user, congregation, territoryNumber, block, face, streetNumber, householdId, isChecked, isManager, street)
         res.json({ success })
     })

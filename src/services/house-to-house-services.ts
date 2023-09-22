@@ -50,6 +50,11 @@ export const addHTHBuildingService = async (requesterUser: types.typeUser, terri
     }
     if (newBuilding.manager) building.manager = newBuilding.manager
     const success: boolean = await houseToHouseDbConnection.AddHTHBuilding(requesterUser.congregation, territoryNumber, block, face, building)
+    if (success) {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} agregó un Edificio al territorio ${territoryNumber} (manzana ${block} cara ${face}): ${currentPolygon.street} ${newBuilding.streetNumber}`, houseToHouseAdminLogs)
+    } else {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo agregar un Edificio al territorio ${territoryNumber} (manzana ${block} cara ${face}): ${currentPolygon.street} ${newBuilding.streetNumber}`, errorLogs)
+    }
     return success
 }
 
@@ -106,11 +111,7 @@ export const changeStateToHTHHouseholdService = async (requesterUser: types.type
     // freed
     if (!congregation || !territoryNumber || !block || !face || !householdId || typeof householdId !== 'number') return false
     isChecked = !!isChecked
-    if (!!requesterUser) {
-        // if (requesterUser.role !== 1 && !requesterUser.hthAssignments?.includes(parseInt(territoryNumber))) {
-        //     return false
-        // }
-    } else {
+    if (!requesterUser || (requesterUser.role !== 1 && !requesterUser.hthAssignments?.includes(parseInt(territoryNumber)))) {
         const hthTerritory = await getHTHTerritoryServiceWithoutPermissions(congregation, territoryNumber)
         if (!hthTerritory) return false
         const polygon = hthTerritory.map.polygons.find(a => a.block === block && a.face === face && a.buildings.find(b => b.streetNumber === streetNumber && !!b.dateOfLastSharing && getCurrentLocalDate() === getCurrentLocalDate(b.dateOfLastSharing)))
@@ -123,9 +124,9 @@ export const changeStateToHTHHouseholdService = async (requesterUser: types.type
         success = await houseToHouseDbConnection.EditStateHTHHousehold(congregation, territoryNumber, block, face, streetNumber, householdId, isChecked)
     }
     if (success) {
-        logger.Add(requesterUser.congregation, `${requesterUser.email} ${isChecked ? 'tocó' : 'desmarcó'} el timbre ID ${householdId} del edificio ${street} ${streetNumber} (territorio ${territoryNumber})`, houseToHouseLogs)
+        logger.Add(congregation, `${requesterUser?.email || 'Un usuario'} ${isChecked ? 'tocó' : 'desmarcó'} el timbre ID ${householdId} del edificio ${street} ${streetNumber} (territorio ${territoryNumber})`, houseToHouseLogs)
     } else {
-        logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo ${isChecked ? 'tocar' : 'desmarcar'} el timbre ID ${householdId} del edificio ${street} ${streetNumber} (territorio ${territoryNumber})`, errorLogs)
+        logger.Add(congregation, `${requesterUser?.email || 'Un usuario'} no pudo ${isChecked ? 'tocar' : 'desmarcar'} el timbre ID ${householdId} del edificio ${street} ${streetNumber} (territorio ${territoryNumber})`, errorLogs)
     }
     return success
 }

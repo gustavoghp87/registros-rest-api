@@ -149,3 +149,14 @@ export const setNumberOfTerritoriesService = async (congregation: number, userEm
     }
     return success
 }
+
+export const setUseLettersForBlocksService = async (requesterUser: typeUser, useLettersForBlocks: boolean): Promise<boolean> => {
+    if (!requesterUser || requesterUser.role !== 1) return false
+    const success: boolean = await configDbConnection.SetUseLettersForBlocksService(requesterUser.congregation, useLettersForBlocks)
+    if (success) {
+        logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} ${useLettersForBlocks ? 'deshabilitó' : 'habilitó'} el uso de Letras para identificar las Manzanas`, configLogs)
+    } else {
+        logger.Add(requesterUser.congregation, `Falló la solicitud de Admin (${requesterUser.email}) para ${useLettersForBlocks ? 'deshabilitar' : 'habilitar'} el uso de Letras para identificar las Manzanas`, errorLogs)
+    }
+    return success
+}

@@ -153,7 +153,8 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
             isDisabledHthBuildingsForUnassignedUsers: false,
             isDisabledHthFaceObservations: false,
             name: "Congregación X",
-            numberOfTerritories: 56
+            numberOfTerritories: 56,
+            usingLettersForBlocks: false
         },
         coordinates: {
             lat: -34.6319777,

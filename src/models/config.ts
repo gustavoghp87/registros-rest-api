@@ -17,4 +17,5 @@ export type typeConfig = {
     isDisabledHthFaceObservations: boolean
     name: string
     numberOfTerritories: number
+    usingLettersForBlocks: boolean
 }

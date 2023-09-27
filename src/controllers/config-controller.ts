@@ -16,6 +16,7 @@ export const configController: Router = express.Router()
         const disableHthBuildingsForUnassignedUsers = req.body.disableHthBuildingsForUnassignedUsers as boolean
         const disableHthFaceObservations = req.body.disableHthFaceObservations as boolean
         const googleBoardUrl = req.body.googleBoardUrl as string
+        const useLettersForBlocks = req.body.useLettersForBlocks as boolean
         const name = req.body.name as string
         if ([true, false].includes(disableCloseHthFaces)) {
             const success: boolean = await configServices.setDisableCloseHthFacesService(req.user, disableCloseHthFaces)
@@ -34,6 +35,9 @@ export const configController: Router = express.Router()
             res.json({ success })
         } else if (googleBoardUrl) {
             const success: boolean = await configServices.setGoogleBoardUrlService(req.user, googleBoardUrl)
+            res.json({ success })
+        } else if ([true, false].includes(useLettersForBlocks)) {
+            const success: boolean = await configServices.setUseLettersForBlocksService(req.user, useLettersForBlocks)
             res.json({ success })
         } else {
             res.json({ success: false })

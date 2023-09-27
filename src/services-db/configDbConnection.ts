@@ -19,7 +19,8 @@ export class ConfigDb {
                 isDisabledHthBuildingsForUnassignedUsers: true,
                 isDisabledHthFaceObservations: true,
                 name: "",
-                numberOfTerritories: 0
+                numberOfTerritories: 0,
+                usingLettersForBlocks: false
             }
             const result: InsertOneResult = await getCollection().insertOne(config)
             console.log("Config Genesys:", result.insertedId)
@@ -149,7 +150,7 @@ export class ConfigDb {
             return false
         }
     }
-    async SetGoogleBoardUrl(congregation: number, googleBoardUrl: string) {
+    async SetGoogleBoardUrl(congregation: number, googleBoardUrl: string): Promise<boolean> {
         try {
             if (!congregation || !googleBoardUrl) throw Error("Faltan datos")
             const result: UpdateResult = await getCollection().updateOne(
@@ -159,6 +160,19 @@ export class ConfigDb {
             return !!result.modifiedCount
         } catch (error) {
             logger.Add(congregation, `Falló SetGoogleBoardUrl() (${googleBoardUrl}): ${error}`, errorLogs)
+            return false
+        }
+    }
+    async SetUseLettersForBlocksService(congregation: number, useLettersForBlocks: boolean) {
+        try {
+            if (!congregation) throw Error("Faltan datos")
+            const result: UpdateResult = await getCollection().updateOne(
+                { congregation },
+                { $set: { usingLettersForBlocks: !!useLettersForBlocks } }
+            )
+            return !!result.modifiedCount
+        } catch (error) {
+            logger.Add(congregation, `Falló SetUseLettersForBlocksService() (${useLettersForBlocks}): ${error}`, errorLogs)
             return false
         }
     }

@@ -1,9 +1,9 @@
 import { errorLogs, houseToHouseAdminLogs, houseToHouseLogs } from './log-services'
+import { getConfigNotAuthedService, setNumberOfTerritoriesService } from './config-services'
 import { getCurrentLocalDate } from './helpers'
 import { getTerritoryStreetsService } from './telephonic-services'
 import { HouseToHouseDb } from '../services-db/houseToHouseDbConnection'
 import { logger } from '../server'
-import { setNumberOfTerritoriesService } from './config-services'
 import * as types from '../models'
 
 const houseToHouseDbConnection = new HouseToHouseDb()
@@ -316,10 +316,10 @@ export const getHTHBuildingService = async (congregation: number, territoryNumbe
 
 export const getHTHTerritoryService = async (requesterUser: types.typeUser, territoryNumber: types.typeTerritoryNumber): Promise<types.typeHTHTerritory|null> => {
     if (!requesterUser || !territoryNumber) return null
-    // if (requesterUser) {
-    //     if (requesterUser.role !== 1 && !requesterUser.hthAssignments.includes(parseInt(territoryNumber)))
-    //         return null
-    // }
+    const config = await getConfigNotAuthedService(requesterUser.congregation)
+    if (requesterUser.role !== 1 && !requesterUser.hthAssignments?.includes(parseInt(territoryNumber)) && config?.isDisabledHthBuildingsForUnassignedUsers) {
+        return null
+    }
     const hthTerritory: types.typeHTHTerritory|null = await getHTHTerritoryServiceWithoutPermissions(requesterUser.congregation, territoryNumber)
     if (!hthTerritory) return null
     return hthTerritory

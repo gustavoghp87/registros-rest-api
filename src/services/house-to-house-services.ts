@@ -384,9 +384,16 @@ export const setHTHIsFinishedService = async (requesterUser: types.typeUser, ter
 export const setHTHIsSharedBuildingsService = async (requesterUser: types.typeUser, territoryNumber: types.typeTerritoryNumber,
  block: types.typeBlock, face: types.typeFace, polygonId: number, streetNumbers: number[]): Promise<boolean> => {
     if (!requesterUser || (requesterUser.role !== 1 && !requesterUser.hthAssignments?.includes(parseInt(territoryNumber)))) return false
-    if (!territoryNumber || !block) return false
+    if (!territoryNumber) return false
     let success: boolean = true
-    if (!face || !polygonId || !streetNumbers || !streetNumbers.length) {
+    if (!block) {
+        success = await houseToHouseDbConnection.SetHTHIsSharedAllBuildings(requesterUser.congregation, territoryNumber)
+        if (success) {
+            logger.Add(requesterUser.congregation, `${requesterUser.email} compartió todos los edificios del territorio ${territoryNumber}`, houseToHouseLogs)
+        } else {
+            logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo compartir todos los edificios: territorio ${territoryNumber}`, errorLogs)
+        }
+    } else if (!face || !polygonId || !streetNumbers || !streetNumbers.length) {
         success = await houseToHouseDbConnection.SetHTHIsSharedAllBuildings(requesterUser.congregation, territoryNumber, block)
         if (success) {
             logger.Add(requesterUser.congregation, `${requesterUser.email} compartió todos los edificios de la manzana ${block} territorio ${territoryNumber} por WhatsApp`, houseToHouseLogs)

@@ -320,20 +320,27 @@ export class HouseToHouseDb {
             return false
         }
     }
-    async SetHTHIsSharedAllBuildings(congregation: number, territoryNumber: typeTerritoryNumber, block: typeBlock): Promise<boolean> {
+    async SetHTHIsSharedAllBuildings(congregation: number, territoryNumber: typeTerritoryNumber, block?: typeBlock): Promise<boolean> {
         try {
-            if (!congregation || !territoryNumber || !block)
+            if (!congregation || !territoryNumber)
                 throw new Error("No llegaron datos")
-            console.log("SetHTHIsSharedAllBuildings", territoryNumber, block);
-            
-            const result: UpdateResult = await getCollection().updateMany(
-                { congregation, territoryNumber, 'map.polygons.block': block, 'map.polygons.buildings': { $exists: true } },
-                { $set: { 'map.polygons.$[x].buildings.$[].dateOfLastSharing': Date.now() } },
-                { arrayFilters: [{ 'x.block': block, 'x.buildings': { $exists: true } }] }
-            )
-            console.log(result);
-            
-            return !!result.modifiedCount
+            let result: UpdateResult
+            if (block) {
+                result = await getCollection().updateMany(
+                    { congregation, territoryNumber, 'map.polygons.block': block, 'map.polygons.buildings': { $exists: true } },
+                    { $set: { 'map.polygons.$[x].buildings.$[].dateOfLastSharing': Date.now() } },
+                    { arrayFilters: [{ 'x.block': block, 'x.buildings': { $exists: true } }] }
+                )
+            } else {
+                console.log("No hay block");
+                
+                result = await getCollection().updateMany(
+                    { congregation, territoryNumber, 'map.polygons.buildings': { $exists: true } },
+                    { $set: { 'map.polygons.$[x].buildings.$[].dateOfLastSharing': Date.now() } },
+                    { arrayFilters: [{ 'x.buildings': { $exists: true } }] }
+                )
+            }
+            return !!result?.modifiedCount
         } catch (error) {
             logger.Add(congregation, `Falló SetHTHIsSharedAllBuildings() territorio ${territoryNumber} manzana ${block}: ${error}`, errorLogs)
             return false

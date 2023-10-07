@@ -41,7 +41,7 @@ export const userController: Router = express.Router()
     // sign up user
     .post('/', async (req: Request, res: Response) => {
         const { email, id, password, recaptchaToken } = req.body
-        const group = parseInt(req.body.group)
+        // const group = parseInt(req.body.group)
         const team = parseInt(req.body.team)
         const user: typeUser|null = await userServices.getUserByEmailEveryCongregationService(email)
         if (user) {
@@ -55,7 +55,7 @@ export const userController: Router = express.Router()
                 res.json({ success: false, recaptchaFails: true })
                 return
             }
-            const success: boolean|string = await userServices.registerUserService(id, team, email, password, group)
+            const success: boolean|string = await userServices.registerUserService(id, team, email, password)
             if (success === 'expired') {
                 res.json({ success: false, expired: true })
                 return 
@@ -63,7 +63,7 @@ export const userController: Router = express.Router()
             res.json({ success })
         } else {
             // admin creates new user
-            const success: boolean = await userServices.registerUserAdminsService(req.user, email, password, group)
+            const success: boolean = await userServices.registerUserAdminsService(req.user, email, password)
             res.json({ success })
         }
     })
@@ -73,8 +73,8 @@ export const userController: Router = express.Router()
         const email: string = req.body.email
         const isActive: boolean = req.body.isActive
         const role: number = req.body.role
-        const group: number = req.body.group
-        let user: typeUser|null = await userServices.editUserService(req.user, email, isActive, role, group)
+        // const group: number = req.body.group
+        let user: typeUser|null = await userServices.editUserService(req.user, email, isActive, role)
         if (!user) return res.json({ success: false })
         user = blindUser(user)
         res.json({ success: true, user })

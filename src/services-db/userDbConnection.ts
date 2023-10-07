@@ -131,18 +131,18 @@ export class UserDb {
             return false
         }
     }
-    async EditUserState(congregation: number, email: string, isActive: boolean, role: number, group: number): Promise<typeUser|null> {
+    async EditUserState(congregation: number, email: string, isActive: boolean, role: number): Promise<typeUser|null> {
         try {
             if (!congregation) throw new Error("No llegó congregación")
             const result: UpdateResult = await getCollection().updateOne(
                 { congregation, email },
-                { $set: { isActive, role, group } }
+                { $set: { isActive, role } }
             )
             if (!result.modifiedCount) return null
             const user: typeUser|null = await this.GetUserByEmail(congregation, email)
-            return user && user.isActive === isActive && user.role === role && user.group === group ? user : null
+            return user && user.isActive === isActive && user.role === role ? user : null
         } catch (error) {
-            logger.Add(congregation, `Falló UpdateUserState() ${email} ${isActive} ${role} ${group}: ${error}`, errorLogs)
+            logger.Add(congregation, `Falló UpdateUserState() ${email} ${isActive} ${role}: ${error}`, errorLogs)
             return null
         }
     }

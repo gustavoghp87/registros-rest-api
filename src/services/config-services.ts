@@ -14,8 +14,8 @@ const configDbConnection = new ConfigDb()
 // mandar la invitación por email
 
 // en otro endpoint:
-// recibo contraseña y grupo del nuevo usuario,
-//  veo que su invitación es para nueva Congregación
+// recibo contraseña del nuevo usuario,
+//  veo que su invitación es para nueva congregación
 //  creo nuevo usuario admin checkeando qué número de congregación le corresponde,
 
 // cuando ingresa, el usuario va a Administradores/Configuración de la Aplicación y setea el nombre de la Congregación
@@ -154,7 +154,7 @@ export const setUseLettersForBlocksService = async (requesterUser: typeUser, use
     if (!requesterUser || requesterUser.role !== 1) return false
     const success: boolean = await configDbConnection.SetUseLettersForBlocksService(requesterUser.congregation, useLettersForBlocks)
     if (success) {
-        logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} ${useLettersForBlocks ? 'deshabilitó' : 'habilitó'} el uso de Letras para identificar las Manzanas`, configLogs)
+        logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} ${useLettersForBlocks ? 'habilitó' : 'deshabilitó'} el uso de Letras para identificar las Manzanas`, configLogs)
     } else {
         logger.Add(requesterUser.congregation, `Falló la solicitud de Admin (${requesterUser.email}) para ${useLettersForBlocks ? 'deshabilitar' : 'habilitar'} el uso de Letras para identificar las Manzanas`, errorLogs)
     }

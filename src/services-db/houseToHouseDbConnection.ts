@@ -320,20 +320,28 @@ export class HouseToHouseDb {
             return false
         }
     }
-    async SetHTHIsSharedAllBuildings(congregation: number, territoryNumber: typeTerritoryNumber, block?: typeBlock): Promise<boolean> {
+    async SetHTHIsSharedBuildings(congregation: number, territoryNumber: typeTerritoryNumber,
+     block?: typeBlock, face?: typeFace, polygonId?: number, streetNumbers?: number[]): Promise<boolean> {
         try {
             if (!congregation || !territoryNumber)
                 throw new Error("No llegaron datos")
-            let result: UpdateResult
-            if (block) {
+            let result: UpdateResult|null = null
+            if (block && face && !polygonId && streetNumbers?.length) {
+                streetNumbers.forEach(async streetNumber => {
+                    result = await getCollection().updateOne(
+                        { congregation, territoryNumber },
+                        { $set: { 'map.polygons.$[x].buildings.$[y].dateOfLastSharing': Date.now() } },
+                        { arrayFilters: [{ 'x.block': block, 'x.face': face, 'x.id': polygonId }, { 'y.streetNumber': streetNumber }]}
+                    )
+                    if (!result.modifiedCount) return false
+                })
+            } else if (block) {
                 result = await getCollection().updateMany(
                     { congregation, territoryNumber, 'map.polygons.block': block, 'map.polygons.buildings': { $exists: true } },
                     { $set: { 'map.polygons.$[x].buildings.$[].dateOfLastSharing': Date.now() } },
                     { arrayFilters: [{ 'x.block': block, 'x.buildings': { $exists: true } }] }
                 )
             } else {
-                console.log("No hay block");
-                
                 result = await getCollection().updateMany(
                     { congregation, territoryNumber, 'map.polygons.buildings': { $exists: true } },
                     { $set: { 'map.polygons.$[x].buildings.$[].dateOfLastSharing': Date.now() } },
@@ -341,25 +349,6 @@ export class HouseToHouseDb {
                 )
             }
             return !!result?.modifiedCount
-        } catch (error) {
-            logger.Add(congregation, `Falló SetHTHIsSharedAllBuildings() territorio ${territoryNumber} manzana ${block}: ${error}`, errorLogs)
-            return false
-        }
-    }
-    async SetHTHIsSharedBuildings(congregation: number, territoryNumber: typeTerritoryNumber,
-     block: typeBlock, face: typeFace, polygonId: number, streetNumbers: number[]): Promise<boolean> {
-        try {
-            if (!congregation || !territoryNumber || !block || !face || !polygonId || !streetNumbers || !streetNumbers.length)
-                throw new Error("No llegaron datos")
-            streetNumbers.forEach(async streetNumber => {
-                const result: UpdateResult = await getCollection().updateOne(
-                    { congregation, territoryNumber },
-                    { $set: { 'map.polygons.$[x].buildings.$[y].dateOfLastSharing': +new Date() } },
-                    { arrayFilters: [{ 'x.block': block, 'x.face': face, 'x.id': polygonId }, { 'y.streetNumber': streetNumber }]}
-                )
-                if (!result.modifiedCount) return false
-            })
-            return true
         } catch (error) {
             logger.Add(congregation, `Falló SetHTHIsSharedBuildings() territorio ${territoryNumber} manzana ${block} cara ${face}: ${error}`, errorLogs)
             return false

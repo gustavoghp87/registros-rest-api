@@ -113,34 +113,28 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
         }],
         boardItems: [
             {
-           ids: [
-                ],
-           title: "Anuncios y Cartas"
+                ids: [],
+                title: "Anuncios y Cartas"
             },
             {
-           ids: [
-                ],
-           title: "Programa de reuniones"
+                ids: [],
+                title: "Programa de reuniones"
             },
             {
-           ids: [
-                ],
-           title: "Predicación"
+                ids: [],
+                title: "Predicación"
             },
             {
-           ids: [
-                ],
-           title: "Sonido y Acomodadores"
+                ids: [],
+                title: "Sonido y Acomodadores"
             },
             {
-           ids: [
-                ],
-           title: "Limpieza"
+                ids: [],
+                title: "Limpieza"
             },
             {
-           ids: [
-                ],
-           title: "Grupos"
+                ids: [],
+                title: "Grupos"
             }
         ],
         config: {
@@ -1704,7 +1698,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
         user: {
             congregation: 1,
             email: userEmail,
-            group: 1,
+            // group: 1,
             hthAssignments: [1],
             id: 1,
             isActive: true,
@@ -1717,7 +1711,7 @@ export const getMockedUserResponse = (token: string, email: string): typeRespons
         users: [{
             congregation: 1,
             email: userEmail,
-            group: 1,
+            // group: 1,
             hthAssignments: [1],
             id: 1,
             isActive: true,

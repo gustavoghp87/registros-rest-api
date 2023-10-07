@@ -193,14 +193,14 @@ export const deleteHTHPolygonFaceService = async (requesterUser: types.typeUser,
     if (!requesterUser || requesterUser.role !== 1) return false
     if (!block || !face || !faceId) return false
     const hthTerritory: types.typeHTHTerritory|null = await getHTHTerritoryServiceWithoutPermissions(requesterUser.congregation, territoryNumber)
-    if (!hthTerritory || !hthTerritory.map || !hthTerritory.map.polygons
+    if (!hthTerritory?.map?.polygons
         || !!hthTerritory.map.polygons.some(x => x.block === block && x.face === face && x.id === faceId && (x.buildings?.length || x.doNotCalls?.length || x.observations?.length))
     ) return false
     const success: boolean = await houseToHouseDbConnection.DeleteHTHPolygonFace(requesterUser.congregation, territoryNumber, block, face, faceId)
     if (success) {
-        logger.Add(requesterUser.congregation, `${requesterUser.email} eliminó la cara ${face} manzana ${face} territorio ${territoryNumber}`, houseToHouseAdminLogs)
+        logger.Add(requesterUser.congregation, `${requesterUser.email} eliminó la cara ${face} manzana ${block} territorio ${territoryNumber} (${faceId})`, houseToHouseAdminLogs)
     } else {
-        logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo eliminar la cara ${face} manzana ${face} territorio ${territoryNumber}`, errorLogs)
+        logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo eliminar la cara ${face} manzana ${block} territorio ${territoryNumber} (${faceId})`, errorLogs)
     }
     return success
 }
@@ -385,23 +385,20 @@ export const setHTHIsSharedBuildingsService = async (requesterUser: types.typeUs
  block: types.typeBlock, face: types.typeFace, polygonId: number, streetNumbers: number[]): Promise<boolean> => {
     if (!requesterUser || (requesterUser.role !== 1 && !requesterUser.hthAssignments?.includes(parseInt(territoryNumber)))) return false
     if (!territoryNumber) return false
-    let success: boolean = true
+    const success: boolean =  await houseToHouseDbConnection.SetHTHIsSharedBuildings(requesterUser.congregation, territoryNumber, block, face, polygonId, streetNumbers)
     if (!block) {
-        success = await houseToHouseDbConnection.SetHTHIsSharedAllBuildings(requesterUser.congregation, territoryNumber)
         if (success) {
             logger.Add(requesterUser.congregation, `${requesterUser.email} compartió todos los edificios del territorio ${territoryNumber}`, houseToHouseLogs)
         } else {
             logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo compartir todos los edificios: territorio ${territoryNumber}`, errorLogs)
         }
     } else if (!face || !polygonId || !streetNumbers || !streetNumbers.length) {
-        success = await houseToHouseDbConnection.SetHTHIsSharedAllBuildings(requesterUser.congregation, territoryNumber, block)
         if (success) {
             logger.Add(requesterUser.congregation, `${requesterUser.email} compartió todos los edificios de la manzana ${block} territorio ${territoryNumber} por WhatsApp`, houseToHouseLogs)
         } else {
             logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo compartir edificios por WhatsApp: territorio ${territoryNumber} manzana ${block}`, errorLogs)
         }
     } else {
-        success = await houseToHouseDbConnection.SetHTHIsSharedBuildings(requesterUser.congregation, territoryNumber, block, face, polygonId, streetNumbers)
         if (success) {
             logger.Add(requesterUser.congregation, `${requesterUser.email} compartió edificios por WhatsApp: territorio ${territoryNumber} manzana ${block} cara ${face} números ${streetNumbers}`, houseToHouseLogs)
         } else {

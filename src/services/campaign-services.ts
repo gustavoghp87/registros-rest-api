@@ -59,7 +59,7 @@ export const editCampaignPackService = async (requesterUser: typeUser, id: numbe
 const anonymousUser: typeUser = {
     congregation: 0,
     email: "anónimo por accesibilidad",
-    group: 0,
+    // group: 0,
     hthAssignments: [],
     id: 0,
     isActive: false,

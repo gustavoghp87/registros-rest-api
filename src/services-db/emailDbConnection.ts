@@ -7,17 +7,17 @@ import { typeEmailObj } from '../models'
 const getCollection = () => dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollEmails)
 
 export class EmailDb {
-    async GetEmailLastTime(): Promise<number|null> {
-        try {
-            const lastEmailObj: typeEmailObj = await getCollection().findOne() as unknown as typeEmailObj
-            if (!lastEmailObj) throw new Error("No se pudo leer documento")
-            if (!lastEmailObj.lastEmailDate) throw new Error("No está la fecha")
-            return lastEmailObj.lastEmailDate
-        } catch (error) {
-            logger.Add(1, `Falló GetEmailLastTime(): ${error}`, errorLogs)
-            return null
-        }
-    }
+    // async GetEmailLastTime(): Promise<number|null> {
+    //     try {
+    //         const lastEmailObj: typeEmailObj = await getCollection().findOne() as unknown as typeEmailObj
+    //         if (!lastEmailObj) throw new Error("No se pudo leer documento")
+    //         if (!lastEmailObj.lastEmailDate) throw new Error("No está la fecha")
+    //         return lastEmailObj.lastEmailDate
+    //     } catch (error) {
+    //         logger.Add(1, `Falló GetEmailLastTime(): ${error}`, errorLogs)
+    //         return null
+    //     }
+    // }
     async GetEmailObject(): Promise<typeEmailObj|null> {
         try {
             const lastEmailObj: typeEmailObj = await getCollection().findOne() as unknown as typeEmailObj

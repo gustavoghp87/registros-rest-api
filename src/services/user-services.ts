@@ -26,6 +26,8 @@ export const assignHTHTerritoryService = async (requesterUser: typeUser, email: 
     const updatedUser: typeUser|null = await userDbConnection.AssignHTHTerritory(requesterUser.congregation, email, toAssign, toUnassign, all)
     if (updatedUser) {
         logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} modificó las asignaciones de Casa en Casa de ${updatedUser?.email}: asignados antes ${userToEdit.hthAssignments?.length ? userToEdit.hthAssignments : "ninguno"}, ahora ${updatedUser.hthAssignments?.length ? updatedUser.hthAssignments : "ninguno"}`, userLogs)
+    } else {
+        logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} no pudo modificar las asignaciones de Casa en Casa de ${userToEdit?.email} (${toAssign}, ${toUnassign}, ${all})`, errorLogs)
     }
     return updatedUser
 }
@@ -141,15 +143,14 @@ export const deleteUserService = async (requesterUser: typeUser, userId: number)
     return success
 }
 
-export const editUserService = async (requesterUser: typeUser, email: string, isActive: boolean, role: number, group: number): Promise<typeUser|null> => {
+export const editUserService = async (requesterUser: typeUser, email: string, isActive: boolean, role: number): Promise<typeUser|null> => {
     isActive = !!isActive
     role = parseInt(role.toString())
-    group = parseInt(group.toString())
-    if (isNaN(role) || isNaN(group)) return null
-    if (!requesterUser || requesterUser.role !== 1 || !email || typeof role !== 'number' || typeof group !== 'number') return null
-    const updatedUser: typeUser|null = await userDbConnection.EditUserState(requesterUser.congregation, email, isActive, role, group)
+    if (isNaN(role)) return null
+    if (!requesterUser || requesterUser.role !== 1 || !email || typeof role !== 'number') return null
+    const updatedUser: typeUser|null = await userDbConnection.EditUserState(requesterUser.congregation, email, isActive, role)
     if (updatedUser) {
-        logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} modificó al usuario ${updatedUser.email}: activado ${updatedUser.isActive}, rol ${updatedUser.role}, grupo ${updatedUser.group}`, userLogs)
+        logger.Add(requesterUser.congregation, `Admin ${requesterUser.email} modificó al usuario ${updatedUser.email}: activado ${updatedUser.isActive}, rol ${updatedUser.role}`, userLogs)
     }
     return updatedUser
 }
@@ -258,14 +259,13 @@ export const recoverAccountService = async (email: string): Promise<string> => {
     return success ? 'ok' : 'not sent'
 }
 
-const createUser = async (congregation: number, email: string, password: string, group: number, newCongregationNumber: number = 0) => {
+const createUser = async (congregation: number, email: string, password: string, newCongregationNumber: number = 0) => {
     const encryptedPassword: string|null = await generatePasswordHash(congregation, password)
     if (!encryptedPassword)
         return false
     const newUser: typeUser = {
         congregation: newCongregationNumber ? newCongregationNumber : congregation,
         email,
-        group,
         hthAssignments: [],
         id: +new Date(),
         isActive: true,
@@ -279,22 +279,22 @@ const createUser = async (congregation: number, email: string, password: string,
     return success
 }
 
-export const registerUserAdminsService = async (requesterUser: typeUser, email: string, password: string, group: number): Promise<boolean> => {
+export const registerUserAdminsService = async (requesterUser: typeUser, email: string, password: string): Promise<boolean> => {
     if (!requesterUser || requesterUser.role !== 1)
         return false
-    if (!email || !emailPattern.test(email) || !password || password.length < 8 || !group || isNaN(group))
+    if (!email || !emailPattern.test(email) || !password || password.length < 8)
         return false
-    const success = await createUser(requesterUser.congregation, email, password, group)
+    const success = await createUser(requesterUser.congregation, email, password)
     if (success) {
-        logger.Add(requesterUser.congregation, `${requesterUser.email} registró un usuario con email ${email} y grupo ${group}`, loginLogs)
+        logger.Add(requesterUser.congregation, `${requesterUser.email} registró un usuario con email ${email}`, loginLogs)
     } else {
-        logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo registrar un usuario con email ${email} y grupo ${group}`, errorLogs)
+        logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo registrar un usuario con email ${email}`, errorLogs)
     }
     return success
 }
 
-export const registerUserService = async (id: string, congregation: number, email: string, password: string, group: number): Promise<boolean|string> => {
-    if (!id || !email || !emailPattern.test(email) || !password || password.length < 8 || !group || isNaN(group) || !Number.isInteger(group) || !congregation || isNaN(congregation) || !Number.isInteger(congregation))
+export const registerUserService = async (id: string, congregation: number, email: string, password: string): Promise<boolean|string> => {
+    if (!id || !email || !emailPattern.test(email) || !password || password.length < 8 || !congregation || isNaN(congregation) || !Number.isInteger(congregation))
         return false
     const congregationConfig = await getConfigNotAuthedService(congregation)
     const invitation = congregationConfig?.invitations?.find(i => i.id === id && i.email === email)
@@ -306,7 +306,7 @@ export const registerUserService = async (id: string, congregation: number, emai
     if (invitation.isNewCongregation) {
         const maxCongregationNumber = await getMaxCongregationNumberService()
         if (!maxCongregationNumber) return false
-        success = await createUser(1, email, password, group, maxCongregationNumber + 1)
+        success = await createUser(1, email, password, maxCongregationNumber + 1)
         if (success) {
             logger.Add(1, `Se creó un usuario Administrador ${email} para la Congregación nueva ${maxCongregationNumber + 1}`, loginLogs)
             await createCongregationService(maxCongregationNumber + 1, email)
@@ -314,11 +314,11 @@ export const registerUserService = async (id: string, congregation: number, emai
             logger.Add(1, `No pudo crearse un usuario Administrador para la Congregación nueva ${maxCongregationNumber + 1} (${email})`, errorLogs)
         }
     } else {
-        success = await createUser(congregation, email, password, group)
+        success = await createUser(congregation, email, password)
         if (success) {
-            logger.Add(congregation, `${email} creó un usuario por invitación (grupo ${group})`, loginLogs)
+            logger.Add(congregation, `${email} creó un usuario por invitación`, loginLogs)
         } else {
-            logger.Add(congregation, `${email} no pudo crearse un usuario (grupo ${group})`, errorLogs)
+            logger.Add(congregation, `${email} no pudo crearse un usuario`, errorLogs)
         }
     }
     return success

@@ -4,9 +4,15 @@ import express, { Request, Response, Router } from 'express'
 export const configController: Router = express.Router()
 
     // get config, not used
-    .get('/', async (req: Request, res: Response) => {
+    // .get('/', async (req: Request, res: Response) => {
         // const config: typeConfig|null = await getConfigService(req.user)
         // res.json({ success: !!config, config })
+    // })
+
+    // get db backup for congregation
+    .get('/db-backup', async (req: Request, res: Response) => {
+        const dbBackup = await configServices.downloadDbBackupService(req.user)
+        res.json({ success: !!dbBackup, dbBackup })
     })
 
     // edit name of congregation or google site url

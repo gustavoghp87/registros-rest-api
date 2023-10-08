@@ -202,7 +202,7 @@ export class HouseToHouseDb {
                     { congregation, territoryNumber },
                     {
                         $set: { 'map.polygons.$[x].buildings.$[y].households.$[z].isChecked': true },
-                        $addToSet: { 'map.polygons.$[x].buildings.$[y].households.$[z].onDates': +new Date() }
+                        $addToSet: { 'map.polygons.$[x].buildings.$[y].households.$[z].onDates': Date.now() }
                     },
                     { arrayFilters: [{ 'x.block': block, 'x.face': face }, { 'y.streetNumber': streetNumber }, { 'z.id': householdId }] }
                 )
@@ -211,7 +211,7 @@ export class HouseToHouseDb {
                     { congregation, territoryNumber },
                     {
                         $set: { 'map.polygons.$[x].buildings.$[y].households.$[z].isChecked': false },
-                        $addToSet: { 'map.polygons.$[x].buildings.$[y].households.$[z].offDates': +new Date() }
+                        $addToSet: { 'map.polygons.$[x].buildings.$[y].households.$[z].offDates': Date.now() }
                     },
                     { arrayFilters: [{ 'x.block': block, 'x.face': face }, { 'y.streetNumber': streetNumber }, { 'z.id': householdId }] }
                 )
@@ -233,7 +233,7 @@ export class HouseToHouseDb {
                         { congregation, territoryNumber },
                         {
                             $set: { 'map.polygons.$[x].buildings.$[y].manager.isChecked': true },
-                            $addToSet: { 'map.polygons.$[x].buildings.$[y].manager.onDates': +new Date() }
+                            $addToSet: { 'map.polygons.$[x].buildings.$[y].manager.onDates': Date.now() }
                         },
                         { arrayFilters: [{ 'x.block': block, 'x.face': face }, { 'y.streetNumber': streetNumber }] }
                     )
@@ -242,7 +242,7 @@ export class HouseToHouseDb {
                         { congregation, territoryNumber },
                         {
                             $set: { 'map.polygons.$[x].buildings.$[y].manager.isChecked': false },
-                            $addToSet: { 'map.polygons.$[x].buildings.$[y].manager.offDates': +new Date() }
+                            $addToSet: { 'map.polygons.$[x].buildings.$[y].manager.offDates': Date.now() }
                         },
                         { arrayFilters: [{ 'x.block': block, 'x.face': face }, { 'y.streetNumber': streetNumber }] }
                     )
@@ -299,7 +299,7 @@ export class HouseToHouseDb {
                     { congregation, territoryNumber },
                     {
                         $set: { 'map.polygons.$[x].completionData.isFinished': isFinished },
-                        $addToSet: { 'map.polygons.$[x].completionData.completionDates': +new Date() }
+                        $addToSet: { 'map.polygons.$[x].completionData.completionDates': Date.now() }
                     },
                     { arrayFilters: [{ 'x.block': block, 'x.face': face, 'x.id': polygonId }] }
                 )
@@ -309,7 +309,7 @@ export class HouseToHouseDb {
                     { congregation, territoryNumber },
                     {
                         $set: { 'map.polygons.$[x].completionData.isFinished': isFinished },
-                        $addToSet: { 'map.polygons.$[x].completionData.reopeningDates': +new Date() }
+                        $addToSet: { 'map.polygons.$[x].completionData.reopeningDates': Date.now() }
                     },
                     { arrayFilters: [{ 'x.block': block, 'x.face': face, 'x.id': polygonId }] }
                 )

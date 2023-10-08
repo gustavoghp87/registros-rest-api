@@ -11,7 +11,7 @@ export class WeatherDb {
             const result: InsertOneResult = await getCollection().insertOne({
                 weather: null,
                 forecast: null,
-                date: +new Date()
+                date: Date.now()
             })
             console.log("Weather Genesys:", result.insertedId)
             return !!result.insertedId
@@ -38,7 +38,7 @@ export class WeatherDb {
         try {
             const result: UpdateResult = await getCollection().updateOne(
                 {  },
-                { $set: { weather, forecast, date: +new Date() } }
+                { $set: { weather, forecast, date: Date.now() } }
             )
             return !!result.modifiedCount
         } catch (error) {

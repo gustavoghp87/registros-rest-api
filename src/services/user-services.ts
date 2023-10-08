@@ -267,7 +267,7 @@ const createUser = async (congregation: number, email: string, password: string,
         congregation: newCongregationNumber ? newCongregationNumber : congregation,
         email,
         hthAssignments: [],
-        id: +new Date(),
+        id: Date.now(),
         isActive: true,
         password: encryptedPassword,
         phoneAssignments: [],
@@ -300,7 +300,7 @@ export const registerUserService = async (id: string, congregation: number, emai
     const invitation = congregationConfig?.invitations?.find(i => i.id === id && i.email === email)
     if (!invitation)
         return false
-    if (invitation.expire < +new Date())
+    if (invitation.expire < Date.now())
         return 'expired'
     let success = false
     if (invitation.isNewCongregation) {

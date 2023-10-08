@@ -1,10 +1,12 @@
 import { ConfigDb } from '../services-db/configDbConnection'
 import { configLogs, errorLogs } from './log-services'
+import { getAllTelephonicTerritoriesService } from './telephonic-services'
+import { getAllUsersService, getUserByEmailEveryCongregationService } from './user-services'
+import { getHTHTerritoriesForStatisticsService } from './house-to-house-services'
 import { getRandomId24 } from './helpers'
-import { getUserByEmailEveryCongregationService } from './user-services'
 import { logger } from '../server'
 import { sendUserInvitationByEmailService } from './email-services'
-import { typeConfig, typeUser } from '../models'
+import { typeConfig, typeDbBackup, typeUser } from '../models'
 
 const configDbConnection = new ConfigDb()
 
@@ -33,6 +35,24 @@ export const createCongregationService = async (congregation: number, userEmail:
         logger.Add(congregation, `Falló la creación de objeto de congregación número ${congregation} (${userEmail})`, errorLogs)
     }
     return success
+}
+
+export const downloadDbBackupService = async (requesterUser: typeUser): Promise<typeDbBackup|null> => {
+    if (!requesterUser || requesterUser.role !== 1) return null
+    const config = await getConfigNotAuthedService(requesterUser.congregation)
+    const houseToHouseTerritories = await getHTHTerritoriesForStatisticsService(requesterUser)
+    const logs = await logger.GetAll(requesterUser)
+    const telephonicTerritories = await getAllTelephonicTerritoriesService(requesterUser)
+    const users = await getAllUsersService(requesterUser)
+    if (!config || !houseToHouseTerritories || !logs || !telephonicTerritories || !users) return null
+    await configDbConnection.SetDbBackupLastDate(requesterUser.congregation)
+    return {
+        config,
+        houseToHouseTerritories,
+        logs,
+        telephonicTerritories,
+        users
+    }
 }
 
 export const getConfigNotAuthedService = async (congregation: number): Promise<typeConfig|null> => {

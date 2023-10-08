@@ -1,5 +1,6 @@
 import { dbClient, invitationNewUserExpiresIn, logger } from '../server'
 import { errorLogs } from '../services/log-services'
+import { getCurrentLocalDate } from '../services/helpers'
 import { InsertOneResult, UpdateResult } from 'mongodb'
 import { typeConfig, typeInvitarionNewUser } from '../models'
 
@@ -11,7 +12,8 @@ export class ConfigDb {
             if (!congregation || !Number.isInteger(congregation)) throw Error("Faltan datos")
             const config: typeConfig = {
                 congregation,
-                date: +new Date(),
+                date: Date.now(),
+                dbBackupLastDate: '',
                 googleBoardUrl: '',
                 invitations: [],
                 isDisabledCloseHthFaces: true,
@@ -57,7 +59,7 @@ export class ConfigDb {
             if (!userId || !congregation || !email) throw Error("Faltan datos")
             const invitation: typeInvitarionNewUser = {
                 email,
-                expire: +new Date() + invitationNewUserExpiresIn,
+                expire: Date.now() + invitationNewUserExpiresIn,
                 id,
                 inviting: userId,
                 isNewCongregation
@@ -69,6 +71,19 @@ export class ConfigDb {
             return !!result.modifiedCount
         } catch (error) {
             logger.Add(congregation, `Falló SaveNewUserInvitation() (${email}, ${userId}): ${error}`, errorLogs)
+            return false
+        }
+    }
+    async SetDbBackupLastDate(congregation: number): Promise<boolean> {
+        try {
+            if (!congregation) throw Error("Faltan datos")
+            const result: UpdateResult = await getCollection().updateOne(
+                { congregation },
+                { $set: { dbBackupLastDate: getCurrentLocalDate() } }
+            )
+            return !!result.modifiedCount
+        } catch (error) {
+            logger.Add(congregation, `Falló SetDbBackupLastDate(): ${error}`, errorLogs)
             return false
         }
     }

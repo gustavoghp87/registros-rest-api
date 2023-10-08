@@ -100,7 +100,7 @@ export class TelephonicDb {
             if (!congregation) throw new Error("No llegó congregación")
             const result: UpdateResult = await getCollection().updateOne(
                 { congregation, territoryNumber },
-                { $push: { 'stateOfTerritory.resetDates': { date: +new Date(), option } } }
+                { $push: { 'stateOfTerritory.resetDates': { date: Date.now(), option } } }
             )
             return !!result.modifiedCount
         } catch (error) {

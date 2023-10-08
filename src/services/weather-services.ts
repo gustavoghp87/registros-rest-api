@@ -14,7 +14,7 @@ export const getWeatherAndForecastService =
  async (congregation: number|null): Promise<{ weather: typeWeatherResponse, forecast: typeForecastResponse }|null> => {
     const weatherAndForecast = await weatherDbConnection.GetWeatherAndForecast()
     if (weatherAndForecast && weatherAndForecast.weather && weatherAndForecast.forecast && weatherAndForecast.date
-     && weatherAndForecast.date > +new Date() - 1500000) {
+     && weatherAndForecast.date > Date.now() - 1500000) {
         return {
             weather: weatherAndForecast.weather,
             forecast: weatherAndForecast.forecast

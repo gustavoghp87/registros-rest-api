@@ -23,8 +23,8 @@ const blindUser = (user: typeUser): typeUser => {
 }
 
 const blindConfig = (config: typeConfig|null): typeConfig|null => {
-    if (!config) return config
-    config.invitations = []
+    if (!config || !config.invitations) return config
+    delete config.invitations
     return config
 }
 

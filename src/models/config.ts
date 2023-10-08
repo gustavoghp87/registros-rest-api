@@ -1,3 +1,8 @@
+import { typeAllLogsObj } from "./log"
+import { typeHTHTerritory } from "./houseToHouse"
+import { typeTelephonicTerritory } from "./telephonic"
+import { typeUser } from "./user"
+
 export type typeInvitarionNewUser = {
     email: string
     expire: number
@@ -9,8 +14,9 @@ export type typeInvitarionNewUser = {
 export type typeConfig = {
     congregation: number
     date: number
+    dbBackupLastDate: string
     googleBoardUrl: string
-    invitations: typeInvitarionNewUser[]
+    invitations?: typeInvitarionNewUser[]
     isDisabledCloseHthFaces: boolean
     isDisabledEditHthMaps: boolean
     isDisabledHthBuildingsForUnassignedUsers: boolean
@@ -18,4 +24,12 @@ export type typeConfig = {
     name: string
     numberOfTerritories: number
     usingLettersForBlocks: boolean
+}
+
+export type typeDbBackup = {
+    config: typeConfig
+    houseToHouseTerritories: typeHTHTerritory[]
+    logs: typeAllLogsObj
+    telephonicTerritories: typeTelephonicTerritory[]
+    users: typeUser[]
 }

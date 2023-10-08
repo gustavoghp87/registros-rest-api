@@ -15,7 +15,7 @@ export const filterHouses = (households: typeHousehold[]): typeHousehold[] => {
 }
 
 export const getCurrentLocalDate = (timestamp?: number) => {
-    if (timestamp)
-        return new Date(timestamp).toLocaleDateString('es-AR')
-    return new Date().toLocaleDateString('es-AR')
+    const argDate = timestamp ? new Date(timestamp) : new Date();
+    argDate.setTime(argDate.getTime() - 3 * 60 * 60 * 1000);
+    return argDate.toISOString().split('T')[0]
 }

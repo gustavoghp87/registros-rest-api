@@ -25,7 +25,7 @@ export const addHTHBuildingService = async (requesterUser: types.typeUser, terri
     const currentPolygon: types.typePolygon|undefined = hthTerritory.map.polygons.find(x => x.block === block && x.face === face)
     if (!currentPolygon) return false
     if (currentPolygon.buildings && currentPolygon.buildings.some(x => x.streetNumber === newBuilding.streetNumber)) return 'alreadyExists'
-    const id: number = +new Date()
+    const id: number = Date.now()
     const building: types.typeHTHBuilding = {
         creatorId: requesterUser.id,
         dateOfLastSharing: 0,

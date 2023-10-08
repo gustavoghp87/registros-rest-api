@@ -1,19 +1,5 @@
 import { typeBlock, typeFace, typeTerritoryNumber } from '.'
 
-export type typeHTHTerritory = {
-    congregation: number
-    map: typeHTHMap
-    territoryNumber: typeTerritoryNumber
-}
-
-export type typeHTHMap = {
-    centerCoords: typeCoords
-    lastEditor: number
-    markers: typeMarker[]
-    polygons: typePolygon[]
-    zoom: number
-}
-
 export type typeCoords = {
     lat: number
     lng: number
@@ -22,6 +8,49 @@ export type typeCoords = {
 type typeMarker = {
     id: number
     coords: typeCoords
+}
+
+export type typeDoNotCall = {
+    creatorId: number
+    date: string
+    deleted: boolean
+    doorBell: string
+    id: number
+    streetNumber: number
+}
+
+export type typeObservation = {
+    creatorId: number
+    date: string
+    deleted: boolean
+    id: number
+    text: string
+}
+
+export type typeHTHBuilding = {
+    creatorId: number
+    dateOfLastSharing: number
+    hasCharacters: boolean
+    hasContinuousNumbers: boolean
+    hasLowLevel: boolean
+    households: typeHTHHousehold[]
+    isComplex: boolean
+    manager?: typeHTHHousehold
+    numberOfLevels: number
+    numberPerLevel: number
+    reverseOrderX: boolean
+    reverseOrderY: boolean
+    streetNumber: number
+}
+
+export type typeHTHHousehold = {
+    doorName: string
+    doorNumber: number
+    id: number
+    isChecked: boolean
+    level: number
+    offDates: number[]
+    onDates: number[]
 }
 
 export type typePolygon = {
@@ -42,47 +71,17 @@ export type typePolygon = {
     street: string
 }
 
-export type typeDoNotCall = {
-    creatorId: number
-    date: string
-    deleted: boolean
-    doorBell: string
-    id: number
-    streetNumber: number
+export type typeHTHMap = {
+    centerCoords: typeCoords
+    lastEditor: number
+    markers: typeMarker[]
+    polygons: typePolygon[]
+    zoom: number
 }
 
-export type typeObservation = {
-    creatorId: number
-    date: string
-    deleted: boolean
-    id: number
-    text: string
-}
-
-
-// new buildings section
-export type typeHTHHousehold = {
-    doorName: string
-    doorNumber: number
-    id: number
-    isChecked: boolean
-    level: number
-    offDates: number[]
-    onDates: number[]
-}
-
-export type typeHTHBuilding = {
-    creatorId: number
-    dateOfLastSharing: number
-    hasCharacters: boolean
-    hasContinuousNumbers: boolean
-    hasLowLevel: boolean
-    households: typeHTHHousehold[]
-    isComplex: boolean
-    manager?: typeHTHHousehold
-    numberOfLevels: number
-    numberPerLevel: number
-    reverseOrderX: boolean
-    reverseOrderY: boolean
-    streetNumber: number
+export type typeHTHTerritory = {
+    congregation: number
+    map: typeHTHMap
+    mapUrl?: string
+    territoryNumber: typeTerritoryNumber
 }

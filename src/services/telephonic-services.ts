@@ -1,4 +1,4 @@
-import { deallocateMyTLPTerritoryService, getUsersNotAuthService } from './user-services'
+import { deallocateMyTLPTerritoryService, getAllUsersService } from './user-services'
 import { errorLogs, telephonicLogs, telephonicStateLogs } from './log-services'
 import { filterHouses, isTerritoryAssignedToUserService } from './helpers'
 import { logger } from '../server'
@@ -22,15 +22,15 @@ export const changeStateOfTerritoryService = async (requesterUser: typeUser,
     return true
 }
 
-const getAllTelephonicTerritoriesNotAuthService = async (congregation: number): Promise<typeTelephonicTerritory[]|null> => {
-    // without permission filter / 
-    const phoneTerritories: typeTelephonicTerritory[]|null = await telephonicDbConnection.GetAllTelephonicTerritories(congregation)
+export const getAllTelephonicTerritoriesService = async (requesterUser: typeUser): Promise<typeTelephonicTerritory[]|null> => {
+    if (!requesterUser || requesterUser.role !== 1) return null
+    const phoneTerritories: typeTelephonicTerritory[]|null = await telephonicDbConnection.GetAllTelephonicTerritories(requesterUser.congregation)
     return phoneTerritories
 }
 
 export const getTelephonicGlobalStatisticsService = async (requesterUser: typeUser): Promise<typeTelephonicStatistic|null> => {
-    if (!requesterUser || requesterUser.role !== 1) return null
-    const telephonicTerritories: typeTelephonicTerritory[]|null = await telephonicDbConnection.GetAllTelephonicTerritories(requesterUser.congregation)
+    // if (!requesterUser || requesterUser.role !== 1) return null
+    const telephonicTerritories: typeTelephonicTerritory[]|null = await getAllTelephonicTerritoriesService(requesterUser)
     if (!telephonicTerritories) return null
     telephonicTerritories.forEach(x => x.households = filterHouses(x.households))
     const telephonicGlobalStatistics: typeTelephonicStatistic = {
@@ -57,8 +57,8 @@ export const getTelephonicGlobalStatisticsService = async (requesterUser: typeUs
 }
 
 export const getTelephonicLocalStatisticsService = async (requesterUser: typeUser): Promise<typeLocalTelephonicStatistic[]|null> => {
-    if (!requesterUser || requesterUser.role !== 1) return null
-    const telephonicTerritories: typeTelephonicTerritory[]|null = await telephonicDbConnection.GetAllTelephonicTerritories(requesterUser.congregation)
+    // if (!requesterUser || requesterUser.role !== 1) return null
+    const telephonicTerritories: typeTelephonicTerritory[]|null = await getAllTelephonicTerritoriesService(requesterUser)
     if (!telephonicTerritories) return null
     telephonicTerritories.forEach(x => x.households = filterHouses(x.households))
     const telephonicLocalStatistics: typeLocalTelephonicStatistic[] = []
@@ -92,9 +92,9 @@ export const getTelephonicLocalStatisticsService = async (requesterUser: typeUse
 }
 
 export const getTelephonicStatisticsTableDataService = async (requesterUser: typeUser): Promise<typeTerritoryRow[]|null> => {
-    if (!requesterUser || requesterUser.role !== 1) return null
-    const territories = await getAllTelephonicTerritoriesNotAuthService(requesterUser.congregation)
-    const users = await getUsersNotAuthService(requesterUser.congregation)
+    // if (!requesterUser || requesterUser.role !== 1) return null
+    const territories = await getAllTelephonicTerritoriesService(requesterUser)
+    const users = await getAllUsersService(requesterUser)
     if (!territories || !users) return null
     let territoriesTableData: typeTerritoryRow[] = []
     territories.forEach(t => {

@@ -210,9 +210,9 @@ export const getUserById = async (congregation: number, id: number): Promise<typ
     return user
 }
 
-export const getUsersNotAuthService = async (congregation: number): Promise<typeUser[]|null> => {
-    // without permission filter
-    let users: typeUser[]|null = await userDbConnection.GetAllUsers(congregation)
+export const getAllUsersService = async (requesterUser: typeUser): Promise<typeUser[]|null> => {
+    if (!requesterUser || requesterUser.role !== 1) return null
+    let users: typeUser[]|null = await userDbConnection.GetAllUsers(requesterUser.congregation)
     if (!users) return null
     users = users.reverse()
     return users

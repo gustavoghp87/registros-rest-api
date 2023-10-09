@@ -1,7 +1,7 @@
 import { DbConnection } from './services-db/_dbConnection'
 import { environment, port } from './env-variables'
 import { Logger } from './services/log-services'
-import { rateLimit } from 'express-rate-limit'
+// import { rateLimit } from 'express-rate-limit'
 import { setUpUser } from './services/set-up-user-service'
 import { socketConnection } from './services/broadcast-services'
 import * as controllers from './controllers'
@@ -19,20 +19,20 @@ export const recoveryTokensExpiresIn = 24*60*60*1000  // 24 hs
 export const invitationNewUserExpiresIn = 7*24*60*60*1000  // 7 days
 export const domain = "https://www.misericordiaweb.com"
 export const testingDomain = "http://localhost:3000"
-export const dbClient = new DbConnection(testingDb)
+export const dbClient = new DbConnection(false)
 export const logger = new Logger()
 export const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 
 const app = express()
 app.use(cors({ origin: isProduction ? [domain] : [domain, testingDomain] }))
-app.use(rateLimit({
-	windowMs: 15*60*1000, // 15 minutes
-	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-	standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
-	legacyHeaders: false // Disable the `X-RateLimit-*` headers
-    // skip: (req, res) => ['192.168.0.56', '192.168.0.21'].includes(req.ip),
-	// store: ... , // Use an external store for more precise rate limiting
-}))
+// app.use(rateLimit({
+// 	windowMs: 15*60*1000, // 15 minutes
+// 	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+// 	standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+// 	legacyHeaders: false // Disable the `X-RateLimit-*` headers
+//     // skip: (req, res) => ['192.168.0.56', '192.168.0.21'].includes(req.ip),
+// 	// store: ... , // Use an external store for more precise rate limiting
+// }))
 app.use(express.json() as RequestHandler)
 app.use(express.urlencoded({ extended: false }) as RequestHandler)
 app.use(morgan('dev') as RequestHandler)
@@ -230,6 +230,18 @@ export const server = app.listen(port, () => {
     console.log(`\n\n\nListening on port ${port}`)
     socketConnection(isProduction)
 
+    // setTimeout(async () => {
+    //     const tt = await getAllTelephonicTerritoriesService(null)
+    //     const htht  = await getHTHTerritoriesForMapService(null)
+    //     if (!tt || !htht) return;
+    //     tt.forEach(t => {
+    //         dbClient.Client.db(dbClient.DbMW).collection(dbClient.CollHTHTerritories).updateOne(
+    //             { congregation: 1, territoryNumber: t.territoryNumber },
+    //             { $set: { mapUrl: `https://drive.google.com/uc?export=view&id=${t.mapId}` } }
+    //         )
+    //         console.log(t.territoryNumber, t.mapId);
+    //     })
+    // }, 6000);
     // setTimeout(async () => {
         
     //     const territories = await getHTHTerritoriesService()

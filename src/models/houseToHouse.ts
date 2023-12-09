@@ -41,6 +41,8 @@ export type typeHTHBuilding = {
     reverseOrderX: boolean
     reverseOrderY: boolean
     streetNumber: number
+    streetNumber2?: number
+    streetNumber3?: number
 }
 
 export type typeHTHHousehold = {

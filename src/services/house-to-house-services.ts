@@ -24,6 +24,18 @@ export const addHTHBuildingService = async (requesterUser: types.typeUser, terri
     if (!hthTerritory) return false
     const currentPolygon: types.typePolygon|undefined = hthTerritory.map.polygons.find(x => x.block === block && x.face === face)
     if (!currentPolygon) return false
+    if (newBuilding.streetNumber2 && newBuilding.streetNumber3) {
+        const streetNumbers = [newBuilding.streetNumber, newBuilding.streetNumber2, newBuilding.streetNumber3]
+        streetNumbers.sort((a, b) => a - b)
+        newBuilding.streetNumber = streetNumbers[0]
+        newBuilding.streetNumber2 = streetNumbers[1] !== streetNumbers[0] ? streetNumbers[1] : undefined
+        newBuilding.streetNumber3 = streetNumbers[2] !== streetNumbers[1] ? streetNumbers[2] : undefined
+    } else if (newBuilding.streetNumber2) {
+        const streetNumbers = [newBuilding.streetNumber, newBuilding.streetNumber2]
+        streetNumbers.sort((a, b) => a - b)
+        newBuilding.streetNumber = streetNumbers[0]
+        newBuilding.streetNumber2 = streetNumbers[1] !== streetNumbers[0] ? streetNumbers[1] : undefined
+    }    
     if (currentPolygon.buildings && currentPolygon.buildings.some(x => x.streetNumber === newBuilding.streetNumber)) return 'alreadyExists'
     const id: number = Date.now()
     const building: types.typeHTHBuilding = {
@@ -46,7 +58,9 @@ export const addHTHBuildingService = async (requesterUser: types.typeUser, terri
         numberPerLevel: newBuilding.numberPerLevel,
         reverseOrderX: newBuilding.reverseOrderX,
         reverseOrderY: newBuilding.reverseOrderY,
-        streetNumber: newBuilding.streetNumber
+        streetNumber: newBuilding.streetNumber,
+        streetNumber2: newBuilding.streetNumber2,
+        streetNumber3: newBuilding.streetNumber3
     }
     if (newBuilding.manager) building.manager = newBuilding.manager
     const success: boolean = await houseToHouseDbConnection.AddHTHBuilding(requesterUser.congregation, territoryNumber, block, face, building)

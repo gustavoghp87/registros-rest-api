@@ -8,9 +8,13 @@ import * as types from '../models'
 
 const houseToHouseDbConnection = new HouseToHouseDb()
 
+const hasAssignment = (user: types.typeUser, territoryNumber?: string): boolean =>
+    !!user && (user.role > 0 || (!!territoryNumber && !!user.hthAssignments?.includes(parseInt(territoryNumber))))
+;
+
 export const addHTHBuildingService = async (requesterUser: types.typeUser, territoryNumber: types.typeTerritoryNumber,
  block: types.typeBlock, face: types.typeFace, newBuilding: types.typeHTHBuilding): Promise<boolean|'dataError'|'alreadyExists'> => {
-    if (!requesterUser || (requesterUser.role !== 1 && !requesterUser.hthAssignments?.includes(parseInt(territoryNumber)))) return false
+    if (!requesterUser?.role) return false
     if (!territoryNumber || !block || !face || !newBuilding || typeof newBuilding.streetNumber !== 'number'
      || !newBuilding.households || !newBuilding.households.length) return 'dataError'
     newBuilding.hasCharacters = !!newBuilding.hasCharacters
@@ -36,7 +40,17 @@ export const addHTHBuildingService = async (requesterUser: types.typeUser, terri
         newBuilding.streetNumber = streetNumbers[0]
         newBuilding.streetNumber2 = streetNumbers[1] !== streetNumbers[0] ? streetNumbers[1] : undefined
     }    
-    if (currentPolygon.buildings && currentPolygon.buildings.some(x => x.streetNumber === newBuilding.streetNumber)) return 'alreadyExists'
+    if (currentPolygon.buildings && currentPolygon.buildings.some(x =>
+        x.streetNumber === newBuilding.streetNumber
+        || (newBuilding.streetNumber2 && x.streetNumber === newBuilding.streetNumber2)
+        || (newBuilding.streetNumber3 && x.streetNumber === newBuilding.streetNumber3)
+        || (x.streetNumber2 && x.streetNumber2 === newBuilding.streetNumber)
+        || (x.streetNumber2 && newBuilding.streetNumber2 && x.streetNumber2 === newBuilding.streetNumber2)
+        || (x.streetNumber2 && newBuilding.streetNumber3 && x.streetNumber2 === newBuilding.streetNumber3)
+        || (x.streetNumber3 && x.streetNumber3 === newBuilding.streetNumber)
+        || (x.streetNumber3 && newBuilding.streetNumber2 && x.streetNumber3 === newBuilding.streetNumber2)
+        || (x.streetNumber3 && newBuilding.streetNumber2 && x.streetNumber3 === newBuilding.streetNumber3)
+    )) return 'alreadyExists'
     const id: number = Date.now()
     const building: types.typeHTHBuilding = {
         creatorId: requesterUser.id,
@@ -74,7 +88,7 @@ export const addHTHBuildingService = async (requesterUser: types.typeUser, terri
 
 export const addHTHDoNotCallService = async (requesterUser: types.typeUser, territoryNumber: types.typeTerritoryNumber,
  block: types.typeBlock, face: types.typeFace, polygonId: number, doNotCall: types.typeDoNotCall): Promise<boolean> => {
-    if (!requesterUser) return false
+    if (!hasAssignment(requesterUser, territoryNumber)) return false
     if (!territoryNumber || !block || !face || !doNotCall || !doNotCall.date || !doNotCall.id || !doNotCall.streetNumber || !polygonId) return false
     doNotCall.creatorId = requesterUser.id
     doNotCall.deleted = false
@@ -89,7 +103,7 @@ export const addHTHDoNotCallService = async (requesterUser: types.typeUser, terr
 
 export const addHTHObservationService = async (requesterUser: types.typeUser, territoryNumber: types.typeTerritoryNumber,
  block: types.typeBlock, face: types.typeFace, polygonId: number, observation: types.typeObservation): Promise<boolean> => {
-    if (!requesterUser) return false
+    if (!hasAssignment(requesterUser, territoryNumber)) return false
     if (!territoryNumber || !block || !face || !observation || !observation.date || !observation.id || !observation.text || !polygonId) return false
     block = block.toString() as types.typeBlock
     observation.creatorId = requesterUser.id
@@ -104,7 +118,7 @@ export const addHTHObservationService = async (requesterUser: types.typeUser, te
 }
 
 export const addHTHPolygonFaceService = async (requesterUser: types.typeUser, territoryNumber: types.typeTerritoryNumber, polygon: types.typePolygon): Promise<boolean> => {
-    if (!requesterUser || requesterUser.role !== 1) return false
+    if (requesterUser?.role !== 1) return false
     if (!territoryNumber || !polygon || !polygon.block || !polygon.face || !polygon.id ||
         !polygon.doNotCalls || !polygon.observations ||
         !polygon.coordsPoint1 || !polygon.coordsPoint2 || !polygon.coordsPoint3 ||
@@ -125,7 +139,7 @@ export const changeStateToHTHHouseholdService = async (requesterUser: types.type
     // freed
     if (!congregation || !territoryNumber || !block || !face || !householdId || typeof householdId !== 'number') return false
     isChecked = !!isChecked
-    if (!requesterUser || (requesterUser.role !== 1 && !requesterUser.hthAssignments?.includes(parseInt(territoryNumber)))) {
+    if (!hasAssignment(requesterUser, territoryNumber)) {
         const hthTerritory = await getHTHTerritoryServiceWithoutPermissions(congregation, territoryNumber)
         if (!hthTerritory) return false
         const polygon = hthTerritory.map.polygons.find(a => a.block === block && a.face === face && a.buildings.find(b => b.streetNumber === streetNumber && !!b.dateOfLastSharing && getCurrentLocalDate() === getCurrentLocalDate(b.dateOfLastSharing)))
@@ -147,7 +161,7 @@ export const changeStateToHTHHouseholdService = async (requesterUser: types.type
 
 export const createHTHTerritoriesService = async (
  requesterUser: types.typeUser, numberOfTerritories: number, lat: number, lng: number): Promise<boolean> => {
-    if (!requesterUser || requesterUser.role !== 1) return false
+    if (requesterUser?.role !== 1) return false
     if (!numberOfTerritories || !Number.isInteger(numberOfTerritories) || !lat || !lng || typeof lat !== 'number' || typeof lng !== 'number') return false
     const success: boolean = await houseToHouseDbConnection.CreateHTHTerritories(requesterUser.congregation, requesterUser.id, numberOfTerritories, lat, lng)
     if (success) {
@@ -159,13 +173,13 @@ export const createHTHTerritoriesService = async (
 
 export const deleteHTHBuildingService = async (requesterUser: types.typeUser,
  territoryNumber: types.typeTerritoryNumber, block: types.typeBlock, face: types.typeFace, streetNumber: number): Promise<boolean> => {
-    if (!requesterUser) return false
-    if (requesterUser.role !== 1) {
-        const currentBuilding = (await getHTHTerritoryServiceWithoutPermissions(requesterUser.congregation, territoryNumber))?.map.polygons.find(p => p.block === block && p.face === face)?.buildings.find(b => b.streetNumber === streetNumber)
-        if (!currentBuilding || currentBuilding.creatorId !== requesterUser.id) {
-            return false
-        }
-    }
+    if (!requesterUser?.role) return false
+    // if (requesterUser.role !== 1) {
+    //     const currentBuilding = (await getHTHTerritoryServiceWithoutPermissions(requesterUser.congregation, territoryNumber))?.map.polygons.find(p => p.block === block && p.face === face)?.buildings.find(b => b.streetNumber === streetNumber)
+    //     if (!currentBuilding || currentBuilding.creatorId !== requesterUser.id) {
+    //         return false
+    //     }
+    // }
     if (!territoryNumber || !block || !face || !streetNumber) return false
     const success: boolean = await houseToHouseDbConnection.DeleteHTHBuilding(requesterUser.congregation, territoryNumber, block, face, streetNumber)
     if (success) {
@@ -178,7 +192,7 @@ export const deleteHTHBuildingService = async (requesterUser: types.typeUser,
 
 export const deleteHTHDoNotCallService = async (requesterUser: types.typeUser, territoryNumber: types.typeTerritoryNumber,
  block: types.typeBlock, face: types.typeFace, doNotCallId: number): Promise<boolean> => {
-    if (!requesterUser) return false
+    if (!hasAssignment(requesterUser, territoryNumber)) return false
     if (!territoryNumber || !doNotCallId || !block || !face) return false
     const success: boolean = await houseToHouseDbConnection.DeleteHTHDoNotCall(requesterUser.congregation, territoryNumber, block, face, doNotCallId)
     if (success) {
@@ -191,7 +205,7 @@ export const deleteHTHDoNotCallService = async (requesterUser: types.typeUser, t
 
 export const deleteHTHObservationService = async (requesterUser: types.typeUser, territoryNumber: types.typeTerritoryNumber,
  block: types.typeBlock, face: types.typeFace, observationId: number): Promise<boolean> => {
-    if (!requesterUser) return false
+    if (!hasAssignment(requesterUser, territoryNumber)) return false
     if (!territoryNumber || !block || !face || !observationId) return false
     const success: boolean = await houseToHouseDbConnection.DeleteHTHObservation(requesterUser.congregation, territoryNumber, block, face, observationId)
     if (success) {
@@ -204,7 +218,7 @@ export const deleteHTHObservationService = async (requesterUser: types.typeUser,
 
 export const deleteHTHPolygonFaceService = async (requesterUser: types.typeUser,
  territoryNumber: types.typeTerritoryNumber, block: types.typeBlock, face: types.typeFace, faceId: number): Promise<boolean> => {
-    if (!requesterUser || requesterUser.role !== 1) return false
+    if (requesterUser?.role !== 1) return false
     if (!block || !face || !faceId) return false
     const hthTerritory: types.typeHTHTerritory|null = await getHTHTerritoryServiceWithoutPermissions(requesterUser.congregation, territoryNumber)
     if (!hthTerritory?.map?.polygons
@@ -221,7 +235,7 @@ export const deleteHTHPolygonFaceService = async (requesterUser: types.typeUser,
 
 export const editHTHObservationService = async (requesterUser: types.typeUser, territoryNumber: types.typeTerritoryNumber,
  block: types.typeBlock, face: types.typeFace, observation: types.typeObservation): Promise<boolean> => {
-    if (!requesterUser) return false
+    if (!hasAssignment(requesterUser, territoryNumber)) return false
     if (!territoryNumber || !observation || !observation.id || !observation.date || !observation.text || !block || !face) return false
     const success: boolean = await houseToHouseDbConnection.EditHTHObservation(requesterUser.congregation, territoryNumber, block, face, observation)
     if (success) {
@@ -234,7 +248,7 @@ export const editHTHObservationService = async (requesterUser: types.typeUser, t
 
 export const editHTHMapService = async (requesterUser: types.typeUser,
     territoryNumber: types.typeTerritoryNumber, editedHTHMap: types.typeHTHMap, editedHTHPolygons: types.typePolygon[]): Promise<boolean> => {
-    if (!requesterUser || requesterUser.role !== 1) return false
+    if (requesterUser?.role !== 1) return false
     if (!editedHTHMap || !editedHTHMap.zoom || !editedHTHMap.centerCoords || !editedHTHMap.centerCoords.lat || !editedHTHMap.centerCoords.lng) return false
     const centerCoords: types.typeCoords = editedHTHMap.centerCoords
     const zoom: number = editedHTHMap.zoom
@@ -273,7 +287,7 @@ export const editHTHMapService = async (requesterUser: types.typeUser,
 // }
 
 export const getHTHTerritoriesForStatisticsService = async (requesterUser: types.typeUser): Promise<types.typeHTHTerritory[]|null> => {
-    if (!requesterUser || requesterUser.role !== 1) return null
+    if (requesterUser?.role !== 1) return null
     const hthTerritories: types.typeHTHTerritory[]|null = await houseToHouseDbConnection.GetHTHTerritories(requesterUser.congregation)
     return hthTerritories
 }
@@ -331,7 +345,7 @@ export const getHTHBuildingService = async (congregation: number, territoryNumbe
 export const getHTHTerritoryService = async (requesterUser: types.typeUser, territoryNumber: types.typeTerritoryNumber): Promise<types.typeHTHTerritory|null> => {
     if (!requesterUser || !territoryNumber) return null
     const config = await getConfigNotAuthedService(requesterUser.congregation)
-    if (requesterUser.role !== 1 && !requesterUser.hthAssignments?.includes(parseInt(territoryNumber)) && config?.isDisabledHthBuildingsForUnassignedUsers) {
+    if (!requesterUser.role && !requesterUser.hthAssignments?.includes(parseInt(territoryNumber)) && config?.isDisabledHthBuildingsForUnassignedUsers) {
         return null
     }
     const hthTerritory: types.typeHTHTerritory|null = await getHTHTerritoryServiceWithoutPermissions(requesterUser.congregation, territoryNumber)
@@ -359,7 +373,7 @@ export const getHTHStreetsByTerritoryService = async (requesterUser: types.typeU
 
 export const setHTHIsFinishedService = async (requesterUser: types.typeUser, territoryNumber: types.typeTerritoryNumber,
  block: types.typeBlock, face: types.typeFace, polygonId: number, isFinished: boolean, isAll: boolean): Promise<boolean> => {
-    if (!requesterUser) return false
+    if (!hasAssignment(requesterUser, territoryNumber)) return false
     if (!territoryNumber || isFinished === undefined) return false
     if (isAll) {
         const territory = await getHTHTerritoryServiceWithoutPermissions(requesterUser.congregation, territoryNumber)
@@ -397,7 +411,7 @@ export const setHTHIsFinishedService = async (requesterUser: types.typeUser, ter
 
 export const setHTHIsSharedBuildingsService = async (requesterUser: types.typeUser, territoryNumber: types.typeTerritoryNumber,
  block: types.typeBlock, face: types.typeFace, polygonId: number, streetNumbers: number[]): Promise<boolean> => {
-    if (!requesterUser || (requesterUser.role !== 1 && !requesterUser.hthAssignments?.includes(parseInt(territoryNumber)))) return false
+    if (!hasAssignment(requesterUser, territoryNumber)) return false
     if (!territoryNumber) return false
     const success: boolean =  await houseToHouseDbConnection.SetHTHIsSharedBuildings(requesterUser.congregation, territoryNumber, block, face, polygonId, streetNumbers)
     if (!block) {

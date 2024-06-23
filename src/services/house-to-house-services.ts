@@ -142,7 +142,17 @@ export const changeStateToHTHHouseholdService = async (requesterUser: types.type
     if (!hasAssignment(requesterUser, territoryNumber)) {
         const hthTerritory = await getHTHTerritoryServiceWithoutPermissions(congregation, territoryNumber)
         if (!hthTerritory) return false
-        const polygon = hthTerritory.map.polygons.find(a => a.block === block && a.face === face && a.buildings.find(b => b.streetNumber === streetNumber && !!b.dateOfLastSharing && getCurrentLocalDate() === getCurrentLocalDate(b.dateOfLastSharing)))
+        const polygon = hthTerritory.map.polygons.find(a =>
+            a.block === block
+            && a.face === face
+            && a.buildings.find(b =>
+                b.streetNumber === streetNumber
+                && !!b.dateOfLastSharing
+                && (getCurrentLocalDate() === getCurrentLocalDate(b.dateOfLastSharing)
+                    || (b.dateOfLastMonthlySharing && b.dateOfLastMonthlySharing >= Date.now() - 30*24*60*60*1000)
+                )
+            )
+        )
         if (!polygon) return false
     }
     let success = false
@@ -322,7 +332,10 @@ export const getHTHBuildingService = async (congregation: number, territoryNumbe
     if (!hthTerritory || !polygon) return null
     const building: types.typeHTHBuilding|undefined = polygon?.buildings.find(b => b.streetNumber === streetNumber)
     if (!building) return null
-    if (!building.dateOfLastSharing || getCurrentLocalDate() !== getCurrentLocalDate(building.dateOfLastSharing)) {
+    if (
+        (!building.dateOfLastSharing || getCurrentLocalDate() !== getCurrentLocalDate(building.dateOfLastSharing))
+        && (!building.dateOfLastMonthlySharing || building.dateOfLastMonthlySharing < Date.now() - 30*24*60*60*1000)
+    ) {
         return 'notSharedToday'
     }
     return {
@@ -432,6 +445,23 @@ export const setHTHIsSharedBuildingsService = async (requesterUser: types.typeUs
         } else {
             logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo compartir edificios por WhatsApp: territorio ${territoryNumber} manzana ${block} cara ${face} números ${streetNumbers}`, errorLogs)
         }
+    }
+    return success
+}
+
+export const shareHTHBuildingForAMonthService = async (requesterUser: types.typeUser, territoryNumber: types.typeTerritoryNumber,
+ block: types.typeBlock, face: types.typeFace, streetNumber: number): Promise<boolean> => {
+    if (!requesterUser || requesterUser.role === 0) return false
+    if (!territoryNumber || !block || !face || !streetNumber) return false
+    const hthTerritory = await getHTHTerritoryServiceWithoutPermissions(requesterUser.congregation, territoryNumber)
+    const polygon = hthTerritory?.map.polygons.find(p => p.block === block && p.face === face)
+    const building: types.typeHTHBuilding|undefined = polygon?.buildings.find(b => b.streetNumber === streetNumber)
+    if (!polygon || !building) return false
+    const success: boolean =  await houseToHouseDbConnection.SetHTHIsSharedForAMonthBuilding(requesterUser.congregation, territoryNumber, block, face, streetNumber)
+    if (success) {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} compartió por 30 días el edificio ${polygon.street} ${building.streetNumber} del territorio ${territoryNumber}`, houseToHouseLogs)
+    } else {
+        logger.Add(requesterUser.congregation, `${requesterUser.email} no pudo compartir por 30 días el edificio ${polygon.street} ${building.streetNumber} del territorio ${territoryNumber}`, errorLogs)
     }
     return success
 }

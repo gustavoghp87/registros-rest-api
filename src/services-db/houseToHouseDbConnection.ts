@@ -354,4 +354,20 @@ export class HouseToHouseDb {
             return false
         }
     }
+    async SetHTHIsSharedForAMonthBuilding(congregation: number, territoryNumber: typeTerritoryNumber,
+     block: typeBlock, face: typeFace, streetNumber: number): Promise<boolean> {
+        try {
+            if (!congregation || !territoryNumber || !block || !face || !streetNumber)
+                throw new Error("No llegaron datos")
+            const result: UpdateResult|null = await getCollection().updateOne(
+                { congregation, territoryNumber },
+                { $set: { 'map.polygons.$[x].buildings.$[y].dateOfLastMonthlySharing': Date.now() } },
+                { arrayFilters: [{ 'x.block': block, 'x.face': face }, { 'y.streetNumber': streetNumber }]}
+            )
+            return !!result?.modifiedCount
+        } catch (error) {
+            logger.Add(congregation, `Falló SetHTHIsSharedForAMonthBuilding() territorio ${territoryNumber} manzana ${block} cara ${face} número ${streetNumber}: ${error}`, errorLogs)
+            return false
+        }
+    }
 }

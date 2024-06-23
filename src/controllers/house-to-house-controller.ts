@@ -156,6 +156,16 @@ export const houseToHouseController: Router = express.Router()
         res.json({ success: result === true, dataError: result === 'dataError', alreadyExists: result === 'alreadyExists' })
     })
 
+    // share building for 30 days
+    .patch('/building/:territoryNumber', async (req: Request, res: Response) => {
+        const block = req.query.block as types.typeBlock
+        const face = req.query.face as types.typeFace
+        const streetNumber = parseInt(req.query.streetNumber as string)
+        const territoryNumber = req.params.territoryNumber as unknown as types.typeTerritoryNumber
+        const success: boolean = await hTHServices.shareHTHBuildingForAMonthService(req.user, territoryNumber, block, face, streetNumber)
+        res.json({ success })
+    })
+
     // modify household called state
     .patch('/building/:congregation/:territoryNumber/:block/:face', async (req: Request, res: Response) => {
         const congregation = parseInt(req.params.congregation)

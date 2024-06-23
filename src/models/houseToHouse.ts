@@ -29,6 +29,7 @@ export type typeObservation = {
 
 export type typeHTHBuilding = {
     creatorId: number
+    dateOfLastMonthlySharing?: number
     dateOfLastSharing: number
     hasCharacters: boolean
     hasContinuousNumbers: boolean
